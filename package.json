@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "workspaces": [
+    "react-neos",
+    "react-neos-renderer",
+    "react-neos-example"
+  ]
+}
