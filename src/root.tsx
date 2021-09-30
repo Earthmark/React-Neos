@@ -1,11 +1,10 @@
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
-import neosRenderer from "react-neos-renderer";
-import {Color} from 'react-neos';
+import neosRenderer from './NeosRenderer';
 
 type Potato = {
   name: string;
-  color: Color;
+  color: [number, number, number];
 }
 
 const Helper2 = () => {
@@ -49,7 +48,9 @@ const test = TestRenderer.create(
   <Helper2/>
 </div>);
 
-const renderer = neosRenderer();
-renderer.render(<Helper2 />);
-
-console.log(JSON.stringify(test.toJSON(), null, 2));
+export default () => {
+  const renderer = neosRenderer();
+  renderer.render(<Helper2 />);
+  
+  console.log(JSON.stringify(test.toJSON(), null, 2));
+}

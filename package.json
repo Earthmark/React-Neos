@@ -1,8 +1,31 @@
 {
-  "private": true,
-  "workspaces": [
-    "react-neos",
-    "react-neos-renderer",
-    "react-neos-example"
-  ]
+  "name": "react-neos",
+  "version": "1.0.0",
+  "main": "./src/index.ts",
+  "license": "MIT",
+  "scripts": {
+    "test": "yarn jest",
+    "build": "tsc",
+    "start": "ts-node ."
+  },
+  "dependencies": {
+    "@types/node": "^16.10.1",
+    "@types/react-test-renderer": "^17.0.1",
+    "jest": "^27.2.4",
+    "react": "^17.0.2",
+    "react-reconciler": "^0.26.2",
+    "react-test-renderer": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.2",
+    "@types/react": "^17.0.24",
+    "@types/react-reconciler": "^0.26.3",
+    "ts-jest": "^27.0.5",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  },
+  "peerDependencies": {},
+  "jest": {
+    "preset": "ts-jest/presets/default-esm"
+  }
 }

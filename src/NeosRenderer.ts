@@ -1,6 +1,6 @@
 import React from "react";
 import Reconciler from "react-reconciler";
-import NeosElements from "react-neos";
+import { NeosElements } from "./NeosElement";
 
 type ElementType3D = "transform" | "smoothTransform";
 type ElementType2D = "barrier";
