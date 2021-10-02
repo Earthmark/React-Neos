@@ -2,39 +2,116 @@ import React from "react";
 import Reconciler from "react-reconciler";
 import { NeosElements } from "./NeosElement";
 
-type ElementType3D = "transform" | "smoothTransform";
-type ElementType2D = "barrier";
+interface BaseElement {
+  id: string;
+  parent?: BaseElement;
+}
 
-type Element3D = {
-  children: Array<Element3D>;
-};
+interface ChildElement<ChildType> extends BaseElement {
+  children: Array<ChildType>;
+}
 
-type Element2D = {
-  children: Array<Element2D>;
-};
+interface Element3D extends ChildElement<Element3D> {}
+
+interface Element2D extends ChildElement<Element2D> {}
 
 type Type = keyof NeosElements;
-type Props = {
-  children: any;
-};
-type Container = {
-  children: Array<Instance | TextInstance>;
-  tag: "CONTAINER";
-};
-type Instance = Element3D | Element2D;
-type TextInstance = Element3D | Element2D;
-type SuspenseInstance = {};
-type HydratableInstance = {};
-type PublicInstance = Element3D | Element2D;
-type UpdatePayload = {};
-type ChildSet = {};
-type NoTimeout = {};
 
-interface Element3DHostContext {
+interface Container {
+  children: Array<BaseElement>;
+}
+
+type Instance = Element3D | Element2D;
+
+interface PropDelta {}
+
+interface Props {}
+
+type ElementId = string;
+
+interface CreateSignal {
+  signal: "Create";
+  id: ElementId;
+  type: string;
+  parent: ElementId;
+  props: Record<string, string>;
+}
+
+interface MountSignal {
+  signal: "Mount";
+  id: ElementId;
+}
+
+interface RemoveSignal {
+  signal: "Remove";
+  id: ElementId;
+}
+
+interface UpdateSignal {
+  signal: "Update";
+  id: ElementId;
+  propsDelta: Record<string, string>;
+}
+
+interface SetParentSignal {
+  signal: "SetParent";
+  childId: ElementId;
+  parentId: ElementId;
+}
+
+type OutboundSignal =
+  | CreateSignal
+  | MountSignal
+  | RemoveSignal
+  | UpdateSignal
+  | SetParentSignal;
+
+interface EventSignal {
+  signal: "Event";
+  id: ElementId;
+  event: string;
+  payload: string;
+}
+
+type PropertyAssignments<Prop> = [
+  keyof Prop,
+  string,
+  ...PropertyAssignments<Prop>[]
+];
+
+type ElementPropStringify<Properties> = (
+  props: Properties
+) => PropertyAssignments<Properties> | [];
+
+const propsStringify: {
+  [key in keyof NeosElements]: ElementPropStringify<NeosElements[key]>;
+} = {
+  nSlot(props) {
+    return [];
+  },
+  nSmoothTransform(props) {
+    return [];
+  },
+  nCanvas(props) {
+    return [];
+  },
+  nRectTransform(props) {
+    return [];
+  },
+  nText(props) {
+    return [];
+  },
+};
+
+interface BaseHostContext {
+  id: string;
+}
+
+interface Element3DHostContext extends BaseHostContext {
   type: "element3d";
 }
 
-interface Element2DHostContext {
+interface Element2DHostContext extends BaseHostContext {
   type: "element2d";
 }
 
@@ -46,14 +123,14 @@ const reconciler = Reconciler<
   Container,
   Instance,
   void,
-  SuspenseInstance,
-  HydratableInstance,
-  PublicInstance,
+  void,
+  void,
+  void,
   HostContext,
-  UpdatePayload,
-  ChildSet,
+  PropDelta,
+  void,
   NodeJS.Timer,
-  NoTimeout
+  number
 >({
   supportsMutation: true,
   supportsHydration: false,
@@ -64,6 +141,7 @@ const reconciler = Reconciler<
   createInstance(type, props) {
     console.log("createInstance", type, props);
     const base = {
+      id: "_",
       children: [],
     };
     switch (type) {
@@ -80,7 +158,6 @@ const reconciler = Reconciler<
     container.children = [];
   },
   createTextInstance(text, rootContainerInstance) {
-    console.log("createTextInstance");
     throw new Error(
       "Manually setting text isn't supported, wrap it in a text element."
     );
@@ -97,23 +174,24 @@ const reconciler = Reconciler<
       container.children.push(child);
     }
   },
-  finalizeInitialChildren(element, type, props) {
+  finalizeInitialChildren(instance, type, props) {
     console.log("finalizeInitialChildren");
     return false;
   },
-  prepareUpdate(element, type, oldProps, newProps) {
+  prepareUpdate(instance, type, oldProps, newProps) {
     console.log("prepareUpdate");
     return null;
   },
   shouldSetTextContent(type, props) {
     console.log("shouldSetTextContent");
-    return type === "nText" && typeof props.children === "string";
+    return type === "nText";
   },
 
   getRootHostContext(container) {
     console.log("getRootHostContext");
     return {
       type: "element3d",
+      id: "_",
     };
   },
   getChildHostContext(parentHostContext, type, rootContainerInstance) {
@@ -121,9 +199,13 @@ const reconciler = Reconciler<
     if (type === "nCanvas") {
       return {
         type: "element2d",
+        id: parentHostContext.id + ".",
       };
     } else {
-      return parentHostContext;
+      return {
+        type: "element3d",
+        id: parentHostContext.id + ".",
+      };
     }
   },
 
@@ -155,19 +237,21 @@ const reconciler = Reconciler<
   },
 });
 
-const createNeosRenderer = () => ({
-  render(node: React.ReactNode) {
-    const container = reconciler.createContainer(
-      {
-        children: [],
-        tag: "CONTAINER",
-      },
-      0,
-      false,
-      null
-    );
-    reconciler.updateContainer(node, container);
-  },
-});
+const createNeosRenderer = () => {
+  const container = reconciler.createContainer(
+    {
+      children: [],
+    },
+    0,
+    false,
+    null
+  );
+
+  return {
+    render(node: React.ReactNode) {
+      reconciler.updateContainer(node, container);
+    },
+  };
+};
 
 export default createNeosRenderer;

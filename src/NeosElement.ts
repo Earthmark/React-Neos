@@ -1,4 +1,5 @@
 import React from "react";
+import { Vec4D, Vec3D, Vec2D, Color } from "./BaseTypes";
 
 interface NeosRef {}
 
@@ -7,30 +8,19 @@ interface NeosElement extends React.ClassAttributes<NeosRef> {
   persistent?: boolean;
 }
 
-type ObjectVec4D = { x: number; y: number; z: number; w: number };
-type ArrayVec4D = [number, number, number, number];
-type SingleTVec4D = number;
-export type Vec4D = ObjectVec4D | ArrayVec4D | SingleTVec4D;
-
-type ObjectVec3D = { x: number; y: number; z: number };
-type ArrayVec3D = [number, number, number];
-type SingleTVec3D = number;
-export type Vec3D = ObjectVec3D | ArrayVec3D | SingleTVec3D;
-
-type ObjectVec2D = { x: number; y: number };
-type ArrayVec2D = [number, number];
-type SingleTVec2D = number;
-export type Vec2D = ObjectVec2D | ArrayVec2D | SingleTVec2D;
-
-type FixedColor = "red";
-// A single number is interpreted as a vec4.
-export type Color = Vec4D | Vec3D | FixedColor;
+interface Has3DChildren {
+  children?: DetailedNeos3DElementProps[] | DetailedNeos3DElementProps;
+}
+interface Has2DChildren {
+  children?: DetailedNeos2DElementProps[] | DetailedNeos2DElementProps;
+}
 
 type DetailedNeos3DElementProps = NeosElement & {
   position?: Vec3D;
   rotation?: Vec3D;
   scale?: Vec3D;
 };
+
 type DetailedNeos2DElementProps = NeosElement & {
   anchorMin?: Vec2D;
   anchorMax?: Vec2D;
@@ -40,22 +30,16 @@ type DetailedNeos2DElementProps = NeosElement & {
 };
 
 export interface NeosElements {
-  nSlot: DetailedNeos3DElementProps & {
-    children?: DetailedNeos3DElementProps[] | DetailedNeos3DElementProps;
-  };
-  nSmoothTransform: DetailedNeos3DElementProps & {
-    children?: DetailedNeos3DElementProps[] | DetailedNeos3DElementProps;
-  };
-  nCanvas: DetailedNeos3DElementProps & {
-    size?: Vec2D;
-    children?: DetailedNeos2DElementProps[] | DetailedNeos2DElementProps;
-  };
+  nSlot: DetailedNeos3DElementProps & Has3DChildren;
+  nSmoothTransform: DetailedNeos3DElementProps & Has3DChildren;
+  nCanvas: DetailedNeos3DElementProps &
+    Has2DChildren & {
+      size?: Vec2D;
+    };
 
-  nRectTransform: DetailedNeos2DElementProps & {
-    children?: DetailedNeos2DElementProps[] | DetailedNeos2DElementProps;
-  };
+  nRectTransform: DetailedNeos2DElementProps & Has2DChildren;
   nText: DetailedNeos2DElementProps & {
-    children?: string;
+    children?: Array<string>;
     nullText?: string;
     parseRichText?: boolean;
     horizontalAlignment?: "left" | "center" | "right" | "justify";

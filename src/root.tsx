@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import TestRenderer from 'react-test-renderer';
 import neosRenderer from './NeosRenderer';
 
@@ -7,7 +7,7 @@ type Potato = {
   color: [number, number, number];
 }
 
-const Helper2 = () => {
+const Helper2 = ({v}: {v: string}) => {
   const [scale, setScale] = React.useState(1);
   const [items, setItems] = React.useState<Potato[]>([{
     name: "russet",
@@ -28,8 +28,9 @@ const Helper2 = () => {
         <nRectTransform anchorMax={[0.25, 0.5]}>
           {
             items.map(item => 
-            <nText key={item.name} nullText="Tacos not provided..." color={item.color}>
-              I am a potato!
+            <nText key={item.name} nullText={v} color={item.color}>
+              I am a {v}
+              potato!
             </nText>)
           }
         </nRectTransform>
@@ -45,12 +46,14 @@ const Helper : () => JSX.Element = () => {
 const test = TestRenderer.create(
 <div>
   <Helper/>
-  <Helper2/>
+  <Helper2 v="Potato"/>
 </div>);
 
 export default () => {
   const renderer = neosRenderer();
-  renderer.render(<Helper2 />);
+  renderer.render(<Helper2 v="Taco" />);
+  console.log("Change done, re-rendering");
+  renderer.render(<Helper2 v="Tucana" />);
   
   console.log(JSON.stringify(test.toJSON(), null, 2));
 }
