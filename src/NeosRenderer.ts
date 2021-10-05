@@ -1,134 +1,34 @@
 import React from "react";
 import Reconciler from "react-reconciler";
-import { NeosElements } from "./NeosElement";
-
-interface BaseElement {
-  id: string;
-  parent?: BaseElement;
-}
-
-interface ChildElement<ChildType> extends BaseElement {
-  children: Array<ChildType>;
-}
-
-interface Element3D extends ChildElement<Element3D> {}
-
-interface Element2D extends ChildElement<Element2D> {}
-
-type Type = keyof NeosElements;
+import { ElementPropStringifyMap } from "./NeosElement";
+import { OutboundSignal, InboundSignal } from "./SignalFormatter";
+import { performance } from "perf_hooks";
 
 interface Container {
-  children: Array<BaseElement>;
+  rootId: string;
+  eventQueue: Array<OutboundSignal>;
+  eventSubscription: Record<string, (arg: string) => void>;
 }
 
-type Instance = Element3D | Element2D;
-
-interface PropDelta {}
-
-interface Props {}
-
-type ElementId = string;
-
-interface CreateSignal {
-  signal: "Create";
-  id: ElementId;
-  type: string;
-  parent: ElementId;
-  props: Record<string, string>;
-}
-
-interface MountSignal {
-  signal: "Mount";
-  id: ElementId;
-}
-
-interface RemoveSignal {
-  signal: "Remove";
-  id: ElementId;
-}
-
-interface UpdateSignal {
-  signal: "Update";
-  id: ElementId;
-  propsDelta: Record<string, string>;
-}
-
-interface SetParentSignal {
-  signal: "SetParent";
-  childId: ElementId;
-  parentId: ElementId;
-}
-
-type OutboundSignal =
-  | CreateSignal
-  | MountSignal
-  | RemoveSignal
-  | UpdateSignal
-  | SetParentSignal;
-
-interface EventSignal {
-  signal: "Event";
-  id: ElementId;
-  event: string;
-  payload: string;
-}
-
-type PropertyAssignments<Prop> = [
-  keyof Prop,
-  string,
-  ...PropertyAssignments<Prop>[]
-];
-
-type ElementPropStringify<Properties> = (
-  props: Properties
-) => PropertyAssignments<Properties> | [];
-
-const propsStringify: {
-  [key in keyof NeosElements]: ElementPropStringify<NeosElements[key]>;
-} = {
-  nSlot(props) {
-    return [];
-  },
-  nSmoothTransform(props) {
-    return [];
-  },
-  nCanvas(props) {
-    return [];
-  },
-  nRectTransform(props) {
-    return [];
-  },
-  nText(props) {
-    return [];
-  },
+type Instance = {
+  id: string;
+  container: Container;
 };
 
-interface BaseHostContext {
-  id: string;
-}
-
-interface Element3DHostContext extends BaseHostContext {
-  type: "element3d";
-}
-
-interface Element2DHostContext extends BaseHostContext {
-  type: "element2d";
-}
-
-type HostContext = Element3DHostContext | Element2DHostContext;
+var globalId: number = 1;
 
 const reconciler = Reconciler<
-  Type,
-  Props,
+  keyof typeof ElementPropStringifyMap,
+  {},
   Container,
   Instance,
+  never,
+  never,
+  never,
   void,
-  void,
-  void,
-  void,
-  HostContext,
-  PropDelta,
-  void,
+  {},
+  Array<string>,
+  never,
   NodeJS.Timer,
   number
 >({
@@ -138,120 +38,157 @@ const reconciler = Reconciler<
   noTimeout: -1,
   isPrimaryRenderer: true,
 
-  createInstance(type, props) {
-    console.log("createInstance", type, props);
-    const base = {
-      id: "_",
-      children: [],
-    };
-    switch (type) {
-      case "nSlot":
-        return base;
-      case "nSmoothTransform":
-        return base;
-      default:
-        return base;
+  createInstance(type, props, container) {
+    const arr: Array<string> = [];
+    ElementPropStringifyMap[type]({
+      oldProps: {},
+      newProps: props,
+      arr,
+    });
+    const id = `${globalId++}`;
+    container.eventQueue.push({
+      signal: "create",
+      id,
+      type,
+    });
+    if (arr.length > 0) {
+      container.eventQueue.push({
+        signal: "update",
+        id,
+        props: arr,
+      });
     }
+    return {
+      id,
+      container,
+    };
   },
-  clearContainer(container) {
-    console.log("clearContainer");
-    container.children = [];
-  },
-  createTextInstance(text, rootContainerInstance) {
+  createTextInstance() {
     throw new Error(
       "Manually setting text isn't supported, wrap it in a text element."
     );
   },
+
+  clearContainer(container) {
+    container.eventQueue.push({
+      signal: "remove",
+      id: container.rootId,
+    });
+  },
+
   appendInitialChild(parentInstance, child) {
-    console.log("appendInitialChild");
-    if (child !== undefined) {
-      parentInstance.children.push(child);
-    }
+    parentInstance.container.eventQueue.push({
+      signal: "setParent",
+      id: child.id,
+      parentId: parentInstance.id,
+    });
+  },
+
+  appendChild(parentInstance, child) {
+    parentInstance.container.eventQueue.push({
+      signal: "setParent",
+      id: child.id,
+      parentId: parentInstance.id,
+    });
   },
   appendChildToContainer(container, child) {
-    console.log("appendChildToContainer");
-    if (child) {
-      container.children.push(child);
-    }
+    container.eventQueue.push({
+      signal: "setParent",
+      id: child.id,
+      parentId: container.rootId,
+    });
   },
-  finalizeInitialChildren(instance, type, props) {
-    console.log("finalizeInitialChildren");
+
+  insertBefore(parentInstance, child, beforeChild) {
+    parentInstance.container.eventQueue.push({
+      signal: "setParent",
+      id: child.id,
+      parentId: parentInstance.id,
+      after: beforeChild.id,
+    });
+  },
+  insertInContainerBefore(container, child, beforeChild) {
+    container.eventQueue.push({
+      signal: "setParent",
+      id: child.id,
+      parentId: container.rootId,
+      after: beforeChild.id,
+    });
+  },
+
+  removeChild(parentInstance, child) {
+    child.container.eventQueue.push({
+      signal: "remove",
+      id: child.id,
+    });
+  },
+  removeChildFromContainer(container, child) {
+    child.container.eventQueue.push({
+      signal: "remove",
+      id: child.id,
+    });
+  },
+
+  finalizeInitialChildren() {
     return false;
   },
+
   prepareUpdate(instance, type, oldProps, newProps) {
-    console.log("prepareUpdate");
-    return null;
+    const arr: Array<string> = [];
+    ElementPropStringifyMap[type]({
+      oldProps: oldProps,
+      newProps: newProps,
+      arr,
+    });
+    return arr.length > 0 ? arr : null;
   },
-  shouldSetTextContent(type, props) {
-    console.log("shouldSetTextContent");
+
+  commitUpdate(instance, updatePayload) {
+    instance.container.eventQueue.push({
+      signal: "update",
+      id: instance.id,
+      props: updatePayload,
+    });
+  },
+
+  shouldSetTextContent(type) {
     return type === "nText";
   },
 
-  getRootHostContext(container) {
-    console.log("getRootHostContext");
-    return {
-      type: "element3d",
-      id: "_",
-    };
+  getRootHostContext() {
+    return {};
   },
-  getChildHostContext(parentHostContext, type, rootContainerInstance) {
-    console.log("getChildHostContext");
-    if (type === "nCanvas") {
-      return {
-        type: "element2d",
-        id: parentHostContext.id + ".",
-      };
-    } else {
-      return {
-        type: "element3d",
-        id: parentHostContext.id + ".",
-      };
-    }
+  getChildHostContext() {
+    return {};
   },
 
-  getPublicInstance(instance) {
-    console.log("getPublicInstance");
-    return instance!;
-  },
-  prepareForCommit(containerInfo) {
-    console.log("prepareForCommit");
+  getPublicInstance() {},
+  prepareForCommit() {
     return null;
   },
-  resetAfterCommit(containerInfo) {
-    console.log("resetAfterCommit");
-  },
-  preparePortalMount(containerInfo) {
-    console.log("preparePortalMount");
-  },
-  now() {
-    console.log("now");
-    return 0;
-  },
-  scheduleTimeout(fn, delay) {
-    console.log("scheduleTimeout");
-    return setTimeout(fn, delay);
-  },
-  cancelTimeout(id) {
-    console.log("cancelTimeout");
-    clearTimeout(id);
-  },
+  resetAfterCommit() {},
+  preparePortalMount() {},
+
+  now: performance.now,
+  scheduleTimeout: setTimeout,
+  cancelTimeout: clearTimeout,
 });
 
-const createNeosRenderer = () => {
-  const container = reconciler.createContainer(
-    {
-      children: [],
-    },
-    0,
-    false,
-    null
-  );
+export default function createNeosRenderer() {
+  const containerInfo = {
+    rootId: "root",
+    eventQueue: [],
+    eventSubscription: {},
+  };
+  const container = reconciler.createContainer(containerInfo, 0, false, null);
 
   return {
-    render(node: React.ReactNode) {
+    processEvent(event: InboundSignal) {},
+    render(node: React.ReactNode): Array<OutboundSignal> {
       reconciler.updateContainer(node, container);
+      const queue = containerInfo.eventQueue;
+      containerInfo.eventQueue = [];
+      return queue;
     },
   };
-};
-
-export default createNeosRenderer;
+}
