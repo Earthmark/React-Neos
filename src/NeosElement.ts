@@ -37,8 +37,29 @@ type ButtonNeos2DElementProps = DetailedNeos2DElementProps & {
   disableColor?: Color;
 };
 
+type SmoothTransformProps = DetailedNeos3DElementProps &
+  Has3DChildren & {
+    smoothTransformEnabled?: boolean;
+    smoothSpeed?: number;
+  };
+
+type SpinnerProps = DetailedNeos3DElementProps &
+  Has3DChildren & {
+    speed?: Vec3D;
+    range?: Vec3D;
+  };
+
+type BoxProps = DetailedNeos3DElementProps & {
+  albedoColor?: Color;
+  emissiveColor?: Color;
+  size?: Vec3D;
+  colliderActive?: boolean;
+  characterCollider?: boolean;
+  ignoreRaycasts?: boolean;
+};
+
 type TextElementProps = DetailedNeos2DElementProps & {
-  children?: Array<string>;
+  children?: Array<string> | string;
   nullContent?: string;
   color?: Color;
   size?: number;
@@ -46,13 +67,13 @@ type TextElementProps = DetailedNeos2DElementProps & {
   verticalAutoSize?: boolean;
 };
 
-type Nullable<T> = {
+type Optional<T> = {
   [P in keyof T]: T[P] | null | undefined;
 };
 
 interface FieldGatherer<Props> {
-  readonly oldProps: Nullable<Props>;
-  readonly newProps: Nullable<Props>;
+  readonly oldProps: Optional<Props>;
+  readonly newProps: Optional<Props>;
   arr: Array<string>;
   events: Record<string, (arg: string) => void>;
 }
@@ -111,6 +132,13 @@ const DetailedNeos3DElementPropsStringify: FieldStringify<DetailedNeos3DElementP
     DiffField(g, "scale", differs.float3);
   };
 
+const DetailedSmoothTransformPropsStringify: FieldStringify<SmoothTransformProps> =
+  (g) => {
+    DetailedNeos3DElementPropsStringify(g);
+    DiffField(g, "smoothTransformEnabled", differs.bool);
+    DiffField(g, "smoothSpeed", differs.float);
+  };
+
 const DetailedNeos2DElementPropsStringify: FieldStringify<DetailedNeos2DElementProps> =
   (g) => {
     NeosElementStringify(g);
@@ -124,6 +152,22 @@ const DetailedNeos2DElementPropsStringify: FieldStringify<DetailedNeos2DElementP
 const TextPropsStringify: FieldStringify<TextElementProps> = (g) => {
   DetailedNeos2DElementPropsStringify(g);
   DiffField(g, "children", differs.string);
+};
+
+const BoxPropsStringify: FieldStringify<BoxProps> = (g) => {
+  DetailedNeos3DElementPropsStringify(g);
+  DiffField(g, "albedoColor", differs.color);
+  DiffField(g, "emissiveColor", differs.color);
+  DiffField(g, "size", differs.float3);
+  DiffField(g, "colliderActive", differs.bool);
+  DiffField(g, "characterCollider", differs.bool);
+  DiffField(g, "ignoreRaycasts", differs.bool);
+};
+
+const SpinnerPropsStringify: FieldStringify<SpinnerProps> = (g) => {
+  DetailedNeos3DElementPropsStringify(g);
+  DiffField(g, "speed", differs.float3);
+  DiffField(g, "range", differs.float3);
 };
 
 const ButtonNeos2DElementPropsStringify: FieldStringify<ButtonNeos2DElementProps> =
@@ -146,7 +190,9 @@ function With2DChildren<T>(
 
 export const ElementPropStringifyMap = {
   nTransform: With3DChildren(DetailedNeos3DElementPropsStringify),
-  nSmoothTransform: With3DChildren(DetailedNeos3DElementPropsStringify),
+  nSmoothTransform: With3DChildren(DetailedSmoothTransformPropsStringify),
+  nSpinner: With3DChildren(SpinnerPropsStringify),
+  nBox: BoxPropsStringify,
   nCanvas: With2DChildren(DetailedNeos3DElementPropsStringify),
   nRectTransform: With2DChildren(DetailedNeos2DElementPropsStringify),
   nText: TextPropsStringify,

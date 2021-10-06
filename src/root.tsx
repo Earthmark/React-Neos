@@ -22,22 +22,11 @@ const Helper2 = ({v, i}: {v: string, i?: number}) => {
 
   return <nTransform position={[2, 3, 2]} scale={scale}>
     <nTransform rotation={[0, 0, 0]} scale={i}>
-      <nCanvas>
-        <nButton onPress={() => setItems(ite => [...ite, {
-          name: "new" + ite.length,
-          color: [1, 1, 1]
-        }])} >
-        </nButton>
-        <nRectTransform anchorMax={[0.25, 0.5]}>
-          {
-            items.map(item => 
-            <nText key={item.name} nullContent={v} color={item.color}>
-              I am a {v}
-              potato!
-            </nText>)
-          }
-        </nRectTransform>
-      </nCanvas>
+      <nSpinner speed={[0,60,0]}>
+        <nTransform position={[5,0,0]}>
+            <nBox />
+        </nTransform>
+      </nSpinner>
     </nTransform>
   </nTransform>;
 }

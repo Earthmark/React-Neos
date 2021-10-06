@@ -62,14 +62,14 @@ function WrapStringify<Input>(
   };
 }
 
-const f: Primitive<number, number> = {
+const float: Primitive<number, number> = {
   normalize: (value) => value,
   parse: handleParserNull((value) => parseFloat(value)),
   stringify: WrapStringify("float", (value) => value.toString(10)),
   equals: (a, b) => a === b,
 };
 
-const f2: Primitive<Vec2D, [number, number]> = {
+const float2: Primitive<Vec2D, [number, number]> = {
   normalize: (value) => {
     if (Array.isArray(value)) {
       return value;
@@ -89,7 +89,7 @@ const f2: Primitive<Vec2D, [number, number]> = {
   },
 };
 
-const f3: Primitive<Vec3D, [number, number, number]> = {
+const float3: Primitive<Vec3D, [number, number, number]> = {
   normalize: (value) => {
     if (Array.isArray(value)) {
       return value;
@@ -112,7 +112,7 @@ const f3: Primitive<Vec3D, [number, number, number]> = {
   },
 };
 
-const f4: Primitive<Vec4D, [number, number, number, number]> = {
+const float4: Primitive<Vec4D, [number, number, number, number]> = {
   normalize: (value) => {
     if (Array.isArray(value)) {
       return value;
@@ -135,7 +135,7 @@ const f4: Primitive<Vec4D, [number, number, number, number]> = {
   },
 };
 
-const c: Primitive<Color, [number, number, number, number]> = {
+const color: Primitive<Color, [number, number, number, number]> = {
   normalize: (value) => {
     if (Array.isArray(value)) {
       return value.length == 3 ? [...value, 1] : value;
@@ -161,7 +161,7 @@ const c: Primitive<Color, [number, number, number, number]> = {
   },
 };
 
-const fq: Primitive<Vec3D, [number, number, number]> = {
+const floatQ: Primitive<Vec3D, [number, number, number]> = {
   normalize: (value) => {
     if (Array.isArray(value)) {
       return value;
@@ -184,7 +184,7 @@ const fq: Primitive<Vec3D, [number, number, number]> = {
   },
 };
 
-const s: Primitive<string | Array<string>, string> = {
+const string: Primitive<string | Array<string>, string> = {
   normalize: (value) => {
     if (Array.isArray(value)) {
       return value.join(" ");
@@ -197,7 +197,7 @@ const s: Primitive<string | Array<string>, string> = {
   equals: (a, b) => a === b,
 };
 
-const b: Primitive<boolean, boolean> = {
+const bool: Primitive<boolean, boolean> = {
   normalize: (value) => value,
   parse: handleParserNull((value: string) => {
     return value === "true";
@@ -208,10 +208,9 @@ const b: Primitive<boolean, boolean> = {
   equals: (a, b) => a === b,
 };
 
-type DiffFunc<T> = (
-  o: T | null | undefined,
-  n: T | null | undefined
-) => string | null;
+type Optional<T> = T | null | undefined;
+
+type DiffFunc<T> = (o: Optional<T>, n: Optional<T>) => string | null;
 
 function differ<Input, StandardFormat>({
   normalize,
@@ -237,23 +236,23 @@ function differ<Input, StandardFormat>({
 }
 
 export const differs = {
-  float: differ(f),
-  float2: differ(f2),
-  float3: differ(f3),
-  float4: differ(f4),
-  floatQ: differ(fq),
-  color: differ(c),
-  string: differ(s),
-  bool: differ(b),
+  float: differ(float),
+  float2: differ(float2),
+  float3: differ(float3),
+  float4: differ(float4),
+  floatQ: differ(floatQ),
+  color: differ(color),
+  string: differ(string),
+  bool: differ(bool),
 };
 
 export const parsers = {
-  float: f.parse,
-  float2: f2.parse,
-  float3: f3.parse,
-  float4: f4.parse,
-  floatQ: fq.parse,
-  color: c.parse,
-  string: s.parse,
-  bool: b.parse,
+  float: float.parse,
+  float2: float2.parse,
+  float3: float3.parse,
+  float4: float4.parse,
+  floatQ: floatQ.parse,
+  color: color.parse,
+  string: string.parse,
+  bool: bool.parse,
 };
