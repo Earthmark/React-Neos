@@ -6,16 +6,15 @@ import { performance } from "perf_hooks";
 
 interface Container {
   rootId: string;
+  globalId: number;
   eventQueue: Array<OutboundSignal>;
-  eventSubscription: Record<string, (arg: string) => void>;
+  eventSubscription: Record<string, Record<string, (arg: string) => void>>;
 }
 
 type Instance = {
   id: string;
   container: Container;
 };
-
-var globalId: number = 1;
 
 const reconciler = Reconciler<
   keyof typeof ElementPropStringifyMap,
@@ -40,12 +39,13 @@ const reconciler = Reconciler<
 
   createInstance(type, props, container) {
     const arr: Array<string> = [];
+    const id = `${container.globalId++}`;
     ElementPropStringifyMap[type]({
       oldProps: {},
       newProps: props,
       arr,
+      events: (container.eventSubscription[id] = {}),
     });
-    const id = `${globalId++}`;
     container.eventQueue.push({
       signal: "create",
       id,
@@ -139,6 +139,7 @@ const reconciler = Reconciler<
       oldProps: oldProps,
       newProps: newProps,
       arr,
+      events: instance.container.eventSubscription[instance.id],
     });
     return arr.length > 0 ? arr : null;
   },
@@ -175,15 +176,24 @@ const reconciler = Reconciler<
 });
 
 export default function createNeosRenderer() {
-  const containerInfo = {
+  const containerInfo: Container = {
     rootId: "root",
+    globalId: 1,
     eventQueue: [],
     eventSubscription: {},
   };
   const container = reconciler.createContainer(containerInfo, 0, false, null);
 
   return {
-    processEvent(event: InboundSignal) {},
+    processEvent(signal: InboundSignal) {
+      const targetElem = containerInfo.eventSubscription[signal.id];
+      if (targetElem) {
+        const handler = targetElem[signal.event];
+        if (signal) {
+          handler(signal.arg);
+        }
+      }
+    },
     render(node: React.ReactNode): Array<OutboundSignal> {
       reconciler.updateContainer(node, container);
       const queue = containerInfo.eventQueue;

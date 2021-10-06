@@ -1,4 +1,4 @@
-import { DeltaSolver, nullSymbol, PrimitiveStandard } from "./Primitives";
+import { differs, nullSymbol, PrimitiveStandard } from "./Primitives";
 
 type DifferInput<T> = T extends (
   oldProps: infer Arg,
@@ -8,86 +8,86 @@ type DifferInput<T> = T extends (
   : never;
 
 type TestCaseMap = {
-  [key in keyof typeof DeltaSolver]: {
+  [key in keyof typeof differs]: {
     str: [
-      DifferInput<typeof DeltaSolver[key]>,
-      DifferInput<typeof DeltaSolver[key]>,
+      DifferInput<typeof differs[key]>,
+      DifferInput<typeof differs[key]>,
       string | null
     ][];
-    par: [string, PrimitiveStandard<typeof DeltaSolver[key]> | null][];
+    par: [string, PrimitiveStandard<typeof differs[key]> | null][];
   };
 };
 
 const testCases: TestCaseMap = {
-  f: {
+  float: {
     str: [
-      [0.5, null, "f#" + nullSymbol],
-      [undefined, 0.5, "f#0.5"],
+      [0.5, null, "float#" + nullSymbol],
+      [undefined, 0.5, "float#0.5"],
     ],
     par: [
       // ["0.5", 0.5],
       [nullSymbol, null],
     ],
   },
-  f2: {
+  float2: {
     str: [
-      [0.5, null, "f2#" + nullSymbol],
-      [undefined, [0.5, 0.5], "f2#[0.5;0.5]"],
+      [0.5, null, "float2#" + nullSymbol],
+      [undefined, [0.5, 0.5], "float2#[0.5;0.5]"],
     ],
     par: [
       // ["[0.5;0.5]", [0.5, 0.5]],
       [nullSymbol, null],
     ],
   },
-  f3: {
+  float3: {
     str: [
-      [0.5, null, "f3#" + nullSymbol],
-      [undefined, [0.5, 0.5, 0.5], "f3#[0.5;0.5;0.5]"],
+      [0.5, null, "float3#" + nullSymbol],
+      [undefined, [0.5, 0.5, 0.5], "float3#[0.5;0.5;0.5]"],
     ],
     par: [
       // ["[0.5;0.5;0.5]", [0.5, 0.5, 0.5]],
       [nullSymbol, null],
     ],
   },
-  f4: {
+  float4: {
     str: [
-      [0.5, null, "f4#" + nullSymbol],
-      [undefined, [0.5, 0.5, 0.5, 0.5], "f4#[0.5;0.5;0.5;0.5]"],
+      [0.5, null, "float4#" + nullSymbol],
+      [undefined, [0.5, 0.5, 0.5, 0.5], "float4#[0.5;0.5;0.5;0.5]"],
     ],
     par: [
       // ["[0.5;0.5;0.5;0.5]", [0.5, 0.5, 0.5, 0.5]],
       [nullSymbol, null],
     ],
   },
-  fq: {
+  floatQ: {
     str: [
-      [0.5, null, "fq#" + nullSymbol],
-      [undefined, [0.5, 0.5, 0.5], "fq#[0.5;0.5;0.5]"],
+      [0.5, null, "floatQ#" + nullSymbol],
+      [undefined, [0.5, 0.5, 0.5], "floatQ#[0.5;0.5;0.5]"],
     ],
     par: [
       //["[0.5;0.5;0.5]", [0.5, 0.5, 0.5]],
       [nullSymbol, null],
     ],
   },
-  c: {
+  color: {
     str: [
-      [0.5, null, "c#" + nullSymbol],
-      [undefined, [0.5, 0.5, 0.5, 0.5], "c#[0.5;0.5;0.5;0.5]"],
+      [0.5, null, "color#" + nullSymbol],
+      [undefined, [0.5, 0.5, 0.5, 0.5], "color#[0.5;0.5;0.5;0.5]"],
     ],
     par: [
       //["[0.5;0.5;0.5;0.5]", [0.5, 0.5, 0.5, 0.5]],
       [nullSymbol, null],
     ],
   },
-  s: {
+  string: {
     str: [
-      ["a", null, "s#" + nullSymbol],
+      ["a", null, "string#" + nullSymbol],
       [
         undefined,
         "@@#!%R@EFG%$T@# TATERS!",
-        "s#%40%40%23!%25R%40EFG%25%24T%40%23%20TATERS!",
+        "string#%40%40%23!%25R%40EFG%25%24T%40%23%20TATERS!",
       ],
-      [undefined, "!@#$%^&*()_+-=", "s#!%40%23%24%25%5E%26*()_%2B-%3D"],
+      [undefined, "!@#$%^&*()_+-=", "string#!%40%23%24%25%5E%26*()_%2B-%3D"],
     ],
     par: [
       // [
@@ -97,11 +97,11 @@ const testCases: TestCaseMap = {
       [nullSymbol, null],
     ],
   },
-  b: {
+  bool: {
     str: [
-      [true, null, "b#" + nullSymbol],
-      [undefined, true, "b#true"],
-      [undefined, false, "b#false"],
+      [true, null, "bool#" + nullSymbol],
+      [undefined, true, "bool#true"],
+      [undefined, false, "bool#false"],
     ],
     par: [
       // ["true", true],
@@ -116,9 +116,7 @@ it.each(
     v.str.map(([o, n, e]) => [k, o, n, e])
   )
 )("%s should stringify %s to %s", (type, oldVal, newVal, expected) => {
-  expect((DeltaSolver as any)[type as any](oldVal, newVal)).toStrictEqual(
-    expected
-  );
+  expect((differs as any)[type as any](oldVal, newVal)).toStrictEqual(expected);
 });
 
 /*

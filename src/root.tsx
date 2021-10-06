@@ -20,9 +20,14 @@ const Helper2 = ({v, i}: {v: string, i?: number}) => {
     color: [1, 0, 1]
   }]);
 
-  return <nSlot position={[2, 3, 2]} scale={scale}>
-    <nSlot rotation={[0, 0, 0]} scale={i}>
+  return <nTransform position={[2, 3, 2]} scale={scale}>
+    <nTransform rotation={[0, 0, 0]} scale={i}>
       <nCanvas>
+        <nButton onPress={() => setItems(ite => [...ite, {
+          name: "new" + ite.length,
+          color: [1, 1, 1]
+        }])} >
+        </nButton>
         <nRectTransform anchorMax={[0.25, 0.5]}>
           {
             items.map(item => 
@@ -33,11 +38,8 @@ const Helper2 = ({v, i}: {v: string, i?: number}) => {
           }
         </nRectTransform>
       </nCanvas>
-    </nSlot>
-  </nSlot>;
+    </nTransform>
+  </nTransform>;
 }
-
-const f = () => 
-<div onClick={() => {}}></div>;
 
 export default () => <Helper2 v="Taco" i={1} />;

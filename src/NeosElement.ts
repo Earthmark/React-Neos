@@ -1,5 +1,5 @@
 import React from "react";
-import { DeltaSolver, Vec3D, Vec2D, Color } from "./Primitives";
+import { differs, parsers, Vec3D, Vec2D, Color } from "./Primitives";
 
 type NeosRef = string;
 
@@ -29,21 +29,32 @@ type DetailedNeos2DElementProps = NeosElement & {
   pivot?: Vec2D;
 };
 
+type ButtonNeos2DElementProps = DetailedNeos2DElementProps & {
+  onPress?: (e: string | null) => void;
+  color?: Color;
+  hoverColor?: Color;
+  pressColor?: Color;
+  disableColor?: Color;
+};
+
+type TextElementProps = DetailedNeos2DElementProps & {
+  children?: Array<string>;
+  nullContent?: string;
+  color?: Color;
+  size?: number;
+  horizontalAutoSize?: boolean;
+  verticalAutoSize?: boolean;
+};
+
 type Nullable<T> = {
   [P in keyof T]: T[P] | null | undefined;
 };
-
-type DifferInput<T> = T extends (
-  oldProps: infer Arg,
-  newProps: infer Arg
-) => unknown
-  ? Arg
-  : never;
 
 interface FieldGatherer<Props> {
   readonly oldProps: Nullable<Props>;
   readonly newProps: Nullable<Props>;
   arr: Array<string>;
+  events: Record<string, (arg: string) => void>;
 }
 
 type DiffFunc<T> = (
@@ -56,54 +67,70 @@ function DiffField<
     [key in Accessor]?: FieldType | null | undefined;
   }>,
   Accessor extends string,
-  SolverKey extends keyof typeof DeltaSolver,
-  FieldType extends DifferInput<typeof DeltaSolver[SolverKey]>
->(g: Gatherer, accessor: Accessor, type: SolverKey) {
-  const solver: DiffFunc<FieldType> = DeltaSolver[type] as DiffFunc<FieldType>;
-  const delta = solver(g.oldProps[accessor], g.newProps[accessor]);
+  FieldType
+>(g: Gatherer, accessor: Accessor, differ: DiffFunc<FieldType>) {
+  const delta = differ(g.oldProps[accessor], g.newProps[accessor]);
   if (delta !== null) {
     g.arr.push(accessor + "=" + delta);
   }
 }
 
+function HandleRegistration<
+  Gatherer extends FieldGatherer<{
+    [key in Accessor]?: ((val: FieldType | null) => void) | null | undefined;
+  }>,
+  Accessor extends string,
+  FieldType
+>(g: Gatherer, accessor: Accessor, parser: (val: string) => FieldType | null) {
+  const o = g.oldProps[accessor];
+  const n = g.newProps[accessor];
+  const hasO = o !== undefined && o !== null;
+  const hasN = n !== undefined && n !== null;
+  if ((hasO || hasN) && o !== n) {
+    if (hasN) {
+      g.events[accessor] = (str) => {
+        n(parser(str));
+      };
+    } else if (hasN) {
+      delete g.events[accessor];
+    }
+  }
+}
 type FieldStringify<T> = (g: FieldGatherer<T>) => void;
 
 const NeosElementStringify: FieldStringify<NeosElement> = (g) => {
-  DiffField(g, "active", "b");
-  DiffField(g, "persistent", "b");
+  DiffField(g, "active", differs.bool);
+  DiffField(g, "persistent", differs.bool);
 };
 
 const DetailedNeos3DElementPropsStringify: FieldStringify<DetailedNeos3DElementProps> =
   (g) => {
     NeosElementStringify(g);
-    DiffField(g, "position", "f3");
-    DiffField(g, "rotation", "fq");
-    DiffField(g, "scale", "f3");
+    DiffField(g, "position", differs.float3);
+    DiffField(g, "rotation", differs.floatQ);
+    DiffField(g, "scale", differs.float3);
   };
 
 const DetailedNeos2DElementPropsStringify: FieldStringify<DetailedNeos2DElementProps> =
   (g) => {
     NeosElementStringify(g);
-    DiffField(g, "anchorMin", "f2");
-    DiffField(g, "anchorMax", "f2");
-    DiffField(g, "offsetMin", "f2");
-    DiffField(g, "offsetMax", "f2");
-    DiffField(g, "pivot", "f2");
+    DiffField(g, "anchorMin", differs.float2);
+    DiffField(g, "anchorMax", differs.float2);
+    DiffField(g, "offsetMin", differs.float2);
+    DiffField(g, "offsetMax", differs.float2);
+    DiffField(g, "pivot", differs.float2);
   };
 
-const TextPropsStringify: FieldStringify<
-  DetailedNeos2DElementProps & {
-    children?: Array<string>;
-    nullContent?: string;
-    color?: Color;
-    size?: number;
-    horizontalAutoSize?: boolean;
-    verticalAutoSize?: boolean;
-  }
-> = (g) => {
+const TextPropsStringify: FieldStringify<TextElementProps> = (g) => {
   DetailedNeos2DElementPropsStringify(g);
-  DiffField(g, "children", "s");
+  DiffField(g, "children", differs.string);
 };
+
+const ButtonNeos2DElementPropsStringify: FieldStringify<ButtonNeos2DElementProps> =
+  (g) => {
+    DetailedNeos2DElementPropsStringify(g);
+    HandleRegistration(g, "onPress", parsers.string);
+  };
 
 function With3DChildren<T>(
   f: FieldStringify<T>
@@ -118,11 +145,12 @@ function With2DChildren<T>(
 }
 
 export const ElementPropStringifyMap = {
-  nSlot: With3DChildren(DetailedNeos3DElementPropsStringify),
+  nTransform: With3DChildren(DetailedNeos3DElementPropsStringify),
   nSmoothTransform: With3DChildren(DetailedNeos3DElementPropsStringify),
   nCanvas: With2DChildren(DetailedNeos3DElementPropsStringify),
   nRectTransform: With2DChildren(DetailedNeos2DElementPropsStringify),
   nText: TextPropsStringify,
+  nButton: With2DChildren(ButtonNeos2DElementPropsStringify),
 };
 
 type FieldStringifyProps<S> = S extends FieldStringify<infer Props>

@@ -64,7 +64,7 @@ interface EventSignal {
   signal: "event";
   id: ElementId;
   event: string;
-  payload: string;
+  arg: string;
 }
 
 export type InboundSignal = EventSignal;
@@ -77,7 +77,7 @@ export function parseSignal(signal: string): InboundSignal | null {
         signal: "event",
         id: args[0],
         event: args[1],
-        payload: args[2],
+        arg: args[2],
       };
   }
   return null;

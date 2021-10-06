@@ -26,10 +26,10 @@ export type PrimitiveInput<P> = P extends Primitive<infer I, unknown>
   : never;
 
 interface Primitive<Input, StandardFormat> {
-  normalize(value: Input | null): StandardFormat | null;
+  normalize(value: Input): StandardFormat;
   stringify(value: StandardFormat | null): string;
   parse(value: string): StandardFormat | null;
-  equals(a: StandardFormat | null, b: StandardFormat | null): boolean;
+  equals(a: StandardFormat, b: StandardFormat): boolean;
 }
 
 function parseVector(value: string): Array<number> {
@@ -48,192 +48,6 @@ function handleParserNull<Output>(
   };
 }
 
-const f: Primitive<number, number> = {
-  normalize: (value) => value,
-  parse: handleParserNull((value) => parseFloat(value)),
-  stringify: WrapStringify("f", (value) => value.toString(10)),
-  equals: (a, b) => a === b,
-};
-
-const f2: Primitive<Vec2D, [number, number]> = {
-  normalize: (value) => {
-    if (value === null) {
-      return null;
-    } else if (Array.isArray(value)) {
-      return value;
-    } else if (typeof value === "object") {
-      return [value.x, value.y];
-    } else {
-      return [value, value];
-    }
-  },
-  parse: handleParserNull((value: string) => {
-    const [x, y] = parseVector(value);
-    return [x, y];
-  }),
-  stringify: WrapStringify("f2", (value) => `[${value[0]};${value[1]}]`),
-  equals: (a, b) => {
-    if (a === null && b === null) {
-      return true;
-    }
-    if (a === null || b === null) {
-      return false;
-    }
-    return a[0] === b[0] && a[1] === b[1];
-  },
-};
-
-const f3: Primitive<Vec3D, [number, number, number]> = {
-  normalize: (value) => {
-    if (value === null) {
-      return null;
-    } else if (Array.isArray(value)) {
-      return value;
-    } else if (typeof value === "object") {
-      return [value.x, value.y, value.z];
-    } else {
-      return [value, value, value];
-    }
-  },
-  parse: handleParserNull((value) => {
-    const [x, y, z] = parseVector(value);
-    return [x, y, z];
-  }),
-  stringify: WrapStringify(
-    "f3",
-    (value) => `[${value[0]};${value[1]};${value[2]}]`
-  ),
-  equals: (a, b) => {
-    if (a === null && b === null) {
-      return true;
-    }
-    if (a === null || b === null) {
-      return false;
-    }
-    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
-  },
-};
-
-const f4: Primitive<Vec4D, [number, number, number, number]> = {
-  normalize: (value) => {
-    if (value === null) {
-      return null;
-    } else if (Array.isArray(value)) {
-      return value;
-    } else if (typeof value === "object") {
-      return [value.x, value.y, value.z, value.w];
-    } else {
-      return [value, value, value, value];
-    }
-  },
-  parse: handleParserNull((value: string) => {
-    const [x, y, z, w] = parseVector(value);
-    return [x, y, z, w];
-  }),
-  stringify: WrapStringify(
-    "f4",
-    (value) => `[${value[0]};${value[1]};${value[2]};${value[3]}]`
-  ),
-  equals: (a, b) => {
-    if (a === null && b === null) {
-      return true;
-    }
-    if (a === null || b === null) {
-      return false;
-    }
-    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
-  },
-};
-
-const c: Primitive<Color, [number, number, number, number]> = {
-  normalize: (value) => {
-    if (value === null) {
-      return null;
-    } else if (Array.isArray(value)) {
-      return value.length == 3 ? [...value, 1] : value;
-    } else if (typeof value === "object") {
-      return [value.x, value.y, value.z, 1];
-    } else {
-      return [value, value, value, 1];
-    }
-  },
-  parse: handleParserNull((value) => {
-    const [x, y, z, w] = parseVector(value);
-    return [x, y, z, w];
-  }),
-  stringify: WrapStringify(
-    "c",
-    (value) =>
-      `[${value[0]};${value[1]};${value[2]};${
-        value[3] !== undefined ? value[3] : 1
-      }]`
-  ),
-  equals: (a, b) => {
-    if (a === null && b === null) {
-      return true;
-    }
-    if (a === null || b === null) {
-      return false;
-    }
-    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
-  },
-};
-
-const fq: Primitive<Vec3D, [number, number, number]> = {
-  normalize: (value) => {
-    if (value === null) {
-      return null;
-    } else if (Array.isArray(value)) {
-      return value;
-    } else if (typeof value === "object") {
-      return [value.x, value.y, value.z];
-    } else {
-      return [value, value, value];
-    }
-  },
-  parse: handleParserNull((value) => {
-    const [x, y, z] = parseVector(value);
-    return [x, y, z];
-  }),
-  stringify: WrapStringify(
-    "fq",
-    (value) => `[${value[0]};${value[1]};${value[2]}]`
-  ),
-  equals: (a, b) => {
-    if (a === null && b === null) {
-      return true;
-    }
-    if (a === null || b === null) {
-      return false;
-    }
-    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
-  },
-};
-
-const s: Primitive<string | Array<string>, string> = {
-  normalize: (value) => {
-    if (Array.isArray(value)) {
-      return value.join(" ");
-    } else {
-      return value;
-    }
-  },
-  parse: handleParserNull(decodeURIComponent),
-  stringify: WrapStringify("s", encodeURIComponent),
-  equals: (a, b) => a === b,
-};
-
-const b: Primitive<boolean, boolean> = {
-  normalize: (value) => value,
-  parse: handleParserNull((value: string) => {
-    return value === "true";
-  }),
-  stringify: WrapStringify("b", (value: boolean) => {
-    return value ? "true" : "false";
-  }),
-  equals: (a, b) => a === b,
-};
-
 function WrapStringify<Input>(
   prefix: string,
   inner: (value: Input) => string
@@ -248,44 +62,198 @@ function WrapStringify<Input>(
   };
 }
 
-type DeltaSolver<Parser> = (
-  oldProp: PrimitiveInput<Parser> | null | undefined,
-  newProp: PrimitiveInput<Parser> | null | undefined
+const f: Primitive<number, number> = {
+  normalize: (value) => value,
+  parse: handleParserNull((value) => parseFloat(value)),
+  stringify: WrapStringify("float", (value) => value.toString(10)),
+  equals: (a, b) => a === b,
+};
+
+const f2: Primitive<Vec2D, [number, number]> = {
+  normalize: (value) => {
+    if (Array.isArray(value)) {
+      return value;
+    } else if (typeof value === "object") {
+      return [value.x, value.y];
+    } else {
+      return [value, value];
+    }
+  },
+  parse: handleParserNull((value: string) => {
+    const [x, y] = parseVector(value);
+    return [x, y];
+  }),
+  stringify: WrapStringify("float2", (value) => `[${value[0]};${value[1]}]`),
+  equals: (a, b) => {
+    return a[0] === b[0] && a[1] === b[1];
+  },
+};
+
+const f3: Primitive<Vec3D, [number, number, number]> = {
+  normalize: (value) => {
+    if (Array.isArray(value)) {
+      return value;
+    } else if (typeof value === "object") {
+      return [value.x, value.y, value.z];
+    } else {
+      return [value, value, value];
+    }
+  },
+  parse: handleParserNull((value) => {
+    const [x, y, z] = parseVector(value);
+    return [x, y, z];
+  }),
+  stringify: WrapStringify(
+    "float3",
+    (value) => `[${value[0]};${value[1]};${value[2]}]`
+  ),
+  equals: (a, b) => {
+    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+  },
+};
+
+const f4: Primitive<Vec4D, [number, number, number, number]> = {
+  normalize: (value) => {
+    if (Array.isArray(value)) {
+      return value;
+    } else if (typeof value === "object") {
+      return [value.x, value.y, value.z, value.w];
+    } else {
+      return [value, value, value, value];
+    }
+  },
+  parse: handleParserNull((value: string) => {
+    const [x, y, z, w] = parseVector(value);
+    return [x, y, z, w];
+  }),
+  stringify: WrapStringify(
+    "float4",
+    (value) => `[${value[0]};${value[1]};${value[2]};${value[3]}]`
+  ),
+  equals: (a, b) => {
+    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
+  },
+};
+
+const c: Primitive<Color, [number, number, number, number]> = {
+  normalize: (value) => {
+    if (Array.isArray(value)) {
+      return value.length == 3 ? [...value, 1] : value;
+    } else if (typeof value === "object") {
+      return [value.x, value.y, value.z, 1];
+    } else {
+      return [value, value, value, 1];
+    }
+  },
+  parse: handleParserNull((value) => {
+    const [x, y, z, w] = parseVector(value);
+    return [x, y, z, w];
+  }),
+  stringify: WrapStringify(
+    "color",
+    (value) =>
+      `[${value[0]};${value[1]};${value[2]};${
+        value[3] !== undefined ? value[3] : 1
+      }]`
+  ),
+  equals: (a, b) => {
+    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
+  },
+};
+
+const fq: Primitive<Vec3D, [number, number, number]> = {
+  normalize: (value) => {
+    if (Array.isArray(value)) {
+      return value;
+    } else if (typeof value === "object") {
+      return [value.x, value.y, value.z];
+    } else {
+      return [value, value, value];
+    }
+  },
+  parse: handleParserNull((value) => {
+    const [x, y, z] = parseVector(value);
+    return [x, y, z];
+  }),
+  stringify: WrapStringify(
+    "floatQ",
+    (value) => `[${value[0]};${value[1]};${value[2]}]`
+  ),
+  equals: (a, b) => {
+    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+  },
+};
+
+const s: Primitive<string | Array<string>, string> = {
+  normalize: (value) => {
+    if (Array.isArray(value)) {
+      return value.join(" ");
+    } else {
+      return value;
+    }
+  },
+  parse: handleParserNull(decodeURIComponent),
+  stringify: WrapStringify("string", encodeURIComponent),
+  equals: (a, b) => a === b,
+};
+
+const b: Primitive<boolean, boolean> = {
+  normalize: (value) => value,
+  parse: handleParserNull((value: string) => {
+    return value === "true";
+  }),
+  stringify: WrapStringify("bool", (value: boolean) => {
+    return value ? "true" : "false";
+  }),
+  equals: (a, b) => a === b,
+};
+
+type DiffFunc<T> = (
+  o: T | null | undefined,
+  n: T | null | undefined
 ) => string | null;
 
-function CalculateDelta<
-  Input,
-  StandardFormat,
-  Parser extends Primitive<Input, StandardFormat>
->(parser: Parser): DeltaSolver<Parser> {
-  return (oldProp, newProp) => {
-    const oldValue = oldProp === undefined ? null : parser.normalize(oldProp);
-    const newValue = newProp === undefined ? null : parser.normalize(newProp);
-    if (!parser.equals(oldValue, newValue)) {
-      return parser.stringify(newValue);
+function differ<Input, StandardFormat>({
+  normalize,
+  equals,
+  stringify,
+}: {
+  normalize: (input: Input) => StandardFormat;
+  equals: (a: StandardFormat, b: StandardFormat) => boolean;
+  stringify: (input: StandardFormat | null) => string;
+}): DiffFunc<Input> {
+  return (o, n) => {
+    const hasO = o !== undefined && o !== null;
+    const hasN = n !== undefined && n !== null;
+    if ((hasO || hasN) && o !== n) {
+      const no = hasO ? normalize(o) : null;
+      const nn = hasN ? normalize(n) : null;
+      if (no === null || nn === null || !equals(no, nn)) {
+        return stringify(nn);
+      }
     }
     return null;
   };
 }
 
-export const DeltaSolver = {
-  f: CalculateDelta(f),
-  f2: CalculateDelta(f2),
-  f3: CalculateDelta(f3),
-  f4: CalculateDelta(f4),
-  fq: CalculateDelta(fq),
-  c: CalculateDelta(c),
-  s: CalculateDelta(s),
-  b: CalculateDelta(b),
+export const differs = {
+  float: differ(f),
+  float2: differ(f2),
+  float3: differ(f3),
+  float4: differ(f4),
+  floatQ: differ(fq),
+  color: differ(c),
+  string: differ(s),
+  bool: differ(b),
 };
 
-const Parsers = {
-  f: f.parse,
-  f2: f2.parse,
-  f3: f3.parse,
-  f4: f4.parse,
-  fq: fq.parse,
-  c: c.parse,
-  s: s.parse,
-  b: b.parse,
+export const parsers = {
+  float: f.parse,
+  float2: f2.parse,
+  float3: f3.parse,
+  float4: f4.parse,
+  floatQ: fq.parse,
+  color: c.parse,
+  string: s.parse,
+  bool: b.parse,
 };

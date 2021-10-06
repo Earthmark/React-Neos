@@ -9,12 +9,12 @@ test("Verify failure", () => {
 });
 
 test("Verify hierarchy shows as expected", () => {
-  expect(TestRenderer.create(<nSlot scale={3} />).toJSON()).toMatchSnapshot();
+  expect(TestRenderer.create(<nTransform scale={3} />).toJSON()).toMatchSnapshot();
 });
 
 test("verify slot stringifies as expected", () => {
   const dest: Array<string> = [];
-  ElementPropStringifyMap.nSlot(
+  ElementPropStringifyMap.nTransform(
     {
     oldProps: {
       active: true,
@@ -26,10 +26,10 @@ test("verify slot stringifies as expected", () => {
       persistent: true,
       scale: 3,
     },
-    arr: dest
-    }
-  );
-  expect(dest).toStrictEqual(["active=b#$", "scale=f3#[3;3;3]"]);
+    arr: dest,
+    events: {}
+  });
+  expect(dest).toStrictEqual(["active=bool#$", "scale=float3#[3;3;3]"]);
 });
 
 type TestCaseMap = {
@@ -42,7 +42,7 @@ type PropsOfStringify<G> = G extends (g: infer Gatherer) => unknown
   : never;
 
 const testCases : TestCaseMap = {
-  nSlot: [{
+  nTransform: [{
     oldProps: {
       active: true,
       persistent: true,
@@ -53,7 +53,8 @@ const testCases : TestCaseMap = {
       persistent: true,
       scale: 3,
     },
-    arr: ["active=b#$", "scale=f3#[3;3;3]"]
+    arr: ["active=bool#$", "scale=float3#[3;3;3]"],
+    events: {}
   },
   {
     oldProps: {
@@ -65,15 +66,17 @@ const testCases : TestCaseMap = {
       scale: 3,
     },
     arr: [
-      "persistent=b#true",
-      "position=f3#[1;2;43]",
-      "scale=f3#[3;3;3]"
-    ]
+      "persistent=bool#true",
+      "position=float3#[1;2;43]",
+      "scale=float3#[3;3;3]"
+    ],
+    events: {}
   }],
   nSmoothTransform: [],
   nCanvas: [],
   nRectTransform: [],
-  nText: []
+  nText: [],
+  nButton: []
 }
 
 it.each(
