@@ -1,7 +1,7 @@
 import React from 'react';
-import renderer from "./NeosRenderer";
+import renderer, { PropsDelta } from "./NeosRenderer";
 import TestRenderer from "react-test-renderer";
-import {ElementPropStringifyMap} from "./NeosElement";
+import elementDefs, {ElementProps} from "./NeosElement";
 
 test("Verify failure", () => {
   expect(renderer).toBeDefined();
@@ -13,35 +13,31 @@ test("Verify hierarchy shows as expected", () => {
 });
 
 test("verify slot stringifies as expected", () => {
-  const dest: Array<string> = [];
-  ElementPropStringifyMap.nTransform(
-    {
-    oldProps: {
+  const propDiffs: Array<string> = [];
+  elementDefs.nTransform({
       active: true,
       persistent: true,
       scale: 2,
     },
-    newProps: {
-      active: null,
+    {
       persistent: true,
       scale: 3,
     },
-    arr: dest,
-    events: {}
-  });
-  expect(dest).toStrictEqual(["active=bool#$", "scale=float3#[3;3;3]"]);
+    {
+      propDiffs
+    }
+  );
+  expect(propDiffs).toStrictEqual(["active=bool#$", "scale=float3#[3;3;3]"]);
 });
 
-type TestCaseMap = {
-  [key in keyof typeof ElementPropStringifyMap]: 
-    PropsOfStringify<typeof ElementPropStringifyMap[key]>[]
-};
-
-type PropsOfStringify<G> = G extends (g: infer Gatherer) => unknown
-  ? Gatherer
-  : never;
-
-const testCases : TestCaseMap = {
+const testCases : {
+  [key in keyof ElementProps]: 
+  {
+    oldProps: ElementProps[key],
+    newProps: ElementProps[key],
+    expected: Array<string>
+  }[]
+} = {
   nTransform: [{
     oldProps: {
       active: true,
@@ -49,47 +45,43 @@ const testCases : TestCaseMap = {
       scale: 2,
     },
     newProps: {
-      active: null,
       persistent: true,
       scale: 3,
     },
-    arr: ["active=bool#$", "scale=float3#[3;3;3]"],
-    events: {}
+    expected: ["active=bool#$", "scale=float3#[3;3;3]"],
   },
   {
     oldProps: {
     },
     newProps: {
-      active: null,
       persistent: true,
       position: {x: 1, y: 2, z: 43},
       scale: 3,
     },
-    arr: [
+    expected: [
       "persistent=bool#true",
       "position=float3#[1;2;43]",
       "scale=float3#[3;3;3]"
     ],
-    events: {}
   }],
   nSmoothTransform: [],
+  nSpinner: [],
+  nBox: [],
   nCanvas: [],
   nRectTransform: [],
   nText: [],
-  nButton: []
+  nButton: [],
 }
 
 it.each(
   Object.entries(testCases).flatMap(([k, v]) =>
-    v.map((o) => ({ name: k, ...o}))
+    v.map((o) => ({ name: k as keyof typeof elementDefs, ...o}))
   )
-)("element processes expected diff for set %s", ({name, oldProps, newProps, arr}) => {
+)("element processes expected diff for set %s", ({name, oldProps, newProps, expected}) => {
   const src: Array<string> = [];
-  (ElementPropStringifyMap as any)[name as any]({
-    oldProps,
-    newProps,
-    arr: src
+  elementDefs[name](oldProps as any, newProps as any, {
+    propDiffs: src,
   });
-  expect(src).toStrictEqual(arr);
+  expect(src).toStrictEqual(expected);
 });
 

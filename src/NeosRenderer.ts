@@ -1,14 +1,24 @@
 import React from "react";
 import Reconciler from "react-reconciler";
-import { ElementPropStringifyMap } from "./NeosElement";
+import elementDefs from "./NeosElement";
 import { OutboundSignal, InboundSignal } from "./SignalFormatter";
 import { performance } from "perf_hooks";
+
+export interface PropsDelta {
+  propDiffs: Array<string>;
+}
+
+type ObjectRefs<K extends string, T> = {
+  [Key in K]: {
+    type: T;
+    id: string;
+  };
+};
 
 interface Container {
   rootId: string;
   globalId: number;
   eventQueue: Array<OutboundSignal>;
-  eventSubscription: Record<string, Record<string, (arg: string) => void>>;
 }
 
 type Instance = {
@@ -17,16 +27,16 @@ type Instance = {
 };
 
 const reconciler = Reconciler<
-  keyof typeof ElementPropStringifyMap,
-  {},
+  keyof typeof elementDefs,
+  Record<string, any>,
   Container,
   Instance,
   never,
   never,
   never,
-  void,
+  ObjectRefs<string, string>,
   {},
-  Array<string>,
+  PropsDelta,
   never,
   NodeJS.Timer,
   number
@@ -38,24 +48,25 @@ const reconciler = Reconciler<
   isPrimaryRenderer: true,
 
   createInstance(type, props, container) {
-    const arr: Array<string> = [];
     const id = `${container.globalId++}`;
-    ElementPropStringifyMap[type]({
-      oldProps: {},
-      newProps: props,
-      arr,
-      events: (container.eventSubscription[id] = {}),
-    });
     container.eventQueue.push({
       signal: "create",
       id,
       type,
     });
-    if (arr.length > 0) {
+    const def = elementDefs[type];
+    if (def === undefined) {
+      throw new Error(`Unknown element type ${type}`);
+    }
+    const diffs: PropsDelta = {
+      propDiffs: [],
+    };
+    def({}, props, diffs);
+    if (diffs.propDiffs.length > 0) {
       container.eventQueue.push({
         signal: "update",
         id,
-        props: arr,
+        props: diffs.propDiffs,
       });
     }
     return {
@@ -134,21 +145,22 @@ const reconciler = Reconciler<
   },
 
   prepareUpdate(instance, type, oldProps, newProps) {
-    const arr: Array<string> = [];
-    ElementPropStringifyMap[type]({
-      oldProps: oldProps,
-      newProps: newProps,
-      arr,
-      events: instance.container.eventSubscription[instance.id],
-    });
-    return arr.length > 0 ? arr : null;
+    const def = elementDefs[type];
+    if (def === undefined) {
+      throw new Error(`Unknown element type ${type}`);
+    }
+    const diffs: PropsDelta = {
+      propDiffs: [],
+    };
+    def(oldProps, newProps, diffs);
+    return diffs.propDiffs.length > 0 ? diffs : null;
   },
 
   commitUpdate(instance, updatePayload) {
     instance.container.eventQueue.push({
       signal: "update",
       id: instance.id,
-      props: updatePayload,
+      props: updatePayload.propDiffs,
     });
   },
 
@@ -163,7 +175,9 @@ const reconciler = Reconciler<
     return {};
   },
 
-  getPublicInstance() {},
+  getPublicInstance(instance) {
+    return {};
+  },
   prepareForCommit() {
     return null;
   },
@@ -180,19 +194,18 @@ export default function createNeosRenderer() {
     rootId: "root",
     globalId: 1,
     eventQueue: [],
-    eventSubscription: {},
   };
   const container = reconciler.createContainer(containerInfo, 0, false, null);
 
   return {
     processEvent(signal: InboundSignal) {
-      const targetElem = containerInfo.eventSubscription[signal.id];
-      if (targetElem) {
-        const handler = targetElem[signal.event];
-        if (signal) {
-          handler(signal.arg);
-        }
-      }
+      //const targetElem = containerInfo.eventSubscription[signal.id];
+      //if (targetElem) {
+      //  const handler = targetElem[signal.event];
+      //  if (signal) {
+      //    handler(signal.arg);
+      //  }
+      //}
     },
     render(node: React.ReactNode): Array<OutboundSignal> {
       reconciler.updateContainer(node, container);

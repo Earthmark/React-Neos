@@ -210,9 +210,9 @@ const bool: Primitive<boolean, boolean> = {
 
 type Optional<T> = T | null | undefined;
 
-type DiffFunc<T> = (o: Optional<T>, n: Optional<T>) => string | null;
+export type DiffFunc<T> = (o: Optional<T>, n: Optional<T>) => string | null;
 
-function differ<Input, StandardFormat>({
+export function differ<Input, StandardFormat>({
   normalize,
   equals,
   stringify,
