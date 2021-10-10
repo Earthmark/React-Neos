@@ -1,7 +1,8 @@
 import React from 'react';
-import renderer, { PropsDelta } from "./NeosRenderer";
+import renderer from "./NeosRenderer";
 import TestRenderer from "react-test-renderer";
-import elementDefs, {ElementProps} from "./NeosElement";
+import n, {ElementProps, elementDefs} from "./NeosElement";
+import {PropUpdate} from "./SignalFormatter";
 
 test("Verify failure", () => {
   expect(renderer).toBeDefined();
@@ -9,12 +10,12 @@ test("Verify failure", () => {
 });
 
 test("Verify hierarchy shows as expected", () => {
-  expect(TestRenderer.create(<nTransform scale={3} />).toJSON()).toMatchSnapshot();
+  expect(TestRenderer.create(<n.transform scale={3} />).toJSON()).toMatchSnapshot();
 });
 
 test("verify slot stringifies as expected", () => {
-  const propDiffs: Array<string> = [];
-  elementDefs.nTransform({
+  const propDiffs: Array<PropUpdate> = [];
+  elementDefs.transform({
       active: true,
       persistent: true,
       scale: 2,
@@ -27,7 +28,20 @@ test("verify slot stringifies as expected", () => {
       propDiffs
     }
   );
-  expect(propDiffs).toStrictEqual(["active=bool#$", "scale=float3#[3;3;3]"]);
+  expect(propDiffs).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "prop": "active",
+    "type": "bool",
+    "value": null,
+  },
+  Object {
+    "prop": "scale",
+    "type": "float3",
+    "value": "[3;3;3]",
+  },
+]
+`);
 });
 
 const testCases : {
@@ -35,10 +49,10 @@ const testCases : {
   {
     oldProps: ElementProps[key],
     newProps: ElementProps[key],
-    expected: Array<string>
+    expected: Array<PropUpdate>
   }[]
 } = {
-  nTransform: [{
+  transform: [{
     oldProps: {
       active: true,
       persistent: true,
@@ -48,7 +62,15 @@ const testCases : {
       persistent: true,
       scale: 3,
     },
-    expected: ["active=bool#$", "scale=float3#[3;3;3]"],
+    expected: [{
+      prop: "active",
+      type: "bool",
+      value: null,
+    }, {
+      prop: "scale",
+      type: "float3",
+      value: "[3;3;3]",
+    }],
   },
   {
     oldProps: {
@@ -59,18 +81,30 @@ const testCases : {
       scale: 3,
     },
     expected: [
-      "persistent=bool#true",
-      "position=float3#[1;2;43]",
-      "scale=float3#[3;3;3]"
+      {
+        prop:"persistent",
+        type:"bool",
+        value:"true",
+      },
+      {
+        prop: "position",
+        type: "float3",
+        value: "[1;2;43]",
+      },
+      {
+        prop: "scale",
+        type: "float3",
+        value: "[3;3;3]",
+      }
     ],
   }],
-  nSmoothTransform: [],
-  nSpinner: [],
-  nBox: [],
-  nCanvas: [],
-  nRectTransform: [],
-  nText: [],
-  nButton: [],
+  smoothTransform: [],
+  spinner: [],
+  box: [],
+  canvas: [],
+  rect: [],
+  text: [],
+  button: [],
 }
 
 it.each(
@@ -78,7 +112,7 @@ it.each(
     v.map((o) => ({ name: k as keyof typeof elementDefs, ...o}))
   )
 )("element processes expected diff for set %s", ({name, oldProps, newProps, expected}) => {
-  const src: Array<string> = [];
+  const src: Array<PropUpdate> = [];
   elementDefs[name](oldProps as any, newProps as any, {
     propDiffs: src,
   });

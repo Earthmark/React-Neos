@@ -1,11 +1,11 @@
 import React from "react";
 import Reconciler from "react-reconciler";
-import elementDefs from "./NeosElement";
-import { OutboundSignal, InboundSignal } from "./SignalFormatter";
+import { elementDefs } from "./NeosElement";
+import { OutboundSignal, InboundSignal, PropUpdate } from "./SignalFormatter";
 import { performance } from "perf_hooks";
 
 export interface PropsDelta {
-  propDiffs: Array<string>;
+  propDiffs: Array<PropUpdate>;
 }
 
 type ObjectRefs<K extends string, T> = {
@@ -165,7 +165,7 @@ const reconciler = Reconciler<
   },
 
   shouldSetTextContent(type) {
-    return type === "nText";
+    return type === "text";
   },
 
   getRootHostContext() {

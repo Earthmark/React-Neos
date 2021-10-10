@@ -1,12 +1,12 @@
 type ElementId = string;
 
-interface CreateSignal {
+export interface CreateSignal {
   signal: "create";
   id: ElementId;
   type: string;
 }
 
-interface RemoveSignal {
+export interface RemoveSignal {
   signal: "remove";
   id: ElementId;
 }
@@ -22,13 +22,19 @@ interface PropUpdate<T extends keyof typeof DeltaSolver> {
 type PossibleProps = PropUpdate<keyof typeof DeltaSolver>;
 */
 
-interface UpdateSignal {
-  signal: "update";
-  id: ElementId;
-  props: Array<string>;
+export interface PropUpdate {
+  prop: string;
+  type: string;
+  value: string | null;
 }
 
-interface SetParentSignal {
+export interface UpdateSignal {
+  signal: "update";
+  id: ElementId;
+  props: Array<PropUpdate>;
+}
+
+export interface SetParentSignal {
   signal: "setParent";
   id: ElementId;
   parentId: ElementId;
@@ -41,23 +47,32 @@ export type OutboundSignal =
   | UpdateSignal
   | SetParentSignal;
 
+export const nullSymbol: "$" = "$";
+
 function stringifyOutboundSignal(signal: OutboundSignal): string {
   switch (signal.signal) {
     case "create":
-      return `create^${signal.id}^${signal.type}`;
+      return `create+${signal.id}+${signal.type}`;
     case "remove":
-      return `remove^${signal.id}^`;
+      return `remove+${signal.id}`;
     case "update":
-      return `update^${signal.id}^${signal.props.join("&")}&`;
+      return `update+${signal.id}+${signal.props
+        .map(
+          (update) =>
+            `${update.prop}=${update.type}=${
+              update.value === null ? nullSymbol : update.value
+            }`
+        )
+        .join("+")}`;
     case "setParent":
-      return `setParent^${signal.id}^${signal.parentId}^${
+      return `setParent+${signal.id}+${signal.parentId}+${
         signal.after === undefined ? "$" : signal.after
       }`;
   }
 }
 
 export function stringifySignalArray(signals: Array<OutboundSignal>): string {
-  return signals.map(stringifyOutboundSignal).join("@") + "@";
+  return signals.map(stringifyOutboundSignal).join("|");
 }
 
 interface EventSignal {
@@ -70,7 +85,7 @@ interface EventSignal {
 export type InboundSignal = EventSignal;
 
 export function parseSignal(signal: string): InboundSignal | null {
-  const [signalType, ...args] = signal.split("^");
+  const [signalType, ...args] = signal.split("+");
   switch (signalType) {
     case "event":
       return {

@@ -2,6 +2,7 @@ import UrlEncode from "./UrlEncode";
 
 const testCases: [any, string][] = [
   [{ a: "b", c: "d" }, "a=b&c=d"],
+  [{ a: "b|\\[] <>", c: "d" }, "a=b%7C%5C%5B%5D%20%3C%3E&c=d"],
   [
     { a: "b", tacos_tasty: "who really $#@%@#!432" },
     "a=b&tacos_tasty=who%20really%20%24%23%40%25%40%23!432",
