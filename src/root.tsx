@@ -1,14 +1,9 @@
 import React from "react";
 import n from "./NeosElement";
 
-type Potato = {
-  name: string;
-  color: [number, number, number];
-}
-
 const Helper2 = ({v, i}: {v: string, i?: number}) => {
   const [scale, setScale] = React.useState(1);
-  const [items, setItems] = React.useState<Potato[]>([{
+  const [items, setItems] = React.useState([{
     name: "russet",
     color: [1, 1, 0]
   },
@@ -25,7 +20,6 @@ const Helper2 = ({v, i}: {v: string, i?: number}) => {
     <n.transform rotation={[0, 0, 0]} scale={i}>
       <n.spinner speed={[0,60,0]}>
         <n.transform position={[5,0,0]}>
-          <n.text>{v}</n.text>
           <n.box size={[100, 20000, 0.01]} />
         </n.transform>
       </n.spinner>

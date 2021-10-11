@@ -5,32 +5,35 @@ providing a custom renderer where instances are proxied into Neos.
 
 There are two sections in the system, `Client Side` and `Server Side`. Both sides communicate with each other using a text web socket. The web socket session is used as the object lifetime (Reconnection reloads the react container/instance).
 
-This roughly resembles [server size blazor](https://docs.microsoft.com/en-us/aspnet/core/blazor/hosting-models?view=aspnetcore-5.0), where the server contains the client data model and changes are replicated into the client with events being routed back to the server.
+This roughly resembles [C#'s server size blazor](https://docs.microsoft.com/en-us/aspnet/core/blazor/hosting-models?view=aspnetcore-5.0), where the server contains what the client should see, changes to that model are replicated into the client, and events are routed back to the server.
 
 It is also possible to have `react-neos` make an object, then `detach` from the object. This can be useful for using the tool as a way to generate static objects in the world, such as UIX layouts. this is referred to as `printer-mode`.
 
 ## Example: A small red box
 Technical jargon is bland, here's some examples instead.
 
-Here is a piece of `JSX` code representing a small red box.
+Here is a piece of `JSX` code that creates a small red box inside neos.
 ```jsx
 import React from "react";
 import SimpleWsServer from "./Server";
+import n from "./NeosElement";
 
 const SmallBox = () => {
-  return <nBox name="tiny square thing" size={[100, 20000, 0.01]} albedoColor={[1,0,0]} />;
+  return <n.box name="tiny square thing" size={[100, 20000, 0.01]} albedoColor={[1,0,0]} />;
 };
 
 SimpleWsServer(8080, SmallBox);
 ```
-This `jsx element` as the element type of `nBox`, and sets the `props` of `name`, `size`, and `albedoColor`.
+This `jsx element` as the element type of `box`, and sets the `props` of `name`, `size`, and `albedoColor`.
 
 This generates the following hierarchy in Neos, which renders as a very small red box.
 ```
-Root
-  tiny square thing
+React-Neos-Root
+  tiny square thing - contains a mesh renderer, material, and procedural mesh.
 ```
-I'm cheating here, there is really more hidden above root and below the slot `tiny square thing`. But for now that doesn't matter!
+I'm cheating here, there is really more hidden above root and below the slot `tiny square thing`, but for now that doesn't matter.
+
+
 
 ## Example: A complicated red box
 This isn't all that interesting, we made a tiny box. If you're doing something simple like a single box, `React-Neos` is likely more than you need.

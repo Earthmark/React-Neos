@@ -2,10 +2,8 @@ import React, { ReactElement } from "react";
 import { PropsDelta } from "./NeosRenderer";
 import { differs, DiffFunc } from "./Primitives";
 
-type MaybeArray<T> = T | Array<T>;
-
-function HasReactChildren<T>(): {
-  children: DiffFunc<MaybeArray<ReactElement<Partial<T>>>>;
+function HasReactChildren(): {
+  children: DiffFunc<ReactElement | Array<ReactElement>>;
 } {
   return {
     children: () => null,
@@ -34,6 +32,47 @@ const base2DElementDef = {
   offsetMax: differs.float2,
   pivot: differs.float2,
 };
+
+export const elementDefs = mapDefsToDiffers({
+  transform: {
+    ...base3DElementDef,
+    ...HasReactChildren(),
+  },
+  smoothTransform: {
+    ...base3DElementDef,
+    ...HasReactChildren(),
+    smoothTransformEnabled: differs.bool,
+    smoothSpeed: differs.float,
+  },
+  spinner: {
+    ...base3DElementDef,
+    ...HasReactChildren(),
+    speed: differs.float3,
+    range: differs.float3,
+  },
+  box: {
+    ...base3DElementDef,
+    albedoColor: differs.color,
+    emissiveColor: differs.color,
+    size: differs.float3,
+    colliderActive: differs.bool,
+    characterCollider: differs.bool,
+    ignoreRaycasts: differs.bool,
+  },
+  canvas: {
+    ...base3DElementDef,
+  },
+  rect: {
+    ...base2DElementDef,
+  },
+  text: {
+    ...base2DElementDef,
+    children: differs.string,
+  },
+  button: {
+    ...base2DElementDef,
+  },
+});
 
 function defsToDiffer<Props>(
   elementDef: PropsDef<Props>
@@ -64,47 +103,6 @@ export function mapDefsToDiffers<PropMap>(o: {
   return result;
 }
 
-export const elementDefs = mapDefsToDiffers({
-  transform: {
-    ...base3DElementDef,
-    ...HasReactChildren<PropsFromDef<typeof base3DElementDef>>(),
-  },
-  smoothTransform: {
-    ...base3DElementDef,
-    ...HasReactChildren<PropsFromDef<typeof base3DElementDef>>(),
-    smoothTransformEnabled: differs.bool,
-    smoothSpeed: differs.float,
-  },
-  spinner: {
-    ...base3DElementDef,
-    ...HasReactChildren<PropsFromDef<typeof base3DElementDef>>(),
-    speed: differs.float3,
-    range: differs.float3,
-  },
-  box: {
-    ...base3DElementDef,
-    albedoColor: differs.color,
-    emissiveColor: differs.color,
-    size: differs.float3,
-    colliderActive: differs.bool,
-    characterCollider: differs.bool,
-    ignoreRaycasts: differs.bool,
-  },
-  canvas: {
-    ...base3DElementDef,
-  },
-  rect: {
-    ...base2DElementDef,
-  },
-  text: {
-    ...base2DElementDef,
-    children: differs.string,
-  },
-  button: {
-    ...base2DElementDef,
-  },
-});
-
 const elementProps: {
   [Type in keyof typeof elementDefs]: (
     p: PropsFromDiffer<typeof elementDefs[Type]>
@@ -123,10 +121,14 @@ type PropsFromDiffer<Def> = Def extends PropsDiffer<infer Props>
   ? Props
   : never;
 
-type PropsFromDef<Def> = Def extends PropsDef<infer Props> ? Props : never;
-
 export type ElementProps = {
   [P in keyof typeof elementDefs]: PropsFromDiffer<typeof elementDefs[P]>;
 };
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements extends ElementProps {}
+  }
+}
 
 export default elementProps;

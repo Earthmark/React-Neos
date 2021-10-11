@@ -67,13 +67,3 @@ it.each(
     value: expected,
   });
 });
-
-/*
-it.each(
-  Object.entries(testCases).flatMap(([k, v]) =>
-    v.par.map(([i, o]) => [k, i, o])
-  )
-)("%s should parse %s to %s", (type, input, expected) => {
-  expect((Primitives as any)[type as any].parse(input)).toStrictEqual(expected);
-});
-*/
