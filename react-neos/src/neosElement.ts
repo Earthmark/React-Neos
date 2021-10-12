@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
-import { PropsDelta } from "./NeosRenderer";
-import { differs, DiffFunc } from "./Primitives";
+import { PropsDelta } from "./neosRenderer";
+import { differs, DiffFunc } from "./primitives";
 
 function HasReactChildren(): {
   children: DiffFunc<ReactElement | Array<ReactElement>>;

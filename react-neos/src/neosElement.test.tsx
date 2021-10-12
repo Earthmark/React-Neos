@@ -1,8 +1,8 @@
 import React from 'react';
-import renderer from "./NeosRenderer";
+import renderer from "./neosRenderer";
 import TestRenderer from "react-test-renderer";
-import n, {ElementProps, elementDefs} from "./NeosElement";
-import {PropUpdate} from "./SignalFormatter";
+import n, {ElementProps, elementDefs} from "./neosElement";
+import {PropUpdate} from "./signalFormatter";
 
 test("Verify failure", () => {
   expect(renderer).toBeDefined();

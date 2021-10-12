@@ -1,7 +1,7 @@
 import React from "react";
 import Reconciler from "react-reconciler";
-import { elementDefs } from "./NeosElement";
-import { OutboundSignal, InboundSignal, PropUpdate } from "./SignalFormatter";
+import { elementDefs } from "./neosElement";
+import { OutboundSignal, InboundSignal, PropUpdate } from "./signalFormatter";
 import { performance } from "perf_hooks";
 
 export interface PropsDelta {

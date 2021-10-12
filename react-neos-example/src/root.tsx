@@ -1,5 +1,5 @@
 import React from "react";
-import n from "./NeosElement";
+import n from "react-neos";
 
 const Helper2 = ({v, i}: {v: string, i?: number}) => {
   const [scale, setScale] = React.useState(1);
@@ -20,7 +20,7 @@ const Helper2 = ({v, i}: {v: string, i?: number}) => {
     <n.transform rotation={[0, 0, 0]} scale={i}>
       <n.spinner speed={[0,60,0]}>
         <n.transform position={[5,0,0]}>
-          <n.box size={[100, 20000, 0.01]} />
+          <n.box size={[2, 0.1, 0.01]} />
         </n.transform>
       </n.spinner>
     </n.transform>

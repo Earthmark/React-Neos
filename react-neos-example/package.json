@@ -1,0 +1,30 @@
+{
+  "name": "react-neos-example",
+  "version": "1.0.0",
+  "main": "./src/index.ts",
+  "license": "MIT",
+  "scripts": {
+    "test": "yarn jest",
+    "build": "tsc",
+    "start": "ts-node ."
+  },
+  "dependencies": {
+    "react-neos": "link:../react-neos",
+    "react": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^16.10.1",
+    "@types/react-test-renderer": "^17.0.1",
+    "@types/color-convert": "^2.0.0",
+    "@types/jest": "^27.0.2",
+    "@types/react": "^17.0.24",
+    "@types/react-reconciler": "^0.26.3",
+    "@types/ws": "^8.2.0",
+    "ts-jest": "^27.0.5",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  },
+  "jest": {
+    "preset": "ts-jest/presets/default-esm"
+  }
+}

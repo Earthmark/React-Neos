@@ -1,4 +1,4 @@
-import UrlEncode from "./UrlEncode";
+import UrlEncode from "./urlEncode";
 
 const testCases: [any, string][] = [
   [{ a: "b", c: "d" }, "a=b&c=d"],

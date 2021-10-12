@@ -1,7 +1,7 @@
 import React from "react";
 import { WebSocketServer } from "ws";
-import Renderer from "./NeosRenderer";
-import { stringifySignalArray, parseSignal } from "./SignalFormatter";
+import Renderer from "./neosRenderer";
+import { stringifySignalArray, parseSignal } from "./signalFormatter";
 
 export function HostReactProxyServer(
   port: number,
@@ -17,7 +17,7 @@ export function HostReactProxyServer(
   });
 }
 
-function SimpleWsServer(port: number, root: () => React.ReactElement) {
+function ReactNeosServer(port: number, root: () => React.ReactElement) {
   HostReactProxyServer(port, () => {
     const renderer = Renderer();
     return (event) => {
@@ -32,4 +32,4 @@ function SimpleWsServer(port: number, root: () => React.ReactElement) {
   });
 }
 
-export default SimpleWsServer;
+export default ReactNeosServer;

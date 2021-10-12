@@ -1,5 +1,5 @@
-import { differs, PrimitiveStandard } from "./Primitives";
-import { PropUpdate } from "./SignalFormatter";
+import { differs, PrimitiveStandard } from "./primitives";
+import { PropUpdate } from "./signalFormatter";
 
 type DifferInput<T> = T extends (
   oldProps: infer Arg,
