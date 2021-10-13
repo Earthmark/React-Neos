@@ -1,8 +1,7 @@
 import React from 'react';
-import renderer from "./neosRenderer";
+import renderer, { PropUpdate } from "./neosRenderer";
 import TestRenderer from "react-test-renderer";
-import n, {ElementProps, elementDefs} from "./neosElement";
-import {PropUpdate} from "./signalFormatter";
+import n, { Props, elementDefs} from "./neosElement";
 
 test("Verify failure", () => {
   expect(renderer).toBeDefined();
@@ -25,7 +24,7 @@ test("verify slot stringifies as expected", () => {
       scale: 3,
     },
     {
-      propDiffs
+      diff: d => propDiffs.push(d)
     }
   );
   expect(propDiffs).toMatchInlineSnapshot(`
@@ -45,10 +44,10 @@ Array [
 });
 
 const testCases : {
-  [key in keyof ElementProps]: 
+  [key in keyof Props]: 
   {
-    oldProps: ElementProps[key],
-    newProps: ElementProps[key],
+    oldProps: Props[key],
+    newProps: Props[key],
     expected: Array<PropUpdate>
   }[]
 } = {
@@ -109,12 +108,12 @@ const testCases : {
 
 it.each(
   Object.entries(testCases).flatMap(([k, v]) =>
-    v.map((o) => ({ name: k as keyof typeof elementDefs, ...o}))
+    (v as any).map((o: any) => ({ name: k as keyof Props, ...o}))
   )
 )("element processes expected diff for set %s", ({name, oldProps, newProps, expected}) => {
   const src: Array<PropUpdate> = [];
-  elementDefs[name](oldProps as any, newProps as any, {
-    propDiffs: src,
+  (elementDefs as any)[name as any](oldProps as any, newProps as any, {
+    diff: (d: any) => src.push(d),
   });
   expect(src).toStrictEqual(expected);
 });

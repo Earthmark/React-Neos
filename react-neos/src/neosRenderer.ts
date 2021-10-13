@@ -1,11 +1,59 @@
 import React from "react";
 import Reconciler from "react-reconciler";
 import { elementDefs } from "./neosElement";
-import { OutboundSignal, InboundSignal, PropUpdate } from "./signalFormatter";
+import { InboundSignal } from "./signalFormatter";
 import { performance } from "perf_hooks";
 
-export interface PropsDelta {
-  propDiffs: Array<PropUpdate>;
+export type ElementId = string;
+
+export interface CreateSignal {
+  signal: "create";
+  id: ElementId;
+  type: string;
+}
+
+export interface RemoveSignal {
+  signal: "remove";
+  id: ElementId;
+}
+
+export interface PropUpdate {
+  prop: string;
+  type: string;
+  value: string | null;
+}
+
+export interface UpdateSignal {
+  signal: "update";
+  id: ElementId;
+  props: Array<PropUpdate>;
+}
+
+export interface SetParentSignal {
+  signal: "setParent";
+  id: ElementId;
+  parentId: ElementId;
+  after?: ElementId;
+}
+
+export type OutboundSignal =
+  | CreateSignal
+  | RemoveSignal
+  | UpdateSignal
+  | SetParentSignal;
+
+interface ElementUpdate {
+  diff(prop: PropUpdate): void;
+}
+
+export type Updater<Props> = (
+  oldProps: Props,
+  newProps: Props,
+  update: ElementUpdate
+) => void;
+
+interface PropsDelta {
+  diffs: Array<PropUpdate>;
 }
 
 type ObjectRefs<K extends string, T> = {
@@ -58,15 +106,17 @@ const reconciler = Reconciler<
     if (def === undefined) {
       throw new Error(`Unknown element type ${type}`);
     }
-    const diffs: PropsDelta = {
-      propDiffs: [],
-    };
-    def({}, props, diffs);
-    if (diffs.propDiffs.length > 0) {
+    const diffs: Array<PropUpdate> = [];
+    def({}, props, {
+      diff: (prop) => {
+        diffs.push(prop);
+      },
+    });
+    if (diffs.length > 0) {
       container.eventQueue.push({
         signal: "update",
         id,
-        props: diffs.propDiffs,
+        props: diffs,
       });
     }
     return {
@@ -149,18 +199,20 @@ const reconciler = Reconciler<
     if (def === undefined) {
       throw new Error(`Unknown element type ${type}`);
     }
-    const diffs: PropsDelta = {
-      propDiffs: [],
-    };
-    def(oldProps, newProps, diffs);
-    return diffs.propDiffs.length > 0 ? diffs : null;
+    const diffs: Array<PropUpdate> = [];
+    def(oldProps, newProps, {
+      diff: (prop) => {
+        diffs.push(prop);
+      },
+    });
+    return diffs.length > 0 ? { diffs } : null;
   },
 
   commitUpdate(instance, updatePayload) {
     instance.container.eventQueue.push({
       signal: "update",
       id: instance.id,
-      props: updatePayload.propDiffs,
+      props: updatePayload.diffs,
     });
   },
 

@@ -1,63 +1,59 @@
-import React, { ReactElement } from "react";
-import { PropsDelta } from "./neosRenderer";
-import { differs, DiffFunc } from "./primitives";
-
-function HasReactChildren(): {
-  children: DiffFunc<ReactElement | Array<ReactElement>>;
-} {
-  return {
-    children: () => null,
-  };
-}
+import p from "./primitives";
+import {
+  definitionsToUpdaters,
+  updatersToElements,
+  hasReactChildren,
+  UpdatersToProps,
+} from "./baseElements";
 
 const baseElementDef = {
-  active: differs.bool,
-  persistent: differs.bool,
-  name: differs.string,
-  tag: differs.string,
+  active: p.bool,
+  persistent: p.bool,
+  name: p.string,
+  tag: p.string,
 };
 
 const base3DElementDef = {
   ...baseElementDef,
-  position: differs.float3,
-  rotation: differs.floatQ,
-  scale: differs.float3,
+  position: p.float3,
+  rotation: p.floatQ,
+  scale: p.float3,
 };
 
 const base2DElementDef = {
   ...baseElementDef,
-  anchorMin: differs.float2,
-  anchorMax: differs.float2,
-  offsetMin: differs.float2,
-  offsetMax: differs.float2,
-  pivot: differs.float2,
+  anchorMin: p.float2,
+  anchorMax: p.float2,
+  offsetMin: p.float2,
+  offsetMax: p.float2,
+  pivot: p.float2,
 };
 
-export const elementDefs = mapDefsToDiffers({
+export const elementDefs = definitionsToUpdaters({
   transform: {
     ...base3DElementDef,
-    ...HasReactChildren(),
+    ...hasReactChildren(),
   },
   smoothTransform: {
     ...base3DElementDef,
-    ...HasReactChildren(),
-    smoothTransformEnabled: differs.bool,
-    smoothSpeed: differs.float,
+    ...hasReactChildren(),
+    smoothTransformEnabled: p.bool,
+    smoothSpeed: p.float,
   },
   spinner: {
     ...base3DElementDef,
-    ...HasReactChildren(),
-    speed: differs.float3,
-    range: differs.float3,
+    ...hasReactChildren(),
+    speed: p.float3,
+    range: p.float3,
   },
   box: {
     ...base3DElementDef,
-    albedoColor: differs.color,
-    emissiveColor: differs.color,
-    size: differs.float3,
-    colliderActive: differs.bool,
-    characterCollider: differs.bool,
-    ignoreRaycasts: differs.bool,
+    albedoColor: p.color,
+    emissiveColor: p.color,
+    size: p.float3,
+    colliderActive: p.bool,
+    characterCollider: p.bool,
+    ignoreRaycasts: p.bool,
   },
   canvas: {
     ...base3DElementDef,
@@ -67,68 +63,13 @@ export const elementDefs = mapDefsToDiffers({
   },
   text: {
     ...base2DElementDef,
-    children: differs.string,
+    children: p.string,
   },
   button: {
     ...base2DElementDef,
   },
 });
 
-function defsToDiffer<Props>(
-  elementDef: PropsDef<Props>
-): PropsDiffer<Partial<Props>> {
-  return (a, b, d) => {
-    for (const key in elementDef) {
-      const differ = elementDef[key];
-      const result = differ(a[key], b[key]);
-      if (result !== null) {
-        d.propDiffs.push({
-          ...result,
-          prop: key,
-        });
-      }
-    }
-  };
-}
+export type Props = UpdatersToProps<typeof elementDefs>;
 
-export function mapDefsToDiffers<PropMap>(o: {
-  [Type in keyof PropMap]: PropsDef<PropMap[Type]>;
-}): {
-  [Type in keyof PropMap]: PropsDiffer<Partial<PropMap[Type]>>;
-} {
-  const result: any = {};
-  for (const key in o) {
-    result[key] = defsToDiffer(o[key]);
-  }
-  return result;
-}
-
-const elementProps: {
-  [Type in keyof typeof elementDefs]: (
-    p: PropsFromDiffer<typeof elementDefs[Type]>
-  ) => React.ReactElement<PropsFromDiffer<typeof elementDefs[Type]>, Type>;
-} = Object.fromEntries(
-  Object.keys(elementDefs).map((e) => [e, e])
-) as unknown as any;
-
-type PropsDiffer<Props> = (a: Props, b: Props, d: PropsDelta) => void;
-
-type PropsDef<Props> = {
-  [Prop in keyof Props]: DiffFunc<Props[Prop]>;
-};
-
-type PropsFromDiffer<Def> = Def extends PropsDiffer<infer Props>
-  ? Props
-  : never;
-
-export type ElementProps = {
-  [P in keyof typeof elementDefs]: PropsFromDiffer<typeof elementDefs[P]>;
-};
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements extends ElementProps {}
-  }
-}
-
-export default elementProps;
+export default updatersToElements(elementDefs);

@@ -1,10 +1,10 @@
-import { differs, PrimitiveStandard } from "./primitives";
-import { PropUpdate } from "./signalFormatter";
+import differs, { PrimitiveStandard } from "./primitives";
 
 type DifferInput<T> = T extends (
   oldProps: infer Arg,
-  newProps: infer Arg
-) => unknown
+  newProps: infer Arg,
+  diff: { diff(o: { type: string; value: string | null }): void }
+) => void
   ? Arg
   : never;
 
@@ -62,7 +62,11 @@ it.each(
     v.map(([o, n, e]) => [k, o, n, e])
   )
 )("%s should stringify %s to %s", (type, oldVal, newVal, expected) => {
-  expect((differs as any)[type as any](oldVal, newVal)).toStrictEqual({
+  const diff = [] as any;
+  (differs as any)[type as any](oldVal, newVal, {
+    diff: (d: any) => diff.push(d),
+  });
+  expect(diff[0]).toStrictEqual({
     type: type,
     value: expected,
   });
