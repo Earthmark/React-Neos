@@ -1,4 +1,4 @@
-import differs, { PrimitiveStandard } from "./primitives";
+import differs from "./primitives";
 
 type DifferInput<T> = T extends (
   oldProps: infer Arg,

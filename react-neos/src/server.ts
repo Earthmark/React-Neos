@@ -1,7 +1,8 @@
 import React from "react";
 import { WebSocketServer } from "ws";
-import Renderer from "./neosRenderer";
+import Reconciler, { ElementUpdater } from "./neosRenderer";
 import { stringifySignalArray, parseSignal } from "./signalFormatter";
+import { elementDefs } from "./neosElement";
 
 export function HostReactProxyServer(
   port: number,
@@ -17,14 +18,27 @@ export function HostReactProxyServer(
   });
 }
 
-function ReactNeosServer(port: number, root: () => React.ReactElement) {
+function ReactNeosServer<ElementDefinitions>({
+  port,
+  root,
+  elementDefinitions,
+}: {
+  port: number;
+  root: () => React.ReactElement;
+  elementDefinitions?: {
+    [ElementType in keyof ElementDefinitions]: ElementUpdater<
+      ElementDefinitions[ElementType]
+    >;
+  };
+}) {
+  const reconciler = Reconciler(elementDefinitions ?? (elementDefs as any));
   HostReactProxyServer(port, () => {
-    const renderer = Renderer();
+    const renderer = reconciler.createContainerInstance();
     return (event) => {
       if (event !== null) {
         const signal = parseSignal(event);
         if (signal !== null) {
-          renderer.processEvent(signal);
+          renderer.onEvent(signal);
         }
       }
       return stringifySignalArray(renderer.render(root()));

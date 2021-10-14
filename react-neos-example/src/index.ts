@@ -1,4 +1,4 @@
 import { ReactNeosServer } from "react-neos";
 import Root from "./root";
 
-ReactNeosServer(8080, Root);
+ReactNeosServer({ port: 8080, root: Root });

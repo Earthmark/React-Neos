@@ -1,6 +1,15 @@
 import ReactNeosServer from "./server";
-import n from "./neosElement";
+import n, { Props } from "./neosElement";
+import {
+  primitiveDefinitionsToUpdaters,
+  PrimitiveDefinition,
+} from "./basePrimitives";
 
-export { ReactNeosServer };
+export {
+  ReactNeosServer,
+  primitiveDefinitionsToUpdaters,
+  PrimitiveDefinition,
+  Props,
+};
 
 export default n;

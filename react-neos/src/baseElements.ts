@@ -1,24 +1,24 @@
 import { ReactElement } from "react";
-import { Updater } from "./neosRenderer";
-import { PropFunc } from "./primitives";
+import { PrimitiveUpdater } from "./basePrimitives";
+import { ElementUpdater } from "./neosRenderer";
 
 type Optional<T> = T | null | undefined;
 
-type Definition<Props> = {
-  [Prop in keyof Props]: PropDefinition<Props[Prop]>;
+export type ElementDefinition<Props = {}> = {
+  [Prop in keyof Props]: ElementPropDefinition<Props[Prop]>;
 };
 
-type PropDefinition<T> = (
+type ElementPropDefinition<T extends { [Prop: string]: any }> = (
   oldProp: Optional<T>,
   newProp: Optional<T>,
   update: { diff(o: { type: string; value: string | null }): void }
 ) => void;
 
-type UpdaterToProps<U> = U extends Updater<infer Props> ? Props : never;
+type UpdaterToProps<U> = U extends ElementUpdater<infer Props> ? Props : never;
 
 function definitionToUpdater<Props>(
-  elementDef: Definition<Props>
-): Updater<Partial<Props>> {
+  elementDef: ElementDefinition<Props>
+): ElementUpdater<Partial<Props>> {
   return (oldProps, newProps, update) => {
     for (const prop in elementDef) {
       elementDef[prop](oldProps[prop], newProps[prop], {
@@ -39,16 +39,16 @@ function definitionToUpdater<Props>(
  * @returns A keyed set of element updaters.
  */
 export function definitionsToUpdaters<DefinitionProperties>(definitions: {
-  [Element in keyof DefinitionProperties]: Definition<
+  [Element in keyof DefinitionProperties]: ElementDefinition<
     DefinitionProperties[Element]
   >;
 }): {
-  [Element in keyof DefinitionProperties]: Updater<
+  [Element in keyof DefinitionProperties]: ElementUpdater<
     Partial<DefinitionProperties[Element]>
   >;
 } {
   const result: {
-    [Element in keyof DefinitionProperties]?: Updater<
+    [Element in keyof DefinitionProperties]?: ElementUpdater<
       Partial<DefinitionProperties[Element]>
     >;
   } = {};
@@ -58,7 +58,7 @@ export function definitionsToUpdaters<DefinitionProperties>(definitions: {
   return result as any;
 }
 
-export type UpdatersToProps<D> = D extends Definition<infer Props>
+export type UpdatersToProps<D> = D extends ElementDefinition<infer Props>
   ? Props
   : never;
 
@@ -97,7 +97,7 @@ export function updatersToElements<Updaters>(updaters: Updaters): {
  * @returns A type declaration that implies the element has react children.
  */
 export function hasReactChildren(): {
-  children: PropFunc<ReactElement | Array<ReactElement>>;
+  children: PrimitiveUpdater<ReactElement | Array<ReactElement>>;
 } {
   return { children: () => null };
 }
