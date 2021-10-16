@@ -61,6 +61,16 @@ export const elementDefs = definitionsToUpdaters({
   rect: {
     ...base2DElementDef,
   },
+  image: {
+    ...base2DElementDef,
+    color: p.color,
+  },
+  horizontalLayout: {
+    ...base2DElementDef,
+  },
+  verticalLayout: {
+    ...base2DElementDef,
+  },
   text: {
     ...base2DElementDef,
     children: p.string,

@@ -9,47 +9,174 @@ There are two sections in the system, the `Client Side` and `Server Side`. They 
 
 This roughly resembles [C#'s server size blazor](https://docs.microsoft.com/en-us/aspnet/core/blazor/hosting-models?view=aspnetcore-5.0), where the server tells the client what changes to make and the client sends back events, although events are not currently supported in react-neos.
 
-You can also use `react-neos` to make and then `detach` from an object. This is especially useful for making UIs. This is referred to as `printer-mode`.
+You can also use `react-neos` to make and then detach from the resulting object, this is especially useful for designing UIs and is referred to as `printer-mode`.
 
-## Example: A small red box
+## Getting Started
+
+`react-neos` is a supported use case of `react`, and for the most part online tutorials for `react` apply to `react-neos`. I suggest doing the [Getting Started](https://reactjs.org/docs/getting-started.html) page for `react` itself as an initial primer.
+
+The main differences from `react` are:
+* Element names are different (because it's neos, not a HTML dom)
+* Events are not yet supported
+* Refs are not yet supported, but when they are they will act slightly different than `react` refs.
+
+## Installing `react-neos`
+`react` itself is a peer dependency of `react-neos`, this means libraries that plan to start a `react-neos server` must also add `react` as a dependency.
+
+`react-neos` runs on `nodejs`, through either `npm` or `yarn`.
+
+With `yarn`:
+```
+yarn add react-neos
+yarn add react
+```
+
+With `npm`:
+```
+npm install react-neos
+npm install react
+```
+
+## Examples
+For all of the below examples there is a small piece of boilerplate that does the server setup part of this process, it looks like this:
+
+`>> index.js`
+```jsx
+import { ReactNeosServer } from "react-neos";
+import Root from "./root";
+
+ReactNeosServer({ port: 8080, root: Root });
+```
+This hosts a websocket server on port 8080, and then renders the `root` component when a client connects. This is the standard way to use `react-neos` and is recommended for most use cases.
+
+This is conceptually the same as `ReactDOM.render` if using `react` on a web DOM.
+
+There are additional arguments to the `ReactNeosServer` function, which are not yet stable but will be covered in the future. For now, this boilerplate is all you need.
+
+All of the example code below are as if they were defined in `root.jsx`, a file right next to this `index.js` file.
+
+## A small red box
 Technical jargon is bland, here's some examples instead.
 
 Here is a piece of `JSX` code that creates a small red box inside neos.
 ```jsx
 import React from "react";
-import n, { ReactNeosServer } from "react-neos";
+import n from "react-neos";
 
 const SmallBox = () => {
   return <n.box name="tiny square thing" size={[100, 20000, 0.01]} albedoColor={[1,0,0]} />;
 };
 
-ReactNeosServer({ port: 8080, root: SmallBox });
+export default SmallBox;
 ```
 This `jsx element` as the element type of `box`, and sets the `props` of `name`, `size`, and `albedoColor`.
+
+_The `n.` part of box is to prevent a name collision with the core `React` library, where `box` is used in drawing SVGs. If the prefix wasn't there, intellisense would suggest SVG based props as well as the `react-neos` props, which while that wouldn't break anything, it would be confusing. It is **highly suggested** to always use the `n.` prefix (or whatever prefix you define) for this reason._
 
 This generates the following hierarchy in Neos, which renders as a very small red box.
 ```
 React-Neos-Root
   tiny square thing - contains a mesh renderer, material, and procedural mesh.
 ```
-I'm cheating here, there is really more hidden above root and below the slot `tiny square thing`, but for now that doesn't matter.
+I'm cheating here, there is really more hidden above `React-Neos-Root` and below the slot `tiny square thing`, but for now that doesn't matter.
 
+In terms of the above code, the ReactNeosServer
 
+## A more complicated example: A complicated red box
+This isn't all that interesting, we made a tiny box, something you can do in neos in less than a minute! If you're doing something simple like a single box, `React-Neos` is likely not worth it for your use case.
 
-## Example: A complicated red box
-This isn't all that interesting, we made a tiny box. If you're doing something simple like a single box, `React-Neos` is likely more than you need.
-
-`React` gets powerful when you need to compose things.
+Here's an example of where `React-Neos` is useful.
 ```jsx
 import React from "react";
-import SimpleWsServer from "./Server";
+import n from "react-neos";
 
-const BigBox = () => {
-  return <nBox name="tiny square thing" size={[100, 20000, 0.01]} albedoColor={[1,0,0]} />;
-};
+const MenuBox = () => {
+  const [buttons] = React.useState(() => [{
+    text: "Option A",
+    color: [1, 0, 0]
+  },
+  {
+    text: "Option B",
+    color: [0, 1, 0]
+  },
+  {
+    text: "Option C",
+    color: [0, 0, 1]
+  }]);
 
-SimpleWsServer(8080, BigBox);
+  return <n.box name="tiny square thing" size={[1, 2, 0.01]} albedoColor={[1,0,0]}>
+    <n.canvas name="Box canvas" position={[-0.5, 0, 0]}>
+      <n.verticalLayout>
+        {buttons.map((button, index) =>
+          <n.text key={index} color={button.color}>
+          {button.text}
+        </n.text>
+        )}
+      </n.verticalLayout>
+    </n.canvas>
+  </n.box>;
+}
+
+export default MenuBox;
 ```
+OK, that is way more complicated... Let's walk through what this is doing.
+
+### MenuBox
+```jsx
+const [buttons] = React.useState(() => [{
+    text: "Option A",
+    color: [1, 0, 0]
+  },
+  ...
+]);
+```
+`buttons` is a list of buttons we want the box to show, we only encode the data we care about, such as "I want the first button to be Option A and red." you do not need to care about text size or styling.
+
+```jsx
+  return <n.box name="tiny square thing" size={[1, 2, 0.01]} albedoColor={[1,0,0]}>
+    <n.canvas name="Box canvas" position={[-0.5, 0, 0]}>
+      <n.horizontalLayout>
+        ...
+      </n.horizontalLayout>
+    </n.canvas>
+  </n.box>;
+```
+This creates a `box` as before, but also adds a `canvas` inside the box at specific offset, and adds a slot to act as a `horizontalLayout`.
+
+This is not too different from Neos so far, we're still defining a fixed structure.
+
+```jsx
+{buttons.map((button, index) =>
+  <n.text key={index} color={button.color}>
+    {button.text}
+  </n.text>
+)}
+```
+This is where things get interesting, we're telling `react` that for each item in the `button` array, we want a `text` UIX element with a different color and text.
+
+`key` is a react specific thing, in `printer-mode` it is not really needed, however it is good practice and `react` will print warning messages into the console if you don't include them. See the [react documentation](https://reactjs.org/docs/lists-and-keys.html) for specifics.
+
+### So far we haven't saved that much...
+We haven't really defined anything special yet, we've saved needing to duplicate and customize a slot... that is not really saving much effort. Where `react-neos` improves this is when you need to update the content.
+
+Once we make the above example, we see we're adding red text over a red box, which is not all that legible. Let's update the code for adding a backdrop behind the text so it's more legible.
+
+```jsx
+{buttons.map((button, index) =>
+  <n.image key={index} color={0}>
+    <n.text color={button.color}>
+      {button.text}
+    </n.text>
+  </n.image>
+)}
+```
+We added a wrapper `n.image` component that is black (a color of 0 is parsed as [0, 0, 0, 1] in terms of RGBA).
+
+And we're done, when the `box` is rendered now each button has a black backdrop and colored text.
+
+If we were to make these changes inside Neos, we'd need to create an image object, set it to black, then duplicate it for every text element, and then re-parent hoping the order was correct.
+
+# Below this point is in progress documentation wise, expect breaking changes and incomplete or incompatible APIs.
 
 ## Creating a new template
 
