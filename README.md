@@ -1,13 +1,15 @@
 # React-Neos
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Earthmark/React-Neos/blob/main/LICENSE) [![npm version](https://img.shields.io/npm/v/react-neos.svg?style=flat)](https://www.npmjs.com/package/react-neos) ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
-react-neos is a wrapper around the react-render-component library,
-providing a custom renderer where instances are proxied into Neos.
+react-neos is a wrapper around the react-render-component library, where instead of a HTML dom it's a neos object!
 
-There are two sections in the system, `Client Side` and `Server Side`. Both sides communicate with each other using a text web socket. The web socket session is used as the object lifetime (Reconnection reloads the react container/instance).
+## The general idea
 
-This roughly resembles [C#'s server size blazor](https://docs.microsoft.com/en-us/aspnet/core/blazor/hosting-models?view=aspnetcore-5.0), where the server contains what the client should see, changes to that model are replicated into the client, and events are routed back to the server.
+There are two sections in the system, the `Client Side` and `Server Side`. They communicate using a websocket with a  horrible text format.
 
-It is also possible to have `react-neos` make an object, then `detach` from the object. This can be useful for using the tool as a way to generate static objects in the world, such as UIX layouts. this is referred to as `printer-mode`.
+This roughly resembles [C#'s server size blazor](https://docs.microsoft.com/en-us/aspnet/core/blazor/hosting-models?view=aspnetcore-5.0), where the server tells the client what changes to make and the client sends back events, although events are not currently supported in react-neos.
+
+You can also use `react-neos` to make and then `detach` from an object. This is especially useful for making UIs. This is referred to as `printer-mode`.
 
 ## Example: A small red box
 Technical jargon is bland, here's some examples instead.
@@ -15,14 +17,13 @@ Technical jargon is bland, here's some examples instead.
 Here is a piece of `JSX` code that creates a small red box inside neos.
 ```jsx
 import React from "react";
-import SimpleWsServer from "./Server";
-import n from "./NeosElement";
+import n, { ReactNeosServer } from "react-neos";
 
 const SmallBox = () => {
   return <n.box name="tiny square thing" size={[100, 20000, 0.01]} albedoColor={[1,0,0]} />;
 };
 
-SimpleWsServer(8080, SmallBox);
+ReactNeosServer({ port: 8080, root: SmallBox });
 ```
 This `jsx element` as the element type of `box`, and sets the `props` of `name`, `size`, and `albedoColor`.
 
