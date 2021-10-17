@@ -1,4 +1,4 @@
-import differs, { p } from "./primitives";
+import differs from "./primitives";
 
 type DifferInput<T> = T extends (
   oldProps: infer Arg,
@@ -22,24 +22,24 @@ const testCases: TestCaseMap = {
     [undefined, 0.5, "0.5"],
   ],
   float2: [
-    [p.xx(0.5), null, null],
-    [undefined, p.xx(0.5), "[0.5;0.5]"],
+    [{ x: 0.5, y: 0.5 }, null, null],
+    [undefined, { x: 0.5, y: 0.5 }, "[0.5;0.5]"],
   ],
   float3: [
-    [p.xxx(0.5), null, null],
-    [undefined, p.xxx(0.5), "[0.5;0.5;0.5]"],
+    [{ x: 0.5, y: 0.5, z: 0.5 }, null, null],
+    [undefined, { x: 0.5, y: 0.5, z: 0.5 }, "[0.5;0.5;0.5]"],
   ],
   float4: [
-    [p.xxxx(0.5), null, null],
-    [undefined, p.xxxx(0.5), "[0.5;0.5;0.5;0.5]"],
+    [{ x: 0.5, y: 0.5, z: 0.5, w: 0.5 }, null, null],
+    [undefined, { x: 0.5, y: 0.5, z: 0.5, w: 0.5 }, "[0.5;0.5;0.5;0.5]"],
   ],
   floatQ: [
-    [p.xxx(0.5), null, null],
-    [undefined, p.xxx(0.5), "[0.5;0.5;0.5]"],
+    [{ x: 0.5, y: 0.5, z: 0.5 }, null, null],
+    [undefined, { x: 0.5, y: 0.5, z: 0.5 }, "[0.5;0.5;0.5]"],
   ],
   color: [
-    [p.rrrr(0.5), null, null],
-    [undefined, p.rrrr(0.5), "[0.5;0.5;0.5;0.5]"],
+    [{ r: 0.5, g: 0.5, b: 0.5, a: 0.5 }, null, null],
+    [undefined, { r: 0.5, g: 0.5, b: 0.5, a: 0.5 }, "[0.5;0.5;0.5;0.5]"],
   ],
   string: [
     ["a", null, null],

@@ -2,7 +2,6 @@ import React from 'react';
 import renderer, { PropUpdate } from "./neosRenderer";
 import TestRenderer from "react-test-renderer";
 import n, { Props, elementDefs} from "./neosElement";
-import { p } from "./primitives";
 
 test("Verify failure", () => {
   expect(renderer).toBeDefined();
@@ -10,7 +9,7 @@ test("Verify failure", () => {
 });
 
 test("Verify hierarchy shows as expected", () => {
-  expect(TestRenderer.create(<n.transform scale={p.xxx(3)} />).toJSON()).toMatchSnapshot();
+  expect(TestRenderer.create(<n.transform scale={{x: 3, y: 3, z: 3}} />).toJSON()).toMatchSnapshot();
 });
 
 test("verify slot stringifies as expected", () => {
@@ -18,11 +17,11 @@ test("verify slot stringifies as expected", () => {
   elementDefs.transform({
       active: true,
       persistent: true,
-      scale: p.xxx(2),
+      scale: {x: 2, y: 2, z: 2},
     },
     {
       persistent: true,
-      scale: p.xxx(3),
+      scale: {x: 3, y: 3, z: 3},
     },
     {
       diff: d => propDiffs.push(d)
@@ -56,11 +55,11 @@ const testCases : {
     oldProps: {
       active: true,
       persistent: true,
-      scale: p.xxx(2),
+      scale: {x: 2, y: 2, z: 2},
     },
     newProps: {
       persistent: true,
-      scale: p.xxx(3),
+      scale: {x: 3, y: 3, z: 3},
     },
     expected: [{
       prop: "active",
@@ -77,8 +76,8 @@ const testCases : {
     },
     newProps: {
       persistent: true,
-      position: p.xyz(1, 2, 43),
-      scale: p.xxx(3),
+      position: {x: 1, y:2, z:43},
+      scale: {x: 3, y: 3, z: 3},
     },
     expected: [
       {

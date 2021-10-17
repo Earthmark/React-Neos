@@ -15,8 +15,12 @@ You can also use `react-neos` to make and then detach from the resulting object,
 
 `react-neos` is a supported use case of `react`, and for the most part online tutorials for `react` apply to `react-neos`. I suggest doing the [Getting Started](https://reactjs.org/docs/getting-started.html) page for `react` itself as an initial primer.
 
-The main differences from `react` are:
-* Element names are different (because it's neos, not a HTML dom)
+If you need help, feel free to reach out on Discord.
+
+## **Past this point it is assumed you have gone through the [React tutorial](https://reactjs.org/docs/getting-started.html)**
+
+The main differences with `react-neos` versus normal `react` are:
+* Component names are different (because it's neos, not a HTML dom)
 * Events are not yet supported
 * Refs are not yet supported, but when they are they will act slightly different than `react` refs.
 
@@ -37,8 +41,11 @@ npm install react-neos
 npm install react
 ```
 
-## Examples
-For all of the below examples there is a small piece of boilerplate that does the server setup part of this process, it looks like this:
+## Common Patterns
+
+### Launching a `react-neos` server
+
+In general it is suggested all `react-neos` consumers use the same boilerplate as below, this is a launch file that does the server setup part of this process, it looks like this:
 
 `>> index.js`
 ```jsx
@@ -55,6 +62,15 @@ There are additional arguments to the `ReactNeosServer` function, which are not 
 
 All of the example code below are as if they were defined in `root.jsx`, a file right next to this `index.js` file.
 
+### Property types
+`react-neos` uses objects for most props, for instance a `float3` value of `[1,2,3]` is defined as `{x: 1, y: 2, z: 3}`. This is a bit verbose, and it's suggested you make helpers to create these objects.
+
+In the future helpers may be included by default, for now it is manual.
+
+**NOTE:** if one of these fields is not defined it is considered `0`, with the exception of the `a` channel for `Color`, that is defaulted to `1`.
+
+**NOTE 2:** Rotation is currently a `float3`, this may change in the future.
+
 ## A small red box
 Technical jargon is bland, here's some examples instead.
 
@@ -63,11 +79,11 @@ Here is a piece of `JSX` code that creates a small red box inside neos.
 import React from "react";
 import n from "react-neos";
 
-const SmallBox = () => {
-  return <n.box name="tiny square thing" size={[100, 20000, 0.01]} albedoColor={[1,0,0]} />;
+const SmallRedBox = () => {
+  return <n.box name="tiny square thing" size={{x: 100, y: 20000, z: 0.01}} albedoColor={{r: 1, g: 0, b: 0}} />;
 };
 
-export default SmallBox;
+export default SmallRedBox;
 ```
 This `jsx element` as the element type of `box`, and sets the `props` of `name`, `size`, and `albedoColor`.
 
@@ -90,22 +106,23 @@ Here's an example of where `React-Neos` is useful.
 import React from "react";
 import n from "react-neos";
 
-const MenuBox = () => {
+const MoreComplicatedBox = () => {
   const [buttons] = React.useState(() => [{
     text: "Option A",
-    color: [1, 0, 0]
+    color: {r: 1}
   },
   {
     text: "Option B",
-    color: [0, 1, 0]
+    color: {g: 1}
   },
   {
     text: "Option C",
-    color: [0, 0, 1]
+    color: {b: 1}
   }]);
 
-  return <n.box name="tiny square thing" size={[1, 2, 0.01]} albedoColor={[1,0,0]}>
-    <n.canvas name="Box canvas" position={[-0.5, 0, 0]}>
+  return <n.transform>
+  <n.box name="tiny square thing" size={{x: 1, y:2, z: 0.01}} albedoColor={{r:1}}/>
+    <n.canvas name="Box canvas" position={{x: -0.5, y: 0, z: 0}}>
       <n.verticalLayout>
         {buttons.map((button, index) =>
           <n.text key={index} color={button.color}>
@@ -114,10 +131,10 @@ const MenuBox = () => {
         )}
       </n.verticalLayout>
     </n.canvas>
-  </n.box>;
+  </n.transform>;
 }
 
-export default MenuBox;
+export default MoreComplicatedBox;
 ```
 OK, that is way more complicated... Let's walk through what this is doing.
 
@@ -125,7 +142,7 @@ OK, that is way more complicated... Let's walk through what this is doing.
 ```jsx
 const [buttons] = React.useState(() => [{
     text: "Option A",
-    color: [1, 0, 0]
+    color: {r: 1}
   },
   ...
 ]);
@@ -133,13 +150,14 @@ const [buttons] = React.useState(() => [{
 `buttons` is a list of buttons we want the box to show, we only encode the data we care about, such as "I want the first button to be Option A and red." you do not need to care about text size or styling.
 
 ```jsx
-  return <n.box name="tiny square thing" size={[1, 2, 0.01]} albedoColor={[1,0,0]}>
-    <n.canvas name="Box canvas" position={[-0.5, 0, 0]}>
-      <n.horizontalLayout>
+  return <n.transform>
+  <n.box name="tiny square thing" size={{x: 1, y: 2, z: 0.01}} albedoColor={{r: 1}}/>
+    <n.canvas name="Box canvas" position={{x: -0.5, y: 0, z: 0}}>
+      <n.verticalLayout>
         ...
-      </n.horizontalLayout>
+      </n.verticalLayout>
     </n.canvas>
-  </n.box>;
+  </n.transform>;
 ```
 This creates a `box` as before, but also adds a `canvas` inside the box at specific offset, and adds a slot to act as a `horizontalLayout`.
 
@@ -163,15 +181,13 @@ Once we make the above example, we see we're adding red text over a red box, whi
 
 ```jsx
 {buttons.map((button, index) =>
-  <n.image key={index} color={0}>
+  <n.image key={index} color={{}}>
     <n.text color={button.color}>
       {button.text}
     </n.text>
   </n.image>
 )}
 ```
-We added a wrapper `n.image` component that is black (a color of 0 is parsed as [0, 0, 0, 1] in terms of RGBA).
-
 And we're done, when the `box` is rendered now each button has a black backdrop and colored text.
 
 If we were to make these changes inside Neos, we'd need to create an image object, set it to black, then duplicate it for every text element, and then re-parent hoping the order was correct.
