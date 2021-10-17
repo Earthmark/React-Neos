@@ -2,23 +2,22 @@ import createReconciler, { OutboundSignal } from "./renderer";
 import { elementDefs } from "./components";
 import { InboundSignal } from "./signalFormatter";
 
-export type ReactNeosRender = (handler: {
+export interface ReactNeosRenderHandler {
   bind(): {
     render(signal?: Array<InboundSignal>): Array<OutboundSignal>;
   };
-}) => void;
+}
 
-export default function renderForEach(
-  node: React.ReactNode,
-  handler: ReactNeosRender
-) {
+export default function createRender(
+  node: React.ReactNode
+): ReactNeosRenderHandler {
   const reconciler = createReconciler(elementDefs);
-  handler({
+  return {
     bind: () => {
       const b = reconciler.bind();
       return {
         render: (signal) => b.render(node, signal),
       };
     },
-  });
+  };
 }

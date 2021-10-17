@@ -1,5 +1,5 @@
 import { WebSocketServer, WebSocket, ServerOptions } from "ws";
-import { ReactNeosRender } from "./renderForEach";
+import { ReactNeosRenderHandler } from "./createRender";
 import { stringifySignalArray, parseSignal } from "./signalFormatter";
 
 function keepAlive(ws: WebSocket, keepalive?: number) {
@@ -18,22 +18,21 @@ function keepAlive(ws: WebSocket, keepalive?: number) {
   }, keepalive ?? 30000);
 }
 
-export default function wsNeosProxyServer(
+export default function wsNeosProxyServerRenderer(
+  renderHandler: ReactNeosRenderHandler,
   options?: ServerOptions & { keepalive?: number }
-): ReactNeosRender {
-  return ({ bind }) => {
-    const server = new WebSocketServer(options);
-    server.on("connection", (ws) => {
-      keepAlive(ws, options?.keepalive);
-      const { render } = bind();
+) {
+  const server = new WebSocketServer(options);
+  server.on("connection", (ws) => {
+    keepAlive(ws, options?.keepalive);
+    const { render } = renderHandler.bind();
 
-      const processMessage = (msg?: string) =>
-        ws.send(stringifySignalArray(render(parseSignal(msg))));
+    const processMessage = (msg?: string) =>
+      ws.send(stringifySignalArray(render(parseSignal(msg))));
 
-      processMessage();
-      ws.on("message", (message) => {
-        processMessage(message.toString("utf-8"));
-      });
+    processMessage();
+    ws.on("message", (message) => {
+      processMessage(message.toString("utf-8"));
     });
-  };
+  });
 }

@@ -1,7 +1,7 @@
 import wsNeosProxyServer from "./wsNeosProxyServer";
 import n, { Props } from "./components";
-import renderForEach from "./renderForEach";
+import createRender from "./createRender";
 
-export { renderForEach, wsNeosProxyServer, Props };
+export { createRender, wsNeosProxyServer, Props };
 
 export default n;

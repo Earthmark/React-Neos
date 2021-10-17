@@ -29,7 +29,7 @@ The main differences with `react-neos` versus normal `react` are:
 * Refs are not yet supported, but when they are they will act slightly different than `react` refs.
 
 ## Installing `react-neos`
-`react` itself is a peer dependency of `react-neos`, this means libraries that plan to start a `react-neos server` must also add `react` as a dependency.
+`react` itself is a peer dependency of `react-neos`, this means libraries that plan to start a `react-neos` server must also add `react` as a dependency.
 
 `react-neos` runs on `nodejs`, through either `npm` or `yarn`.
 
@@ -52,17 +52,17 @@ In general it is suggested all `react-neos` consumers use the same boilerplate a
 `>> server.jsx`
 ```jsx
 import React from "react";
-import { renderForEach, wsNeosProxyServer } from "react-neos";
+import { createRender, wsNeosProxyServer } from "react-neos";
 import Root from "./MoreComplicatedBox";
 
-const server = wsNeosProxyServer({ port: 8080 });
-renderForEach(<Root />, server);
+const render = createRender(<Root />);
+wsNeosProxyServer(render, { port: 8080 });
 ```
 This hosts a websocket server on port 8080, and then renders the `root` component when a client connects. This is the standard way to use `react-neos` and is recommended for most use cases.
 
 This is the same as `ReactDOM.render`, which is used with the web version.
 
-Configure the spawned `ws` server using `wsNeosProxyServer`, and start the webserver using `renderForEach` which will return a new instance of the provided component for each websocket request.
+`createRender` sets up the renderer that proxies events to neos, in the future this will get additional arguments. For now use it directly and then call `wsNeosProxyServer` to start serving the `ws` server.
 
 In the future different types of services can be provided to `renderForEach`, for now only the websocket server is provided out of the box.
 
