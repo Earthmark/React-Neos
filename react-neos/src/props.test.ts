@@ -1,4 +1,4 @@
-import differs from "./primitives";
+import props from "./props";
 
 type DifferInput<T> = T extends (
   oldProps: infer Arg,
@@ -9,9 +9,9 @@ type DifferInput<T> = T extends (
   : never;
 
 type TestCaseMap = {
-  [key in keyof typeof differs]: [
-    DifferInput<typeof differs[key]>,
-    DifferInput<typeof differs[key]>,
+  [key in keyof typeof props]: [
+    DifferInput<typeof props[key]>,
+    DifferInput<typeof props[key]>,
     string | null
   ][];
 };
@@ -63,7 +63,7 @@ it.each(
   )
 )("%s should stringify %s to %s", (type, oldVal, newVal, expected) => {
   const diff = [] as any;
-  (differs as any)[type as any](oldVal, newVal, {
+  (props as any)[type as any](oldVal, newVal, {
     diff: (d: any) => diff.push(d),
   });
   expect(diff[0]).toStrictEqual({

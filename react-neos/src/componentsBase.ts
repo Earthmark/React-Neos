@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
-import { PrimitiveUpdater } from "./basePrimitives";
-import { ElementUpdater } from "./neosRenderer";
+import { PrimitiveUpdater } from "./propsBase";
+import { ElementUpdater } from "./renderer";
 
 type Optional<T> = T | null | undefined;
 

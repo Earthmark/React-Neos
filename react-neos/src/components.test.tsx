@@ -1,7 +1,7 @@
 import React from 'react';
-import renderer, { PropUpdate } from "./neosRenderer";
+import renderer, { PropUpdate } from "./renderer";
 import TestRenderer from "react-test-renderer";
-import n, { Props, elementDefs} from "./neosElement";
+import n, { Props, elementDefs} from "./components";
 
 test("Verify failure", () => {
   expect(renderer).toBeDefined();

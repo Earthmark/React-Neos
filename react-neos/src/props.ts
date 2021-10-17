@@ -1,7 +1,7 @@
 import {
   PrimitiveDefinition,
   primitiveDefinitionsToUpdaters,
-} from "./basePrimitives";
+} from "./propsBase";
 
 export type Vec4D = Partial<{ x: number; y: number; z: number; w: number }>;
 

@@ -3,6 +3,15 @@ import Reconciler from "react-reconciler";
 import { InboundSignal } from "./signalFormatter";
 import { performance } from "perf_hooks";
 
+export interface ReactNeosRenderer {
+  bind(): {
+    render(
+      node: React.ReactNode,
+      signal?: Array<InboundSignal>
+    ): Array<OutboundSignal>;
+  };
+}
+
 export type ElementId = string;
 
 export interface CreateSignal {
@@ -81,7 +90,7 @@ export default function createReconciler<
   [ElementType in keyof ElementDefinitions]: ElementUpdater<
     ElementDefinitions[ElementType]
   >;
-}) {
+}): ReactNeosRenderer {
   const reconciler = Reconciler<
     keyof ElementDefinitions & string,
     Record<string, any>,
@@ -250,7 +259,7 @@ export default function createReconciler<
   });
 
   return {
-    createContainerInstance() {
+    bind() {
       const containerInfo: Container = {
         rootId: "root",
         globalId: 1,
@@ -264,16 +273,10 @@ export default function createReconciler<
       );
 
       return {
-        onEvent(signal: InboundSignal) {
-          //const targetElem = containerInfo.eventSubscription[signal.id];
-          //if (targetElem) {
-          //  const handler = targetElem[signal.event];
-          //  if (signal) {
-          //    handler(signal.arg);
-          //  }
-          //}
-        },
-        render(node: React.ReactNode): Array<OutboundSignal> {
+        render(
+          node: React.ReactNode,
+          signal?: Array<InboundSignal>
+        ): Array<OutboundSignal> {
           reconciler.updateContainer(node, container);
           const queue = containerInfo.eventQueue;
           containerInfo.eventQueue = [];

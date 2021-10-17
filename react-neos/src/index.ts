@@ -1,15 +1,7 @@
-import ReactNeosServer from "./server";
-import n, { Props } from "./neosElement";
-import {
-  primitiveDefinitionsToUpdaters,
-  PrimitiveDefinition,
-} from "./basePrimitives";
+import wsNeosProxyServer from "./wsNeosProxyServer";
+import n, { Props } from "./components";
+import renderForEach from "./renderForEach";
 
-export {
-  ReactNeosServer,
-  primitiveDefinitionsToUpdaters,
-  PrimitiveDefinition,
-  Props,
-};
+export { renderForEach, wsNeosProxyServer, Props };
 
 export default n;

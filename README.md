@@ -3,24 +3,28 @@
 
 react-neos is a wrapper around the react-render-component library, where instead of a HTML dom it's a neos object!
 
+**Try this out on [glitch.com](https://glitch.com/edit/#!/react-neos-example)**
+
 ## The general idea
+
+This creates objects in `Neos` using `React`, this provides versioning, diffing, and many other quality of life features to `Neos` development.
 
 There are two sections in the system, the `Client Side` and `Server Side`. They communicate using a websocket with a  horrible text format.
 
 This roughly resembles [C#'s server size blazor](https://docs.microsoft.com/en-us/aspnet/core/blazor/hosting-models?view=aspnetcore-5.0), where the server tells the client what changes to make and the client sends back events, although events are not currently supported in react-neos.
 
-You can also use `react-neos` to make and then detach from the resulting object, this is especially useful for designing UIs and is referred to as `printer-mode`.
+You can also use `react-neos` to make objects and then strip off the `neos-react` boilerplate, this is especially useful for designing UIs and is referred to as `printer-mode`.
 
 ## Getting Started
 
-`react-neos` is a supported use case of `react`, and for the most part online tutorials for `react` apply to `react-neos`. I suggest doing the [Getting Started](https://reactjs.org/docs/getting-started.html) page for `react` itself as an initial primer.
+`react-neos` is a custom renderer for `react`, and for the most part online tutorials for `react` apply to `react-neos`. I suggest doing the [Getting Started](https://reactjs.org/docs/getting-started.html) page for `react` itself as your first steps with this library.
 
 If you need help, feel free to reach out on Discord.
 
 ## **Past this point it is assumed you have gone through the [React tutorial](https://reactjs.org/docs/getting-started.html)**
 
 The main differences with `react-neos` versus normal `react` are:
-* Component names are different (because it's neos, not a HTML dom)
+* Component names are different (because it's neos, not HTML)
 * Events are not yet supported
 * Refs are not yet supported, but when they are they will act slightly different than `react` refs.
 
@@ -31,14 +35,12 @@ The main differences with `react-neos` versus normal `react` are:
 
 With `yarn`:
 ```
-yarn add react-neos
-yarn add react
+yarn add react-neos react
 ```
 
 With `npm`:
 ```
-npm install react-neos
-npm install react
+npm install react-neos react
 ```
 
 ## Common Patterns
@@ -47,21 +49,24 @@ npm install react
 
 In general it is suggested all `react-neos` consumers use the same boilerplate as below, this is a launch file that does the server setup part of this process, it looks like this:
 
-`>> index.jsx`
-```js
+`>> server.jsx`
+```jsx
 import React from "react";
-import { ReactNeosServer } from "react-neos";
-import Root from "./Root";
+import { renderForEach, wsNeosProxyServer } from "react-neos";
+import Root from "./MoreComplicatedBox";
 
-ReactNeosServer({ port: 8080, root: <Root /> });
+const server = wsNeosProxyServer({ port: 8080 });
+renderForEach(<Root />, server);
 ```
 This hosts a websocket server on port 8080, and then renders the `root` component when a client connects. This is the standard way to use `react-neos` and is recommended for most use cases.
 
-This is conceptually the same as `ReactDOM.render` if using `react` on a web DOM.
+This is the same as `ReactDOM.render`, which is used with the web version.
 
-There are additional arguments to the `ReactNeosServer` function, which are not yet stable but will be covered in the future. For now, this boilerplate is all you need.
+Configure the spawned `ws` server using `wsNeosProxyServer`, and start the webserver using `renderForEach` which will return a new instance of the provided component for each websocket request.
 
-All of the example code below are as if they were defined in `Root.jsx`, a file right next to this `index.jsx` file.
+In the future different types of services can be provided to `renderForEach`, for now only the websocket server is provided out of the box.
+
+All of the example code below are as if they were defined in `Root.jsx`, a file right next to this `server.jsx` file.
 
 ### Property types
 `react-neos` uses objects for most props, for instance a `float3` value of `[1,2,3]` is defined as `{x: 1, y: 2, z: 3}`. This is a bit verbose, and it's suggested you make helpers to create these objects.
@@ -175,7 +180,7 @@ This is not too different from Neos so far, we're still defining a fixed structu
 ```
 This is where things get interesting, we're telling `react` that for each item in the `button` array, we want a `text` UIX element with a different color and text.
 
-`key` is a react specific thing, in `printer-mode` it is not really needed, however it is good practice and `react` will print warning messages into the console if you don't include them. See the [react documentation](https://reactjs.org/docs/lists-and-keys.html) for specifics.
+`key` is a react specific thing, in `printer-mode` it is not really needed, however it is good practice and `react` will print warning messages into the console if you don't include them. See the [react documentation about keys](https://reactjs.org/docs/lists-and-keys.html) for specifics.
 
 ### So far we haven't saved that much...
 We haven't really defined anything special yet, we've saved needing to duplicate and customize a slot... that is not really saving much effort. Where `react-neos` improves this is when you need to update the content.

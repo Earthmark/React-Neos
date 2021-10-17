@@ -1,4 +1,4 @@
-import { OutboundSignal, ElementId } from "./neosRenderer";
+import { OutboundSignal, ElementId } from "./renderer";
 
 export const nullSymbol: "$" = "$";
 
@@ -37,16 +37,21 @@ interface EventSignal {
 
 export type InboundSignal = EventSignal;
 
-export function parseSignal(signal: string): InboundSignal | null {
+export function parseSignal(signal?: string): Array<InboundSignal> | undefined {
+  if (signal === undefined) {
+    return undefined;
+  }
   const [signalType, ...args] = signal.split("+");
   switch (signalType) {
     case "event":
-      return {
-        signal: "event",
-        id: args[0],
-        event: args[1],
-        arg: args[2],
-      };
+      return [
+        {
+          signal: "event",
+          id: args[0],
+          event: args[1],
+          arg: args[2],
+        },
+      ];
   }
-  return null;
+  return undefined;
 }

@@ -1,32 +1,32 @@
-import prim from "./primitives";
+import prop from "./props";
 import {
   definitionsToUpdaters,
   updatersToElements,
   hasReactChildren,
   UpdatersToProps,
-} from "./baseElements";
+} from "./componentsBase";
 
 const baseElementDef = {
-  active: prim.bool,
-  persistent: prim.bool,
-  name: prim.string,
-  tag: prim.string,
+  active: prop.bool,
+  persistent: prop.bool,
+  name: prop.string,
+  tag: prop.string,
 };
 
 const base3DElementDef = {
   ...baseElementDef,
-  position: prim.float3,
-  rotation: prim.floatQ,
-  scale: prim.float3,
+  position: prop.float3,
+  rotation: prop.floatQ,
+  scale: prop.float3,
 };
 
 const base2DElementDef = {
   ...baseElementDef,
-  anchorMin: prim.float2,
-  anchorMax: prim.float2,
-  offsetMin: prim.float2,
-  offsetMax: prim.float2,
-  pivot: prim.float2,
+  anchorMin: prop.float2,
+  anchorMax: prop.float2,
+  offsetMin: prop.float2,
+  offsetMax: prop.float2,
+  pivot: prop.float2,
 };
 
 export const elementDefs = definitionsToUpdaters({
@@ -37,23 +37,23 @@ export const elementDefs = definitionsToUpdaters({
   smoothTransform: {
     ...base3DElementDef,
     ...hasReactChildren(),
-    smoothTransformEnabled: prim.bool,
-    smoothSpeed: prim.float,
+    smoothTransformEnabled: prop.bool,
+    smoothSpeed: prop.float,
   },
   spinner: {
     ...base3DElementDef,
     ...hasReactChildren(),
-    speed: prim.float3,
-    range: prim.float3,
+    speed: prop.float3,
+    range: prop.float3,
   },
   box: {
     ...base3DElementDef,
-    albedoColor: prim.color,
-    emissiveColor: prim.color,
-    size: prim.float3,
-    colliderActive: prim.bool,
-    characterCollider: prim.bool,
-    ignoreRaycasts: prim.bool,
+    albedoColor: prop.color,
+    emissiveColor: prop.color,
+    size: prop.float3,
+    colliderActive: prop.bool,
+    characterCollider: prop.bool,
+    ignoreRaycasts: prop.bool,
   },
   canvas: {
     ...base3DElementDef,
@@ -66,7 +66,7 @@ export const elementDefs = definitionsToUpdaters({
   image: {
     ...base2DElementDef,
     ...hasReactChildren(),
-    color: prim.color,
+    color: prop.color,
   },
   horizontalLayout: {
     ...base2DElementDef,
@@ -78,8 +78,8 @@ export const elementDefs = definitionsToUpdaters({
   },
   text: {
     ...base2DElementDef,
-    children: prim.string,
-    color: prim.color,
+    children: prop.string,
+    color: prop.color,
   },
   button: {
     ...base2DElementDef,
