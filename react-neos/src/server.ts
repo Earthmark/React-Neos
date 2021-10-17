@@ -1,4 +1,4 @@
-import React from "react";
+import { ReactNode } from "react";
 import { WebSocketServer } from "ws";
 import Reconciler, { ElementUpdater } from "./neosRenderer";
 import { stringifySignalArray, parseSignal } from "./signalFormatter";
@@ -24,7 +24,7 @@ function ReactNeosServer<ElementDefinitions>({
   elementDefinitions,
 }: {
   port: number;
-  root: () => React.ReactElement;
+  root: ReactNode;
   elementDefinitions?: {
     [ElementType in keyof ElementDefinitions]: ElementUpdater<
       ElementDefinitions[ElementType]
@@ -41,7 +41,7 @@ function ReactNeosServer<ElementDefinitions>({
           renderer.onEvent(signal);
         }
       }
-      return stringifySignalArray(renderer.render(root()));
+      return stringifySignalArray(renderer.render(root));
     };
   });
 }

@@ -48,11 +48,12 @@ npm install react
 In general it is suggested all `react-neos` consumers use the same boilerplate as below, this is a launch file that does the server setup part of this process, it looks like this:
 
 `>> index.js`
-```jsx
+```js
+import React from "react";
 import { ReactNeosServer } from "react-neos";
-import Root from "./root";
+import Root from "./MoreComplicatedBox";
 
-ReactNeosServer({ port: 8080, root: Root });
+ReactNeosServer({ port: 8080, root: <Root /> });
 ```
 This hosts a websocket server on port 8080, and then renders the `root` component when a client connects. This is the standard way to use `react-neos` and is recommended for most use cases.
 
