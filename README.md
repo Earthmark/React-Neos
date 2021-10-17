@@ -69,6 +69,8 @@ In the future helpers may be included by default, for now it is manual.
 
 **NOTE:** if one of these fields is not defined it is considered `0`, with the exception of the `a` channel for `Color`, that is defaulted to `1`.
 
+For this reason, be careful when defining a scale property as undefined components will currently default to `0`. This may change in the future.
+
 **NOTE 2:** Rotation is currently a `float3`, this may change in the future.
 
 ## A small red box
