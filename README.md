@@ -47,11 +47,11 @@ npm install react
 
 In general it is suggested all `react-neos` consumers use the same boilerplate as below, this is a launch file that does the server setup part of this process, it looks like this:
 
-`>> index.js`
+`>> index.jsx`
 ```js
 import React from "react";
 import { ReactNeosServer } from "react-neos";
-import Root from "./MoreComplicatedBox";
+import Root from "./Root";
 
 ReactNeosServer({ port: 8080, root: <Root /> });
 ```
@@ -61,7 +61,7 @@ This is conceptually the same as `ReactDOM.render` if using `react` on a web DOM
 
 There are additional arguments to the `ReactNeosServer` function, which are not yet stable but will be covered in the future. For now, this boilerplate is all you need.
 
-All of the example code below are as if they were defined in `root.jsx`, a file right next to this `index.js` file.
+All of the example code below are as if they were defined in `Root.jsx`, a file right next to this `index.jsx` file.
 
 ### Property types
 `react-neos` uses objects for most props, for instance a `float3` value of `[1,2,3]` is defined as `{x: 1, y: 2, z: 3}`. This is a bit verbose, and it's suggested you make helpers to create these objects.
