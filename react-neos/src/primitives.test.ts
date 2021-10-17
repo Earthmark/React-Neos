@@ -1,4 +1,4 @@
-import differs from "./primitives";
+import differs, { p } from "./primitives";
 
 type DifferInput<T> = T extends (
   oldProps: infer Arg,
@@ -22,24 +22,24 @@ const testCases: TestCaseMap = {
     [undefined, 0.5, "0.5"],
   ],
   float2: [
-    [0.5, null, null],
-    [undefined, [0.5, 0.5], "[0.5;0.5]"],
+    [p.xx(0.5), null, null],
+    [undefined, p.xx(0.5), "[0.5;0.5]"],
   ],
   float3: [
-    [0.5, null, null],
-    [undefined, [0.5, 0.5, 0.5], "[0.5;0.5;0.5]"],
+    [p.xxx(0.5), null, null],
+    [undefined, p.xxx(0.5), "[0.5;0.5;0.5]"],
   ],
   float4: [
-    [0.5, null, null],
-    [undefined, [0.5, 0.5, 0.5, 0.5], "[0.5;0.5;0.5;0.5]"],
+    [p.xxxx(0.5), null, null],
+    [undefined, p.xxxx(0.5), "[0.5;0.5;0.5;0.5]"],
   ],
   floatQ: [
-    [0.5, null, null],
-    [undefined, [0.5, 0.5, 0.5], "[0.5;0.5;0.5]"],
+    [p.xxx(0.5), null, null],
+    [undefined, p.xxx(0.5), "[0.5;0.5;0.5]"],
   ],
   color: [
-    [0.5, null, null],
-    [undefined, [0.5, 0.5, 0.5, 0.5], "[0.5;0.5;0.5;0.5]"],
+    [p.rrrr(0.5), null, null],
+    [undefined, p.rrrr(0.5), "[0.5;0.5;0.5;0.5]"],
   ],
   string: [
     ["a", null, null],

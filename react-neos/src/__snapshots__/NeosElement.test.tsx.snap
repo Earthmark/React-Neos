@@ -2,6 +2,12 @@
 
 exports[`Verify hierarchy shows as expected 1`] = `
 <transform
-  scale={3}
+  scale={
+    Object {
+      "x": 3,
+      "y": 3,
+      "z": 3,
+    }
+  }
 />
 `;

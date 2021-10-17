@@ -1,10 +1,9 @@
 /**
  * The core business logic in a handler, this is normally used in conjunction with primitiveDefinitionsToUpdaters.
  */
-export interface PrimitiveDefinition<Input, StandardFormat = any> {
-  normalize(value: Input): StandardFormat;
-  stringify(value: StandardFormat): string;
-  equals(a: StandardFormat, b: StandardFormat): boolean;
+export interface PrimitiveDefinition<Input> {
+  stringify(value: Input): string;
+  equals(a: Input, b: Input): boolean;
 }
 
 type Optional<T> = T | null | undefined;
@@ -29,19 +28,15 @@ export type PrimitiveUpdater<T> = (
  * @returns An object if the value changed, containing the new value to assign the property to.
  * If the inner value is null, the value is being reset/undefined. If the wrapper is null, no change was made.
  */
-function diffPrimitive<Input, StandardFormat>(
-  { normalize, equals, stringify }: PrimitiveDefinition<Input, StandardFormat>,
+function diffPrimitive<Input>(
+  { equals, stringify }: PrimitiveDefinition<Input>,
   oldProp: Optional<Input>,
   newProp: Optional<Input>
 ): { value: string | null } | null {
   const hasO = oldProp !== undefined && oldProp !== null;
   const hasN = newProp !== undefined && newProp !== null;
-  if ((hasO || hasN) && oldProp !== newProp) {
-    const no = hasO ? normalize(oldProp) : null;
-    const nn = hasN ? normalize(newProp) : null;
-    if (no === null || nn === null || !equals(no, nn)) {
-      return { value: nn !== null ? stringify(nn) : null };
-    }
+  if ((hasO || hasN) && (!hasO || !hasN || !equals(oldProp, newProp))) {
+    return { value: hasN ? stringify(newProp) : null };
   }
   return null;
 }

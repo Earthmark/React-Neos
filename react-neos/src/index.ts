@@ -4,8 +4,10 @@ import {
   primitiveDefinitionsToUpdaters,
   PrimitiveDefinition,
 } from "./basePrimitives";
+import { p } from "./primitives";
 
 export {
+  p,
   ReactNeosServer,
   primitiveDefinitionsToUpdaters,
   PrimitiveDefinition,

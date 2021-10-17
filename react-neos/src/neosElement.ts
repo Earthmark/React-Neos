@@ -1,4 +1,4 @@
-import p from "./primitives";
+import prim from "./primitives";
 import {
   definitionsToUpdaters,
   updatersToElements,
@@ -7,26 +7,26 @@ import {
 } from "./baseElements";
 
 const baseElementDef = {
-  active: p.bool,
-  persistent: p.bool,
-  name: p.string,
-  tag: p.string,
+  active: prim.bool,
+  persistent: prim.bool,
+  name: prim.string,
+  tag: prim.string,
 };
 
 const base3DElementDef = {
   ...baseElementDef,
-  position: p.float3,
-  rotation: p.floatQ,
-  scale: p.float3,
+  position: prim.float3,
+  rotation: prim.floatQ,
+  scale: prim.float3,
 };
 
 const base2DElementDef = {
   ...baseElementDef,
-  anchorMin: p.float2,
-  anchorMax: p.float2,
-  offsetMin: p.float2,
-  offsetMax: p.float2,
-  pivot: p.float2,
+  anchorMin: prim.float2,
+  anchorMax: prim.float2,
+  offsetMin: prim.float2,
+  offsetMax: prim.float2,
+  pivot: prim.float2,
 };
 
 export const elementDefs = definitionsToUpdaters({
@@ -37,46 +37,53 @@ export const elementDefs = definitionsToUpdaters({
   smoothTransform: {
     ...base3DElementDef,
     ...hasReactChildren(),
-    smoothTransformEnabled: p.bool,
-    smoothSpeed: p.float,
+    smoothTransformEnabled: prim.bool,
+    smoothSpeed: prim.float,
   },
   spinner: {
     ...base3DElementDef,
     ...hasReactChildren(),
-    speed: p.float3,
-    range: p.float3,
+    speed: prim.float3,
+    range: prim.float3,
   },
   box: {
     ...base3DElementDef,
-    albedoColor: p.color,
-    emissiveColor: p.color,
-    size: p.float3,
-    colliderActive: p.bool,
-    characterCollider: p.bool,
-    ignoreRaycasts: p.bool,
+    albedoColor: prim.color,
+    emissiveColor: prim.color,
+    size: prim.float3,
+    colliderActive: prim.bool,
+    characterCollider: prim.bool,
+    ignoreRaycasts: prim.bool,
   },
   canvas: {
     ...base3DElementDef,
+    ...hasReactChildren(),
   },
   rect: {
     ...base2DElementDef,
+    ...hasReactChildren(),
   },
   image: {
     ...base2DElementDef,
-    color: p.color,
+    ...hasReactChildren(),
+    color: prim.color,
   },
   horizontalLayout: {
     ...base2DElementDef,
+    ...hasReactChildren(),
   },
   verticalLayout: {
     ...base2DElementDef,
+    ...hasReactChildren(),
   },
   text: {
     ...base2DElementDef,
-    children: p.string,
+    children: prim.string,
+    color: prim.color,
   },
   button: {
     ...base2DElementDef,
+    ...hasReactChildren(),
   },
 });
 

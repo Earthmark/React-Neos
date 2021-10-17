@@ -1,25 +1,26 @@
 import React from "react";
-import n from "react-neos";
+import n, { p } from "react-neos";
 
 const MenuBox = () => {
   const [buttons] = React.useState(() => [{
     text: "Option A",
-    color: [1, 0, 0]
+    color: p.rgb1(1, 0, 0)
   },
   {
     text: "Option B",
-    color: [0, 1, 0]
+    color: p.rgb1(1, 0, 0)
   },
   {
     text: "Option C",
-    color: [0, 0, 1]
+    color: p.rgb1(1, 0, 0)
   }]);
 
-  return <n.box name="tiny square thing" size={[1, 2, 0.01]} albedoColor={[1,0,0]}>
-    <n.canvas name="Box canvas" position={[-0.5, 0, 0]}>
+  return <n.transform>
+    <n.box name="tiny square thing" size={p.xyz(1, 2, 0.01)} albedoColor={p.rgb1(1,0,0)}/>
+    <n.canvas name="Box canvas" position={p.xyz(-0.5, 0, 0)}>
       <n.verticalLayout>
         {buttons.map((button, index) =>
-          <n.image key={index} color={0}>
+          <n.image key={index} color={p.rrr1(0)}>
             <n.text color={button.color}>
               {button.text}
             </n.text>
@@ -27,7 +28,7 @@ const MenuBox = () => {
         )}
       </n.verticalLayout>
     </n.canvas>
-  </n.box>;
+  </n.transform>;
 }
 
 export default MenuBox;

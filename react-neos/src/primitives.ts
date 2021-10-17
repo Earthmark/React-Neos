@@ -3,119 +3,98 @@ import {
   primitiveDefinitionsToUpdaters,
 } from "./basePrimitives";
 
-type ObjectVec4D = { x: number; y: number; z: number; w: number };
-type ArrayVec4D = [number, number, number, number];
-type SingleTVec4D = number;
-export type Vec4D = ObjectVec4D | ArrayVec4D | SingleTVec4D;
+export type Vec4D = { x: number; y: number; z: number; w: number };
 
-type ObjectVec3D = { x: number; y: number; z: number };
-type ArrayVec3D = [number, number, number];
-type SingleTVec3D = number;
-export type Vec3D = ObjectVec3D | ArrayVec3D | SingleTVec3D;
+export type Vec3D = { x: number; y: number; z: number };
 
-type ObjectVec2D = { x: number; y: number };
-type ArrayVec2D = [number, number];
-type SingleTVec2D = number;
-export type Vec2D = ObjectVec2D | ArrayVec2D | SingleTVec2D;
+export type Vec2D = { x: number; y: number };
 
-// A single number is interpreted as a vec4.
-export type Color = Vec4D | Vec3D;
+export type Color = { r: number; g: number; b: number; a?: number };
 
-const float: PrimitiveDefinition<number, number> = {
-  normalize: (value) => value,
+export const p = {
+  xyzw(x: number, y: number, z: number, w: number): Vec4D {
+    return { x, y, z, w };
+  },
+  xyz1(x: number, y: number, z: number): Vec4D {
+    return { x, y, z, w: 1 };
+  },
+  xyz0(x: number, y: number, z: number): Vec4D {
+    return { x, y, z, w: 0 };
+  },
+  xxxx(x: number): Vec4D {
+    return { x, y: x, z: x, w: x };
+  },
+  xyz(x: number, y: number, z: number): Vec3D {
+    return { x, y, z };
+  },
+  xxx(x: number): Vec3D {
+    return { x, y: x, z: x };
+  },
+  xy(x: number, y: number): Vec2D {
+    return { x, y };
+  },
+  xx(x: number): Vec2D {
+    return { x, y: x };
+  },
+  rgba(r: number, g: number, b: number, a: number): Color {
+    return { r, g, b, a };
+  },
+  rgb1(r: number, g: number, b: number): Color {
+    return { r, g, b, a: 1 };
+  },
+  rrrr(r: number): Color {
+    return { r, g: r, b: r, a: r };
+  },
+  rrr1(r: number): Color {
+    return { r, g: r, b: r, a: 1 };
+  },
+};
+
+const float: PrimitiveDefinition<number> = {
   stringify: (value) => value.toString(10),
   equals: (a, b) => a === b,
 };
 
-const float2: PrimitiveDefinition<Vec2D, [number, number]> = {
-  normalize: (value) => {
-    if (Array.isArray(value)) {
-      return value;
-    } else if (typeof value === "object") {
-      return [value.x, value.y];
-    } else {
-      return [value, value];
-    }
-  },
-  stringify: (value) => `[${value[0]};${value[1]}]`,
-  equals: (a, b) => a[0] === b[0] && a[1] === b[1],
+const float2: PrimitiveDefinition<Vec2D> = {
+  stringify: (value) => `[${value.x};${value.y}]`,
+  equals: (a, b) => a.x === b.x && a.y === b.y,
 };
 
-const float3: PrimitiveDefinition<Vec3D, [number, number, number]> = {
-  normalize: (value) => {
-    if (Array.isArray(value)) {
-      return value;
-    } else if (typeof value === "object") {
-      return [value.x, value.y, value.z];
-    } else {
-      return [value, value, value];
-    }
-  },
-  stringify: (value) => `[${value[0]};${value[1]};${value[2]}]`,
-  equals: (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2],
+const float3: PrimitiveDefinition<Vec3D> = {
+  stringify: (value) => `[${value.x};${value.y};${value.z}]`,
+  equals: (a, b) => a.x === b.x && a.y === b.y && a.z === b.z,
 };
 
-const float4: PrimitiveDefinition<Vec4D, [number, number, number, number]> = {
-  normalize: (value) => {
-    if (Array.isArray(value)) {
-      return value;
-    } else if (typeof value === "object") {
-      return [value.x, value.y, value.z, value.w];
-    } else {
-      return [value, value, value, value];
-    }
-  },
-  stringify: (value) => `[${value[0]};${value[1]};${value[2]};${value[3]}]`,
-  equals: (a, b) =>
-    a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3],
+const float4: PrimitiveDefinition<Vec4D> = {
+  stringify: (value) => `[${value.x};${value.y};${value.z};${value.w}]`,
+  equals: (a, b) => a.x === b.x && a.y === b.y && a.z === b.z && a.w === b.w,
 };
 
-const color: PrimitiveDefinition<Color, [number, number, number, number]> = {
-  normalize: (value) => {
-    if (Array.isArray(value)) {
-      return value.length == 3 ? [...value, 1] : value;
-    } else if (typeof value === "object") {
-      return [value.x, value.y, value.z, 1];
-    } else {
-      return [value, value, value, 1];
-    }
-  },
+const color: PrimitiveDefinition<Color> = {
   stringify: (value) =>
-    `[${value[0]};${value[1]};${value[2]};${
-      value[3] !== undefined ? value[3] : 1
-    }]`,
-  equals: (a, b) =>
-    a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3],
+    `[${value.r};${value.g};${value.b};${value.a !== undefined ? value.a : 1}]`,
+  equals: (a, b) => a.r === b.r && a.g === b.g && a.b === b.b && a.a === b.a,
 };
 
-const floatQ: PrimitiveDefinition<Vec3D, [number, number, number]> = {
-  normalize: (value) => {
-    if (Array.isArray(value)) {
-      return value;
-    } else if (typeof value === "object") {
-      return [value.x, value.y, value.z];
-    } else {
-      return [value, value, value];
-    }
-  },
-  stringify: (value) => `[${value[0]};${value[1]};${value[2]}]`,
-  equals: (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2],
+const floatQ: PrimitiveDefinition<Vec3D> = {
+  stringify: (value) => `[${value.x};${value.y};${value.z}]`,
+  equals: (a, b) => a.x === b.x && a.y === b.y && a.z === b.z,
 };
 
-const string: PrimitiveDefinition<string | Array<string>, string> = {
-  normalize: (value) => {
-    if (Array.isArray(value)) {
-      return value.join(" ");
-    } else {
-      return value;
-    }
-  },
-  stringify: encodeURIComponent,
-  equals: (a, b) => a === b,
+function normalizeString(value: string | Array<string>): string {
+  if (Array.isArray(value)) {
+    return value.join(" ");
+  } else {
+    return value;
+  }
+}
+
+const string: PrimitiveDefinition<string | Array<string>> = {
+  stringify: (value) => encodeURIComponent(normalizeString(value)),
+  equals: (a, b) => normalizeString(a) === normalizeString(b),
 };
 
-const bool: PrimitiveDefinition<boolean, boolean> = {
-  normalize: (value) => value,
+const bool: PrimitiveDefinition<boolean> = {
   stringify: (value: boolean) => {
     return value ? "true" : "false";
   },
