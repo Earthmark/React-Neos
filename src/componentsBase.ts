@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { ReactNode } from "react";
 import { PropUpdater } from "./propsBase";
 import { ComponentUpdater } from "./renderer";
 
@@ -99,7 +99,7 @@ export function updatersToComponents<Updaters>(updaters: Updaters): {
  * @returns A type declaration that implies the element has react children.
  */
 export function hasReactChildren(): {
-  children: PropUpdater<ReactElement | Array<ReactElement>>;
+  children: PropUpdater<ReactNode>;
 } {
   return { children: () => null };
 }

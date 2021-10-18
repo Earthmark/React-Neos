@@ -1,6 +1,5 @@
 import React from "react";
 import Reconciler from "react-reconciler";
-import { InboundSignal } from "./signalFormatter";
 import { performance } from "perf_hooks";
 import { componentDefs } from "./components";
 
@@ -47,6 +46,15 @@ export type OutboundSignal =
   | RemoveSignal
   | UpdateSignal
   | SetParentSignal;
+
+interface EventSignal {
+  signal: "event";
+  id: ElementId;
+  event: string;
+  arg: string;
+}
+
+export type InboundSignal = EventSignal;
 
 interface ComponentUpdate {
   diff(prop: PropUpdate): void;
