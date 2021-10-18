@@ -18,9 +18,12 @@ const TestComponent = ({routeController}:
 
   return <n.transform position={{x: 2, y: 4, z: 19}}>
     {
-      c.toggleCanvas ? <n.smoothTransform>
+      c.toggleCanvas ?
+      <n.smoothTransform>
         <n.box />
-      </n.smoothTransform> : <n.canvas>
+      </n.smoothTransform>
+      :
+      <n.canvas>
         <n.rect>
           <n.text>
             This contains text!
@@ -40,7 +43,7 @@ const TestComponent = ({routeController}:
 }
 
 test("Verify hierarchy shows as expected", () => {
-  var updater:  (newController: Controller) => void = ()=>{};
+  var updater: (newController: Controller) => void = ()=>{};
 
   const b = {
     toggleCanvas: false,
@@ -52,7 +55,7 @@ test("Verify hierarchy shows as expected", () => {
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 
-  updater(b);
+  updater({...b});
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 
