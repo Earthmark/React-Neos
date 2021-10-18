@@ -8,13 +8,5 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "rootDir": "./src",
-    "outDir": "./dist"
-  },
-  "exclude": [
-    "src/**/*.test.ts",
-    "src/**/*.test.tsx",
-    "node_modules",
-    "dist"
-  ]
+  }
 }

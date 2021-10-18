@@ -1,16 +1,13 @@
 {
   "name": "react-neos-example",
   "version": "1.0.0",
-  "main": "./src/index.tsx",
+  "main": "./index.tsx",
   "license": "MIT",
   "scripts": {
-    "test": "yarn jest",
-    "build": "tsc",
     "start": "ts-node ."
   },
   "dependencies": {
-    "react-neos": "^0.3.0",
-    "react": "^17.0.2"
+    "react-neos": "file:../"
   },
   "devDependencies": {
     "@types/node": "^16.10.1",
@@ -23,8 +20,5 @@
     "ts-jest": "^27.0.5",
     "ts-node": "^10.2.1",
     "typescript": "^4.4.3"
-  },
-  "jest": {
-    "preset": "ts-jest/presets/default-esm"
   }
 }
