@@ -2,13 +2,11 @@ import React from "react";
 import Reconciler from "react-reconciler";
 import { InboundSignal } from "./signalFormatter";
 import { performance } from "perf_hooks";
+import { componentDefs } from "./components";
 
 export interface ReactNeosRenderer {
-  bind(): {
-    render(
-      node: React.ReactNode,
-      signal?: Array<InboundSignal>
-    ): Array<OutboundSignal>;
+  createInstance(): {
+    render(signal?: Array<InboundSignal>): Array<OutboundSignal>;
   };
 }
 
@@ -50,14 +48,14 @@ export type OutboundSignal =
   | UpdateSignal
   | SetParentSignal;
 
-interface ElementUpdate {
+interface ComponentUpdate {
   diff(prop: PropUpdate): void;
 }
 
-export type ElementUpdater<Props = {}> = (
+export type ComponentUpdater<Props = {}> = (
   oldProps: Props,
   newProps: Props,
-  update: ElementUpdate
+  update: ComponentUpdate
 ) => void;
 
 interface PropsDelta {
@@ -82,17 +80,20 @@ type Instance = {
   container: Container;
 };
 
-type UpdateFunc = ElementUpdater<Record<string, any>>;
+type UpdateFunc = ComponentUpdater<Record<string, any>>;
 
-export default function createReconciler<
-  ElementDefinitions extends { [prop: string]: any }
->(definitions: {
-  [ElementType in keyof ElementDefinitions]: ElementUpdater<
+/*
+ElementDefinitions extends { [prop: string]: any }
+definitions?: {
+  [ElementType in keyof ElementDefinitions]: ComponentUpdater<
     ElementDefinitions[ElementType]
   >;
-}): ReactNeosRenderer {
+}
+*/
+
+export default function createRender(node: React.ReactNode): ReactNeosRenderer {
   const reconciler = Reconciler<
-    keyof ElementDefinitions & string,
+    keyof typeof componentDefs,
     Record<string, any>,
     Container,
     Instance,
@@ -119,7 +120,7 @@ export default function createReconciler<
         id,
         type,
       });
-      const def = definitions[type] as UpdateFunc;
+      const def = componentDefs[type] as UpdateFunc;
       if (def === undefined) {
         throw new Error(`Unknown element type ${type}`);
       }
@@ -212,7 +213,7 @@ export default function createReconciler<
     },
 
     prepareUpdate(instance, type, oldProps, newProps) {
-      const def = definitions[type] as UpdateFunc;
+      const def = componentDefs[type] as UpdateFunc;
       if (def === undefined) {
         throw new Error(`Unknown element type ${type}`);
       }
@@ -259,7 +260,7 @@ export default function createReconciler<
   });
 
   return {
-    bind() {
+    createInstance() {
       const containerInfo: Container = {
         rootId: "root",
         globalId: 1,
@@ -273,10 +274,7 @@ export default function createReconciler<
       );
 
       return {
-        render(
-          node: React.ReactNode,
-          signal?: Array<InboundSignal>
-        ): Array<OutboundSignal> {
+        render(signal?: Array<InboundSignal>): Array<OutboundSignal> {
           reconciler.updateContainer(node, container);
           const queue = containerInfo.eventQueue;
           containerInfo.eventQueue = [];

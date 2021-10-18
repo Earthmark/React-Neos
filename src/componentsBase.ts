@@ -1,24 +1,26 @@
 import { ReactElement } from "react";
-import { PrimitiveUpdater } from "./propsBase";
-import { ElementUpdater } from "./renderer";
+import { PropUpdater } from "./propsBase";
+import { ComponentUpdater } from "./renderer";
 
-type Optional<T> = T | null | undefined;
+type Optional<T> = T | undefined;
 
-export type ElementDefinition<Props = {}> = {
-  [Prop in keyof Props]: ElementPropDefinition<Props[Prop]>;
+export type ComponentDefinition<Props = {}> = {
+  [Prop in keyof Props]: ComponentPropDefinition<Props[Prop]>;
 };
 
-type ElementPropDefinition<T extends { [Prop: string]: any }> = (
+type ComponentPropDefinition<T extends { [Prop: string]: any }> = (
   oldProp: Optional<T>,
   newProp: Optional<T>,
   update: { diff(o: { type: string; value: string | null }): void }
 ) => void;
 
-type UpdaterToProps<U> = U extends ElementUpdater<infer Props> ? Props : never;
+type UpdaterToProps<U> = U extends ComponentUpdater<infer Props>
+  ? Props
+  : never;
 
 function definitionToUpdater<Props>(
-  elementDef: ElementDefinition<Props>
-): ElementUpdater<Partial<Props>> {
+  elementDef: ComponentDefinition<Props>
+): ComponentUpdater<Partial<Props>> {
   return (oldProps, newProps, update) => {
     for (const prop in elementDef) {
       elementDef[prop](oldProps[prop], newProps[prop], {
@@ -39,16 +41,16 @@ function definitionToUpdater<Props>(
  * @returns A keyed set of element updaters.
  */
 export function definitionsToUpdaters<DefinitionProperties>(definitions: {
-  [Element in keyof DefinitionProperties]: ElementDefinition<
+  [Element in keyof DefinitionProperties]: ComponentDefinition<
     DefinitionProperties[Element]
   >;
 }): {
-  [Element in keyof DefinitionProperties]: ElementUpdater<
+  [Element in keyof DefinitionProperties]: ComponentUpdater<
     Partial<DefinitionProperties[Element]>
   >;
 } {
   const result: {
-    [Element in keyof DefinitionProperties]?: ElementUpdater<
+    [Element in keyof DefinitionProperties]?: ComponentUpdater<
       Partial<DefinitionProperties[Element]>
     >;
   } = {};
@@ -58,7 +60,7 @@ export function definitionsToUpdaters<DefinitionProperties>(definitions: {
   return result as any;
 }
 
-export type UpdatersToProps<D> = D extends ElementDefinition<infer Props>
+export type UpdatersToProps<D> = D extends ComponentDefinition<infer Props>
   ? Props
   : never;
 
@@ -81,7 +83,7 @@ export type UpdatersToProps<D> = D extends ElementDefinition<infer Props>
  * @param updaters The set of updaters to map the props from.
  * @returns A map of key -> key, with type definitions that look like React element construction functions.
  */
-export function updatersToElements<Updaters>(updaters: Updaters): {
+export function updatersToComponents<Updaters>(updaters: Updaters): {
   [Element in keyof Updaters & string]: (
     p: UpdaterToProps<Updaters[Element]>
   ) => React.ReactElement<UpdaterToProps<Updaters[Element]>, Element>;
@@ -97,7 +99,7 @@ export function updatersToElements<Updaters>(updaters: Updaters): {
  * @returns A type declaration that implies the element has react children.
  */
 export function hasReactChildren(): {
-  children: PrimitiveUpdater<ReactElement | Array<ReactElement>>;
+  children: PropUpdater<ReactElement | Array<ReactElement>>;
 } {
   return { children: () => null };
 }

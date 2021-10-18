@@ -16,7 +16,7 @@ function stringifyOutboundSignal(signal: OutboundSignal): string {
               update.value === null ? nullSymbol : update.value
             }+`
         )
-        .join()}`;
+        .join("")}`;
     case "setParent":
       return `setParent+${signal.id}+${signal.parentId}+${
         signal.after === undefined ? "$" : signal.after
