@@ -59,15 +59,15 @@ test("Verify hierarchy shows as expected", () => {
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 
-  updater({...b, objects: [{id: "1"}, {id: "2"}]});
+  updater({...b, objects: [{id: "1"}, {id: "2"}, {id: "3"}]});
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 
-  updater({...b, objects: [{id: "2"}]});
+  updater({...b, objects: [{id: "1"}, {id: "3"}]});
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 
-  updater({...b, objects: [{id: "1"}, {id: "2"}]});
+  updater({...b, objects: [{id: "1"}, {id: "2"}, {id: "3"}]});
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 

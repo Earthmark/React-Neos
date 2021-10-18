@@ -126,25 +126,6 @@ Array [
     "signal": "update",
   },
   Object {
-    "id": "7",
-    "parentId": "4",
-    "signal": "setParent",
-  },
-]
-`;
-
-exports[`Verify hierarchy shows as expected 4`] = `
-Array [
-  Object {
-    "id": "6",
-    "signal": "remove",
-  },
-]
-`;
-
-exports[`Verify hierarchy shows as expected 5`] = `
-Array [
-  Object {
     "id": "8",
     "signal": "create",
     "type": "text",
@@ -155,14 +136,54 @@ Array [
       Object {
         "prop": "children",
         "type": "string",
-        "value": "1",
+        "value": "3",
       },
     ],
     "signal": "update",
   },
   Object {
-    "after": "7",
+    "id": "7",
+    "parentId": "4",
+    "signal": "setParent",
+  },
+  Object {
     "id": "8",
+    "parentId": "4",
+    "signal": "setParent",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 4`] = `
+Array [
+  Object {
+    "id": "7",
+    "signal": "remove",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 5`] = `
+Array [
+  Object {
+    "id": "9",
+    "signal": "create",
+    "type": "text",
+  },
+  Object {
+    "id": "9",
+    "props": Array [
+      Object {
+        "prop": "children",
+        "type": "string",
+        "value": "2",
+      },
+    ],
+    "signal": "update",
+  },
+  Object {
+    "after": "8",
+    "id": "9",
     "parentId": "4",
     "signal": "setParent",
   },
@@ -172,18 +193,18 @@ Array [
 exports[`Verify hierarchy shows as expected 6`] = `
 Array [
   Object {
-    "id": "9",
+    "id": "10",
     "signal": "create",
     "type": "box",
   },
   Object {
-    "id": "10",
+    "id": "11",
     "signal": "create",
     "type": "smoothTransform",
   },
   Object {
-    "id": "9",
-    "parentId": "10",
+    "id": "10",
+    "parentId": "11",
     "signal": "setParent",
   },
   Object {
@@ -192,12 +213,16 @@ Array [
   },
   Object {
     "after": "4",
-    "id": "10",
+    "id": "11",
     "parentId": "5",
     "signal": "setParent",
   },
   Object {
-    "id": "7",
+    "id": "9",
+    "signal": "remove",
+  },
+  Object {
+    "id": "8",
     "signal": "remove",
   },
 ]
