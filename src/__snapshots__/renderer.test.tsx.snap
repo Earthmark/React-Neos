@@ -49,6 +49,17 @@ Array [
     "type": "transform",
   },
   Object {
+    "id": "5",
+    "props": Array [
+      Object {
+        "prop": "position",
+        "type": "float3",
+        "value": "[2;4;19]",
+      },
+    ],
+    "signal": "update",
+  },
+  Object {
     "id": "3",
     "parentId": "5",
     "signal": "setParent",

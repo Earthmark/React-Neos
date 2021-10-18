@@ -16,7 +16,7 @@ const TestComponent = ({routeController}:
 
   routeController(setC);
 
-  return <n.transform>
+  return <n.transform position={{x: 2, y: 4, z: 19}}>
     {
       c.toggleCanvas ? <n.smoothTransform>
         <n.box />
@@ -48,7 +48,7 @@ test("Verify hierarchy shows as expected", () => {
   };
   const renderer = createRender(<TestComponent routeController={c => updater = c }/>);
   const instance = renderer.createInstance();
-  
+
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 
