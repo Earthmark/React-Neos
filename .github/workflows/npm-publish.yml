@@ -18,6 +18,7 @@ jobs:
       - run: cd react-neos
       - run: yarn install --frozen-lockfile
       - run: yarn test
+        working-directory: ./react-neos
 
   publish-npm:
     needs: build
@@ -28,9 +29,10 @@ jobs:
         with:
           node-version: 14
           registry-url: https://registry.npmjs.org/
-      - run: cd react-neos
       - run: yarn install --frozen-lockfile
+        working-directory: ./react-neos
       - run: yarn publish
+        working-directory: ./react-neos
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
@@ -46,8 +48,9 @@ jobs:
         with:
           node-version: 14
           registry-url: https://npm.pkg.github.com/
-      - run: cd react-neos
       - run: yarn install --frozen-lockfile
+        working-directory: ./react-neos
       - run: yarn publish
+        working-directory: ./react-neos
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
