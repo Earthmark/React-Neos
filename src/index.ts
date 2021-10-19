@@ -1,6 +1,6 @@
 import wsNeosProxyServer from "./wsNeosProxyServer";
 import n, { Props } from "./components";
-import createRender from "./createRender";
+import createRender from "./renderer";
 
 export { createRender, wsNeosProxyServer, Props };
 

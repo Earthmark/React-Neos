@@ -1,0 +1,255 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Verify hierarchy shows as expected 1`] = `
+Array [
+  Object {
+    "id": "1",
+    "signal": "create",
+    "type": "text",
+  },
+  Object {
+    "id": "1",
+    "props": Array [
+      Object {
+        "prop": "children",
+        "type": "string",
+        "value": "This%20contains%20text!",
+      },
+    ],
+    "signal": "update",
+  },
+  Object {
+    "id": "2",
+    "signal": "create",
+    "type": "text",
+  },
+  Object {
+    "id": "2",
+    "props": Array [
+      Object {
+        "prop": "children",
+        "type": "string",
+        "value": "1",
+      },
+    ],
+    "signal": "update",
+  },
+  Object {
+    "id": "3",
+    "signal": "create",
+    "type": "canvas",
+  },
+  Object {
+    "id": "2",
+    "parentId": "3",
+    "signal": "setParent",
+  },
+  Object {
+    "id": "4",
+    "signal": "create",
+    "type": "transform",
+  },
+  Object {
+    "id": "4",
+    "props": Array [
+      Object {
+        "prop": "position",
+        "type": "float3",
+        "value": "[2;4;19]",
+      },
+    ],
+    "signal": "update",
+  },
+  Object {
+    "id": "1",
+    "parentId": "4",
+    "signal": "setParent",
+  },
+  Object {
+    "id": "3",
+    "parentId": "4",
+    "signal": "setParent",
+  },
+  Object {
+    "id": "5",
+    "signal": "create",
+    "type": "transform",
+  },
+  Object {
+    "id": "root",
+    "signal": "remove",
+  },
+  Object {
+    "id": "4",
+    "parentId": "root",
+    "signal": "setParent",
+  },
+  Object {
+    "id": "5",
+    "parentId": "root",
+    "signal": "setParent",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 2`] = `
+Array [
+  Object {
+    "id": "6",
+    "signal": "create",
+    "type": "box",
+  },
+  Object {
+    "after": "5",
+    "id": "6",
+    "parentId": "root",
+    "signal": "setParent",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 3`] = `
+Array [
+  Object {
+    "id": "6",
+    "signal": "remove",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 4`] = `
+Array [
+  Object {
+    "id": "2",
+    "props": Array [
+      Object {
+        "prop": "anchorMin",
+        "type": "float2",
+        "value": "[2;4]",
+      },
+    ],
+    "signal": "update",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 5`] = `
+Array [
+  Object {
+    "id": "2",
+    "props": Array [
+      Object {
+        "prop": "anchorMin",
+        "type": "float2",
+        "value": null,
+      },
+    ],
+    "signal": "update",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 6`] = `
+Array [
+  Object {
+    "id": "7",
+    "signal": "create",
+    "type": "text",
+  },
+  Object {
+    "id": "7",
+    "props": Array [
+      Object {
+        "prop": "children",
+        "type": "string",
+        "value": "2",
+      },
+    ],
+    "signal": "update",
+  },
+  Object {
+    "id": "8",
+    "signal": "create",
+    "type": "text",
+  },
+  Object {
+    "id": "8",
+    "props": Array [
+      Object {
+        "prop": "children",
+        "type": "string",
+        "value": "3",
+      },
+    ],
+    "signal": "update",
+  },
+  Object {
+    "id": "7",
+    "parentId": "3",
+    "signal": "setParent",
+  },
+  Object {
+    "id": "8",
+    "parentId": "3",
+    "signal": "setParent",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 7`] = `
+Array [
+  Object {
+    "id": "7",
+    "signal": "remove",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 8`] = `
+Array [
+  Object {
+    "id": "9",
+    "signal": "create",
+    "type": "text",
+  },
+  Object {
+    "id": "9",
+    "props": Array [
+      Object {
+        "prop": "children",
+        "type": "string",
+        "value": "2",
+      },
+    ],
+    "signal": "update",
+  },
+  Object {
+    "after": "8",
+    "id": "9",
+    "parentId": "3",
+    "signal": "setParent",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 9`] = `
+Array [
+  Object {
+    "id": "10",
+    "signal": "create",
+    "type": "box",
+  },
+  Object {
+    "id": "1",
+    "signal": "remove",
+  },
+  Object {
+    "after": "3",
+    "id": "10",
+    "parentId": "4",
+    "signal": "setParent",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 10`] = `Array []`;

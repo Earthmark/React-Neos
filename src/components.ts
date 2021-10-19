@@ -1,27 +1,27 @@
 import prop from "./props";
 import {
   definitionsToUpdaters,
-  updatersToElements,
+  updatersToComponents,
   hasReactChildren,
   UpdatersToProps,
 } from "./componentsBase";
 
-const baseElementDef = {
+const baseComponentDef = {
   active: prop.bool,
   persistent: prop.bool,
   name: prop.string,
   tag: prop.string,
 };
 
-const base3DElementDef = {
-  ...baseElementDef,
+const base3DComponentDef = {
+  ...baseComponentDef,
   position: prop.float3,
   rotation: prop.floatQ,
   scale: prop.float3,
 };
 
-const base2DElementDef = {
-  ...baseElementDef,
+const base2DComponentDef = {
+  ...baseComponentDef,
   anchorMin: prop.float2,
   anchorMax: prop.float2,
   offsetMin: prop.float2,
@@ -29,25 +29,25 @@ const base2DElementDef = {
   pivot: prop.float2,
 };
 
-export const elementDefs = definitionsToUpdaters({
+export const componentDefs = definitionsToUpdaters({
   transform: {
-    ...base3DElementDef,
+    ...base3DComponentDef,
     ...hasReactChildren(),
   },
   smoothTransform: {
-    ...base3DElementDef,
+    ...base3DComponentDef,
     ...hasReactChildren(),
     smoothTransformEnabled: prop.bool,
     smoothSpeed: prop.float,
   },
   spinner: {
-    ...base3DElementDef,
+    ...base3DComponentDef,
     ...hasReactChildren(),
     speed: prop.float3,
     range: prop.float3,
   },
   box: {
-    ...base3DElementDef,
+    ...base3DComponentDef,
     albedoColor: prop.color,
     emissiveColor: prop.color,
     size: prop.float3,
@@ -56,37 +56,37 @@ export const elementDefs = definitionsToUpdaters({
     ignoreRaycasts: prop.bool,
   },
   canvas: {
-    ...base3DElementDef,
+    ...base3DComponentDef,
     ...hasReactChildren(),
   },
   rect: {
-    ...base2DElementDef,
+    ...base2DComponentDef,
     ...hasReactChildren(),
   },
   image: {
-    ...base2DElementDef,
+    ...base2DComponentDef,
     ...hasReactChildren(),
     color: prop.color,
   },
   horizontalLayout: {
-    ...base2DElementDef,
+    ...base2DComponentDef,
     ...hasReactChildren(),
   },
   verticalLayout: {
-    ...base2DElementDef,
+    ...base2DComponentDef,
     ...hasReactChildren(),
   },
   text: {
-    ...base2DElementDef,
+    ...base2DComponentDef,
     children: prop.string,
     color: prop.color,
   },
   button: {
-    ...base2DElementDef,
+    ...base2DComponentDef,
     ...hasReactChildren(),
   },
 });
 
-export type Props = UpdatersToProps<typeof elementDefs>;
+export type Props = UpdatersToProps<typeof componentDefs>;
 
-export default updatersToElements(elementDefs);
+export default updatersToComponents(componentDefs);

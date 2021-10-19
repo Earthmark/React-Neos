@@ -1,4 +1,4 @@
-import { OutboundSignal, ElementId } from "./renderer";
+import { OutboundSignal, InboundSignal } from "./renderer";
 
 export const nullSymbol: "$" = "$";
 
@@ -16,7 +16,7 @@ function stringifyOutboundSignal(signal: OutboundSignal): string {
               update.value === null ? nullSymbol : update.value
             }+`
         )
-        .join()}`;
+        .join("")}`;
     case "setParent":
       return `setParent+${signal.id}+${signal.parentId}+${
         signal.after === undefined ? "$" : signal.after
@@ -27,16 +27,6 @@ function stringifyOutboundSignal(signal: OutboundSignal): string {
 export function stringifySignalArray(signals: Array<OutboundSignal>): string {
   return signals.map(stringifyOutboundSignal).join("|") + "|";
 }
-
-interface EventSignal {
-  signal: "event";
-  id: ElementId;
-  event: string;
-  arg: string;
-}
-
-export type InboundSignal = EventSignal;
-
 export function parseSignal(signal?: string): Array<InboundSignal> | undefined {
   if (signal === undefined) {
     return undefined;

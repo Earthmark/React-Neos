@@ -1,12 +1,7 @@
 import React from 'react';
-import renderer, { PropUpdate } from "./renderer";
+import { PropUpdate } from "./renderer";
 import TestRenderer from "react-test-renderer";
-import n, { Props, elementDefs} from "./components";
-
-test("Verify failure", () => {
-  expect(renderer).toBeDefined();
-  expect(true).toBe(true);
-});
+import n, { Props, componentDefs} from "./components";
 
 test("Verify hierarchy shows as expected", () => {
   expect(TestRenderer.create(<n.transform scale={{x: 3, y: 3, z: 3}} />).toJSON()).toMatchSnapshot();
@@ -14,7 +9,7 @@ test("Verify hierarchy shows as expected", () => {
 
 test("verify slot stringifies as expected", () => {
   const propDiffs: Array<PropUpdate> = [];
-  elementDefs.transform({
+  componentDefs.transform({
       active: true,
       persistent: true,
       scale: {x: 2, y: 2, z: 2},
@@ -115,7 +110,7 @@ it.each(
   )
 )("element processes expected diff for set %s", ({name, oldProps, newProps, expected}) => {
   const src: Array<PropUpdate> = [];
-  (elementDefs as any)[name as any](oldProps as any, newProps as any, {
+  (componentDefs as any)[name as any](oldProps as any, newProps as any, {
     diff: (d: any) => src.push(d),
   });
   expect(src).toStrictEqual(expected);
