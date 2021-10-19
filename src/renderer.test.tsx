@@ -2,76 +2,85 @@ import React from 'react';
 import createRender from "./renderer";
 import n from "./components";
 
-interface Controller {
+interface Fixture {
   toggleCanvas?: boolean,
+  toggleChildBox?: boolean,
+  subValue?: {x: number, y: number},
   objects: Array<{
     id: string
   }>
 }
 
-const TestComponent = ({routeController}:
-  {routeController: (provider: (newController: Controller) => void) => void}) => {
+test("Verify hierarchy shows as expected", () => {
+  var updater: (handler: (newController: Fixture) => Fixture) => void = () => {};
 
-  const [c, setC] = React.useState<Controller>(() => ({objects:[]}));
-
-  routeController(setC);
-
-  return <n.transform position={{x: 2, y: 4, z: 19}}>
-    {
-      c.toggleCanvas ?
-      <n.smoothTransform>
-        <n.box />
-      </n.smoothTransform>
-      :
-      <n.canvas>
-        <n.rect>
+  const TestComponent = () => {
+    const r = React.useRef();
+    const [c, setFixture] = React.useState<Fixture>(() => ({
+      toggleCanvas: false,
+      objects: [{id: "1"}]
+    }));
+    updater = setFixture;
+    return <React.Fragment>
+      <n.transform position={{x: 2, y: 4, z: 19}}>
+        {
+          c.toggleCanvas ?
+          <n.box /> :
           <n.text>
             This contains text!
           </n.text>
-        </n.rect>
-      </n.canvas>
-    }
-    <n.canvas>
+        }
+        <n.canvas>
+        {
+          c.objects.map(o => 
+            <n.text key={o.id} anchorMin={c.subValue}>
+              {o.id}
+            </n.text>)
+        }
+        </n.canvas>
+      </n.transform>
       {
-        c.objects.map(o => 
-          <n.text key={o.id}>
-            {o.id}
-          </n.text>)
+        c.toggleChildBox ? <n.box/> : null
       }
-    </n.canvas>
-  </n.transform>
-}
+      <n.transform/>
+    </React.Fragment>;
+  }
 
-test("Verify hierarchy shows as expected", () => {
-  var updater: (newController: Controller) => void = ()=>{};
-
-  const b = {
-    toggleCanvas: false,
-    objects: [{id: "1"}]
-  };
-  const renderer = createRender(<TestComponent routeController={c => updater = c }/>);
+  const renderer = createRender(<TestComponent/>);
   const instance = renderer.createInstance();
 
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 
-  updater({...b});
+  updater(b => ({...b, toggleChildBox: true}));
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 
-  updater({...b, objects: [{id: "1"}, {id: "2"}, {id: "3"}]});
+  updater(b => ({...b, toggleChildBox: false}));
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 
-  updater({...b, objects: [{id: "1"}, {id: "3"}]});
+  updater(b => ({...b, subValue: { x: 2, y: 4 }}));
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 
-  updater({...b, objects: [{id: "1"}, {id: "2"}, {id: "3"}]});
+  updater(b => ({...b, subValue: undefined}));
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 
-  updater({...b, toggleCanvas: true});
+  updater(b => ({...b, objects: [{id: "1"}, {id: "2"}, {id: "3"}]}));
+  expect(instance.render()).toMatchSnapshot();
+  expect(instance.render()).toStrictEqual([]);
+
+  updater(b => ({...b, objects: [{id: "1"}, {id: "3"}]}));
+  expect(instance.render()).toMatchSnapshot();
+  expect(instance.render()).toStrictEqual([]);
+
+  updater(b => ({...b, objects: [{id: "1"}, {id: "2"}, {id: "3"}]}));
+  expect(instance.render()).toMatchSnapshot();
+  expect(instance.render()).toStrictEqual([]);
+
+  updater(b => ({...b, toggleCanvas: true}));
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 

@@ -86,6 +86,7 @@ interface Container {
 type Instance = {
   id: string;
   container: Container;
+  updater: UpdateFunc;
 };
 
 type UpdateFunc = ComponentUpdater<Record<string, any>>;
@@ -128,12 +129,12 @@ export default function createRender(node: React.ReactNode): ReactNeosRenderer {
         id,
         type,
       });
-      const def = componentDefs[type] as UpdateFunc;
-      if (def === undefined) {
+      const updater = componentDefs[type] as UpdateFunc;
+      if (updater === undefined) {
         throw new Error(`Unknown element type ${type}`);
       }
       const diffs: Array<PropUpdate> = [];
-      def({}, props, {
+      updater({}, props, {
         diff: (prop) => {
           diffs.push(prop);
         },
@@ -148,6 +149,7 @@ export default function createRender(node: React.ReactNode): ReactNeosRenderer {
       return {
         id,
         container,
+        updater,
       };
     },
     createTextInstance() {
@@ -221,12 +223,8 @@ export default function createRender(node: React.ReactNode): ReactNeosRenderer {
     },
 
     prepareUpdate(instance, type, oldProps, newProps) {
-      const def = componentDefs[type] as UpdateFunc;
-      if (def === undefined) {
-        throw new Error(`Unknown element type ${type}`);
-      }
       const diffs: Array<PropUpdate> = [];
-      def(oldProps, newProps, {
+      instance.updater(oldProps, newProps, {
         diff: (prop) => {
           diffs.push(prop);
         },

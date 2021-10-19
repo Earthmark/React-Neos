@@ -21,12 +21,18 @@ Array [
   Object {
     "id": "2",
     "signal": "create",
-    "type": "rect",
+    "type": "text",
   },
   Object {
-    "id": "1",
-    "parentId": "2",
-    "signal": "setParent",
+    "id": "2",
+    "props": Array [
+      Object {
+        "prop": "children",
+        "type": "string",
+        "value": "1",
+      },
+    ],
+    "signal": "update",
   },
   Object {
     "id": "3",
@@ -41,15 +47,10 @@ Array [
   Object {
     "id": "4",
     "signal": "create",
-    "type": "canvas",
-  },
-  Object {
-    "id": "5",
-    "signal": "create",
     "type": "transform",
   },
   Object {
-    "id": "5",
+    "id": "4",
     "props": Array [
       Object {
         "prop": "position",
@@ -60,18 +61,28 @@ Array [
     "signal": "update",
   },
   Object {
-    "id": "3",
-    "parentId": "5",
+    "id": "1",
+    "parentId": "4",
     "signal": "setParent",
   },
   Object {
-    "id": "4",
-    "parentId": "5",
+    "id": "3",
+    "parentId": "4",
     "signal": "setParent",
+  },
+  Object {
+    "id": "5",
+    "signal": "create",
+    "type": "transform",
   },
   Object {
     "id": "root",
     "signal": "remove",
+  },
+  Object {
+    "id": "4",
+    "parentId": "root",
+    "signal": "setParent",
   },
   Object {
     "id": "5",
@@ -86,28 +97,59 @@ Array [
   Object {
     "id": "6",
     "signal": "create",
-    "type": "text",
+    "type": "box",
   },
   Object {
+    "after": "5",
     "id": "6",
-    "props": Array [
-      Object {
-        "prop": "children",
-        "type": "string",
-        "value": "1",
-      },
-    ],
-    "signal": "update",
-  },
-  Object {
-    "id": "6",
-    "parentId": "4",
+    "parentId": "root",
     "signal": "setParent",
   },
 ]
 `;
 
 exports[`Verify hierarchy shows as expected 3`] = `
+Array [
+  Object {
+    "id": "6",
+    "signal": "remove",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 4`] = `
+Array [
+  Object {
+    "id": "2",
+    "props": Array [
+      Object {
+        "prop": "anchorMin",
+        "type": "float2",
+        "value": "[2;4]",
+      },
+    ],
+    "signal": "update",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 5`] = `
+Array [
+  Object {
+    "id": "2",
+    "props": Array [
+      Object {
+        "prop": "anchorMin",
+        "type": "float2",
+        "value": null,
+      },
+    ],
+    "signal": "update",
+  },
+]
+`;
+
+exports[`Verify hierarchy shows as expected 6`] = `
 Array [
   Object {
     "id": "7",
@@ -143,18 +185,18 @@ Array [
   },
   Object {
     "id": "7",
-    "parentId": "4",
+    "parentId": "3",
     "signal": "setParent",
   },
   Object {
     "id": "8",
-    "parentId": "4",
+    "parentId": "3",
     "signal": "setParent",
   },
 ]
 `;
 
-exports[`Verify hierarchy shows as expected 4`] = `
+exports[`Verify hierarchy shows as expected 7`] = `
 Array [
   Object {
     "id": "7",
@@ -163,7 +205,7 @@ Array [
 ]
 `;
 
-exports[`Verify hierarchy shows as expected 5`] = `
+exports[`Verify hierarchy shows as expected 8`] = `
 Array [
   Object {
     "id": "9",
@@ -184,13 +226,13 @@ Array [
   Object {
     "after": "8",
     "id": "9",
-    "parentId": "4",
+    "parentId": "3",
     "signal": "setParent",
   },
 ]
 `;
 
-exports[`Verify hierarchy shows as expected 6`] = `
+exports[`Verify hierarchy shows as expected 9`] = `
 Array [
   Object {
     "id": "10",
@@ -198,34 +240,16 @@ Array [
     "type": "box",
   },
   Object {
-    "id": "11",
-    "signal": "create",
-    "type": "smoothTransform",
+    "id": "1",
+    "signal": "remove",
   },
   Object {
+    "after": "3",
     "id": "10",
-    "parentId": "11",
+    "parentId": "4",
     "signal": "setParent",
-  },
-  Object {
-    "id": "3",
-    "signal": "remove",
-  },
-  Object {
-    "after": "4",
-    "id": "11",
-    "parentId": "5",
-    "signal": "setParent",
-  },
-  Object {
-    "id": "9",
-    "signal": "remove",
-  },
-  Object {
-    "id": "8",
-    "signal": "remove",
   },
 ]
 `;
 
-exports[`Verify hierarchy shows as expected 7`] = `Array []`;
+exports[`Verify hierarchy shows as expected 10`] = `Array []`;
