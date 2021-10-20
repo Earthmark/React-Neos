@@ -1,9 +1,10 @@
 /**
  * The core business logic in a handler, this is normally used in conjunction with propDefinitionsToUpdaters.
  */
-export interface PropDefinition<Input> {
-  stringify(value: Input): string;
-  equals(a: Input, b: Input): boolean;
+export interface PropDefinition<Input, Normalized> {
+  normalize(value: Input): Normalized;
+  stringify(value: Normalized): string;
+  equals(a: Normalized, b: Normalized): boolean;
 }
 
 type Optional<T> = T | undefined;
@@ -28,15 +29,16 @@ export type PropUpdater<T> = (
  * @returns An object if the value changed, containing the new value to assign the property to.
  * If the inner value is null, the value is being reset/undefined. If the wrapper is null, no change was made.
  */
-function diffProp<Input>(
-  { equals, stringify }: PropDefinition<Input>,
+function diffProp<Input, Normalized>(
+  { equals, stringify, normalize }: PropDefinition<Input, Normalized>,
   oldProp: Optional<Input>,
   newProp: Optional<Input>
 ): { value: string | null } | null {
+  const n = newProp !== undefined ? normalize(newProp) : undefined;
   const hasO = oldProp !== undefined;
-  const hasN = newProp !== undefined;
-  if ((hasO || hasN) && (!hasO || !hasN || !equals(oldProp, newProp))) {
-    return { value: hasN ? stringify(newProp) : null };
+  const hasN = n !== undefined;
+  if ((hasO || hasN) && (!hasO || !hasN || !equals(normalize(oldProp), n))) {
+    return { value: hasN ? stringify(n) : null };
   }
   return null;
 }
@@ -47,7 +49,7 @@ function diffProp<Input>(
  * @returns An object keyed by the input, where each value is an assembled prop differ.
  */
 export function propDefinitionsToUpdaters<Props>(propBases: {
-  [PropName in keyof Props]: PropDefinition<Props[PropName]>;
+  [PropName in keyof Props]: PropDefinition<Props[PropName], any>;
 }): {
   [PropName in keyof Props]: PropUpdater<Props[PropName]>;
 } {

@@ -25,7 +25,7 @@ const testCases: TestCaseMap = {
     [{ x: 1 }, { y: 1 }, "[0;1]"],
     [{ x: 1 }, { x: 1 }, undefined],
     [{ x: 1 }, {}, "[0;0]"],
-    [{ x: 0, y: 0 }, {}, "[0;0]"], // should be undefined
+    [{ x: 0, y: 0 }, {}, undefined],
     [{ x: 1, y: 1 }, { x: 1, y: 1 }, undefined],
     [{ x: 1, y: 1 }, { x: 1, y: 2 }, "[1;2]"],
     [{ x: 1, y: 1 }, { x: 2, y: 1 }, "[2;1]"],
@@ -36,7 +36,7 @@ const testCases: TestCaseMap = {
     [{ x: 1 }, { x: 1, y: 1, z: 1 }, "[1;1;1]"],
     [{ x: 1 }, { z: 1 }, "[0;0;1]"],
     [{ x: 1 }, { y: 1 }, "[0;1;0]"],
-    [{ x: 0, y: 0, z: 0 }, {}, "[0;0;0]"], // should be undefined
+    [{ x: 0, y: 0, z: 0 }, {}, undefined],
     [{ x: 1, y: 1, z: 1 }, { x: 1, y: 1, z: 1 }, undefined],
     [{ x: 1, y: 1, z: 1 }, { x: 2, y: 1, z: 1 }, "[2;1;1]"],
     [{ x: 1, y: 1, z: 1 }, { x: 1, y: 2, z: 1 }, "[1;2;1]"],
@@ -47,7 +47,7 @@ const testCases: TestCaseMap = {
     [undefined, { x: 1, y: 1, z: 1, w: 1 }, "[1;1;1;1]"],
     [{ x: 1, w: 1 }, { x: 1, y: 1, z: 1, w: 1 }, "[1;1;1;1]"],
     [undefined, {}, "[0;0;0;0]"],
-    [{ x: 0, y: 0, z: 0, w: 0 }, {}, "[0;0;0;0]"], // should be undefined
+    [{ x: 0, y: 0, z: 0, w: 0 }, {}, undefined],
     [{ x: 1, y: 1, z: 1, w: 1 }, { x: 1, y: 1, z: 1, w: 1 }, undefined],
     [{ x: 1, y: 1, z: 1, w: 1 }, { x: 2, y: 1, z: 1, w: 1 }, "[2;1;1;1]"],
     [{ x: 1, y: 1, z: 1, w: 1 }, { x: 1, y: 2, z: 1, w: 1 }, "[1;2;1;1]"],
@@ -58,6 +58,7 @@ const testCases: TestCaseMap = {
     [{ x: 1, y: 1, z: 1 }, undefined, null],
     [undefined, { x: 1, y: 1, z: 1 }, "[1;1;1]"],
     [undefined, {}, "[0;0;0]"],
+    [{ x: 0, y: 0, z: 0 }, {}, undefined],
     [{ x: 1, y: 1, z: 1 }, { x: 1, y: 1, z: 1 }, undefined],
     [{ x: 1, y: 1, z: 1 }, { x: 2, y: 1, z: 1 }, "[2;1;1]"],
     [{ x: 1, y: 1, z: 1 }, { x: 1, y: 2, z: 1 }, "[1;2;1]"],
@@ -68,9 +69,9 @@ const testCases: TestCaseMap = {
     [undefined, { r: 1, g: 1, b: 1, a: 1 }, "[1;1;1;1]"],
     [undefined, { r: 1, g: 1, b: 1 }, "[1;1;1;1]"],
     [undefined, {}, "[0;0;0;1]"],
-    [{ r: 0, g: 0, b: 0, a: 1 }, {}, "[0;0;0;1]"], // should be undefined
+    [{ r: 0, g: 0, b: 0, a: 1 }, {}, undefined],
     [{ r: 1, g: 1, b: 1, a: 1 }, { r: 1, g: 1, b: 1, a: 1 }, undefined],
-    [{ r: 1, g: 1, b: 1, a: 1 }, { r: 1, g: 1, b: 1 }, "[1;1;1;1]"], // should be undefined
+    [{ r: 1, g: 1, b: 1, a: 1 }, { r: 1, g: 1, b: 1 }, undefined],
     [{ r: 1, g: 1, b: 1, a: 1 }, { r: 2, g: 1, b: 1, a: 1 }, "[2;1;1;1]"],
     [{ r: 1, g: 1, b: 1, a: 1 }, { r: 1, g: 2, b: 1, a: 1 }, "[1;2;1;1]"],
     [{ r: 1, g: 1, b: 1, a: 1 }, { r: 1, g: 1, b: 2, a: 1 }, "[1;1;2;1]"],

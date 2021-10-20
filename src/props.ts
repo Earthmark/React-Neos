@@ -8,52 +8,66 @@ export type Vec2D = Partial<{ x: number; y: number }>;
 
 export type Color = Partial<{ r: number; g: number; b: number; a: number }>;
 
-const float: PropDefinition<number> = {
+const float: PropDefinition<number, number> = {
+  normalize: (value) => value,
   stringify: (value) => value.toString(10),
   equals: (a, b) => a === b,
 };
 
-const float2: PropDefinition<Vec2D> = {
-  stringify: (value) => `[${value.x ?? 0};${value.y ?? 0}]`,
+const float2: PropDefinition<Vec2D, Required<Vec2D>> = {
+  normalize: (value) => ({ x: value.x ?? 0, y: value.y ?? 0 }),
+  stringify: (value) => `[${value.x};${value.y}]`,
   equals: (a, b) => a.x === b.x && a.y === b.y,
 };
 
-const float3: PropDefinition<Vec3D> = {
-  stringify: (value) => `[${value.x ?? 0};${value.y ?? 0};${value.z ?? 0}]`,
+const float3: PropDefinition<Vec3D, Required<Vec3D>> = {
+  normalize: (value) => ({ x: value.x ?? 0, y: value.y ?? 0, z: value.z ?? 0 }),
+  stringify: (value) => `[${value.x};${value.y};${value.z}]`,
   equals: (a, b) => a.x === b.x && a.y === b.y && a.z === b.z,
 };
 
-const float4: PropDefinition<Vec4D> = {
-  stringify: (value) =>
-    `[${value.x ?? 0};${value.y ?? 0};${value.z ?? 0};${value.w ?? 0}]`,
+const float4: PropDefinition<Vec4D, Required<Vec4D>> = {
+  normalize: (value) => ({
+    x: value.x ?? 0,
+    y: value.y ?? 0,
+    z: value.z ?? 0,
+    w: value.w ?? 0,
+  }),
+  stringify: (value) => `[${value.x};${value.y};${value.z};${value.w}]`,
   equals: (a, b) => a.x === b.x && a.y === b.y && a.z === b.z && a.w === b.w,
 };
 
-const color: PropDefinition<Color> = {
-  stringify: (value) =>
-    `[${value.r ?? 0};${value.g ?? 0};${value.b ?? 0};${value.a ?? 1}]`,
+const color: PropDefinition<Color, Required<Color>> = {
+  normalize: (value) => ({
+    r: value.r ?? 0,
+    g: value.g ?? 0,
+    b: value.b ?? 0,
+    a: value.a ?? 1,
+  }),
+  stringify: (value) => `[${value.r};${value.g};${value.b};${value.a}]`,
   equals: (a, b) => a.r === b.r && a.g === b.g && a.b === b.b && a.a === b.a,
 };
 
-const floatQ: PropDefinition<Vec3D> = {
-  stringify: (value) => `[${value.x ?? 0};${value.y ?? 0};${value.z ?? 0}]`,
+const floatQ: PropDefinition<Vec3D, Required<Vec3D>> = {
+  normalize: (value) => ({ x: value.x ?? 0, y: value.y ?? 0, z: value.z ?? 0 }),
+  stringify: (value) => `[${value.x};${value.y};${value.z}]`,
   equals: (a, b) => a.x === b.x && a.y === b.y && a.z === b.z,
 };
 
-function normalizeString(value: string | Array<string>): string {
-  if (Array.isArray(value)) {
-    return value.join(" ");
-  } else {
-    return value;
-  }
-}
-
-const string: PropDefinition<string | Array<string>> = {
-  stringify: (value) => encodeURIComponent(normalizeString(value)),
-  equals: (a, b) => normalizeString(a) === normalizeString(b),
+const string: PropDefinition<string | Array<string>, string> = {
+  normalize: (value) => {
+    if (Array.isArray(value)) {
+      return value.join(" ");
+    } else {
+      return value;
+    }
+  },
+  stringify: (value) => encodeURIComponent(value),
+  equals: (a, b) => a === b,
 };
 
-const bool: PropDefinition<boolean> = {
+const bool: PropDefinition<boolean, boolean> = {
+  normalize: (value) => value,
   stringify: (value: boolean) => {
     return value ? "true" : "false";
   },
