@@ -76,23 +76,24 @@ All of the example code below are as if they were defined in `Root.jsx`, a file 
 
 In the future helpers may be included by default, for now it is manual.
 
-| type | value | comment |
-| ---- | ----- | ------- |
-| int | number | Decimals will be truncated.
+| type | value | default value | comment |
+| ---- | ----- | ------------- | ------- |
+| int | number | | Decimals will be truncated. |
+| int2 | { x: number, y: number } | { x: 0, y: 0} | Decimals will be truncated. |
+| int3 | { x: number, y: number, z: number } | {x: 0, y: 0, z: 0} | Decimals will be truncated. |
+| int4 | { x: number, y: number, z: number, w: number } | {x: 0, y: 0, z: 0, w: 0} | Decimals will be truncated. |
 | float | number |
-| float2 | { x: number, y: number } |
-| float3 | { x: number, y: number, z: number } |
-| float4 | { x: number, y: number, z: number, w: number } |
-| floatQ | { x: number, y: number, z: number } | This uses euler angles, in the future quaternions may be supported.
-| color | { r: number, g: number, b: number, a: number } | If alpha is not provided, it is defaulted to 1.
-| string | string \| Array\<string\> | Array strings will be concatenated with a space.
+| float2 | { x: number, y: number } | {x: 0, y: 0}  |
+| float3 | { x: number, y: number, z: number } | {x: 0, y: 0, z: 0}  |
+| float4 | { x: number, y: number, z: number, w: number } | {x: 0, y: 0, z: 0}  |
+| floatQ | { x: number, y: number, z: number } | {x: 0, y: 0, z: 0, w: 0}  | This uses euler angles, in the future quaternions may be supported.
+| color | { r: number, g: number, b: number, a: number } | {r: 0, g: 0, b: 0, a: 1}  | If alpha is not provided, it is defaulted to 1.
+| string | string \| Array\<string\> | {x: 0, y: 0, z: 0, w: 0}  | Array strings will be concatenated with a space.
 | bool | boolean |
 
-**NOTE:** if one of these fields is not defined it is considered `0`, with the exception of the `a` channel for `Color`, that is defaulted to `1`.
+_The default values only apply if a property value is missing a component. For instance if `{r: 1}` is provided for a color `{r:1, b:0, g:0, a:1}` is sent to the client._
 
-For this reason, be careful when defining a scale property as undefined components will currently default to `0`. This may change in the future.
-
-**NOTE 2:** Rotation is currently a `float3`, this may change in the future.
+If a property is not set or is set to `undefined`, the property will not be set and the component will use its own default. For instance setting the `scale` prop to `{x: 1}` will really set the prop to `{x: 1, y: 0, z: 0}`, but if `scale` is set to `undefined` the client will act as though the value was set to `{x: 1, y: 1, z: 1}`. _In the future, server side props may be able to use different default values._
 
 ## A small red box
 Technical jargon is bland, here's some examples instead.
