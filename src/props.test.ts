@@ -81,6 +81,8 @@ const testCases: TestCaseMap = {
     ["a", undefined, null],
     ["a", "b", "b"],
     ["b", ["a", "b", "c"], "a%20b%20c"],
+    ["b", ["a", undefined, "c"], "a%20c"],
+    ["b", ["a", "", "c"], "a%20c"],
     ["a b c", ["a", "b", "c"], undefined],
     [
       undefined,

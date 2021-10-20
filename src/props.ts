@@ -54,10 +54,10 @@ const floatQ: PropDefinition<Vec3D, Required<Vec3D>> = {
   equals: (a, b) => a.x === b.x && a.y === b.y && a.z === b.z,
 };
 
-const string: PropDefinition<string | Array<string>, string> = {
+const string: PropDefinition<string | Array<string | undefined>, string> = {
   normalize: (value) => {
     if (Array.isArray(value)) {
-      return value.join(" ");
+      return value.filter(v => v).join(" ");
     } else {
       return value;
     }

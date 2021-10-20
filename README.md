@@ -64,14 +64,29 @@ This is the same as `ReactDOM.render`, which is used with the web version.
 
 `createRender` sets up the renderer that proxies events to neos, in the future this will get additional arguments. For now use it directly and then call `wsNeosProxyServer` to start serving the `ws` server.
 
-In the future different types of services can be provided to `renderForEach`, for now only the websocket server is provided out of the box.
+A single renderer created by `createRender` can be provided to different services.
+* `wsNeosProxyServer` - A websocket where the lifetime of the socket is the render state connection.
+* `fileOutput` - _not done_ - Dumps the render output to a file, using an input file of events. This is for serverless systems that have predictable sequence of events. 
+* `httpOutput` - _not done_ - Returns a sequence of events to for the provided event sequence of post, or direct render if get.
 
 All of the example code below are as if they were defined in `Root.jsx`, a file right next to this `server.jsx` file.
 
-### Property types
+### Prop types
 `react-neos` uses objects for most props, for instance a `float3` value of `[1,2,3]` is defined as `{x: 1, y: 2, z: 3}`. This is a bit verbose, and it's suggested you make helpers to create these objects.
 
 In the future helpers may be included by default, for now it is manual.
+
+| type | value | comment |
+| ---- | ----- | ------- |
+| int | number | Decimals will be truncated.
+| float | number |
+| float2 | { x: number, y: number } |
+| float3 | { x: number, y: number, z: number } |
+| float4 | { x: number, y: number, z: number, w: number } |
+| floatQ | { x: number, y: number, z: number } | This uses euler angles, in the future quaternions may be supported.
+| color | { r: number, g: number, b: number, a: number } | If alpha is not provided, it is defaulted to 1.
+| string | string \| Array\<string\> | Array strings will be concatenated with a space.
+| bool | boolean |
 
 **NOTE:** if one of these fields is not defined it is considered `0`, with the exception of the `a` channel for `Color`, that is defaulted to `1`.
 
