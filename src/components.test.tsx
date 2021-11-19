@@ -1,5 +1,5 @@
 import React from 'react';
-import { PropUpdate } from "./renderer";
+import { PropUpdate } from "./signal";
 import TestRenderer from "react-test-renderer";
 import n, { Props, componentDefs} from "./components";
 
@@ -9,7 +9,7 @@ test("Verify hierarchy shows as expected", () => {
 
 test("verify slot stringifies as expected", () => {
   const propDiffs: Array<PropUpdate> = [];
-  componentDefs.transform({
+  componentDefs.transform.updater({
       active: true,
       persistent: true,
       scale: {x: 2, y: 2, z: 2},
@@ -41,8 +41,8 @@ Array [
 const testCases : {
   [key in keyof Props]: 
   {
-    oldProps: Props[key],
-    newProps: Props[key],
+    oldProps: Partial<Props[key]>,
+    newProps: Partial<Props[key]>,
     expected: Array<PropUpdate>
   }[]
 } = {
@@ -102,6 +102,7 @@ const testCases : {
   image: [],
   horizontalLayout: [],
   verticalLayout: [],
+  texture: [],
 }
 
 it.each(
@@ -110,7 +111,7 @@ it.each(
   )
 )("element processes expected diff for set %s", ({name, oldProps, newProps, expected}) => {
   const src: Array<PropUpdate> = [];
-  (componentDefs as any)[name as any](oldProps as any, newProps as any, {
+  (componentDefs as any)[name as any].updater(oldProps as any, newProps as any, {
     diff: (d: any) => src.push(d),
   });
   expect(src).toStrictEqual(expected);

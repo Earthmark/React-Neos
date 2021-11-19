@@ -1,7 +1,13 @@
-import { PropUpdater } from "./propsBase";
+import { ElementPropFactory } from "./propsBase";
 import props from "./props";
 
-type UpdaterInput<Prop> = Prop extends PropUpdater<infer Arg> ? Arg : never;
+type UpdaterInput<Prop> = Prop extends ElementPropFactory<
+  infer Name,
+  infer Arg,
+  infer Normalized
+>
+  ? Arg
+  : never;
 
 type TestCaseMap = {
   [key in keyof typeof props]: [
@@ -56,7 +62,11 @@ const testCases: TestCaseMap = {
     [{ x: 1, y: 1, z: 1, w: 1 }, { x: 1, y: 2, z: 1, w: 1 }, "[1;2;1;1]"],
     [{ x: 1, y: 1, z: 1, w: 1 }, { x: 1, y: 1, z: 2, w: 1 }, "[1;1;2;1]"],
     [{ x: 1, y: 1, z: 1, w: 1 }, { x: 1, y: 1, z: 1, w: 2 }, "[1;1;1;2]"],
-    [{ x: 1.3, y: 1.2, z: 1.1, w: 1.5 }, { x: 1.2, y: 1.3, z: 1.2, w: 1.1 }, undefined],
+    [
+      { x: 1.3, y: 1.2, z: 1.1, w: 1.5 },
+      { x: 1.2, y: 1.3, z: 1.2, w: 1.1 },
+      undefined,
+    ],
   ],
   float: [
     [1, undefined, null],
@@ -102,7 +112,11 @@ const testCases: TestCaseMap = {
     [{ x: 1, y: 1, z: 1, w: 1 }, { x: 1, y: 1.1, z: 1, w: 1 }, "[1;1.1;1;1]"],
     [{ x: 1, y: 1, z: 1, w: 1 }, { x: 1, y: 1, z: 1.1, w: 1 }, "[1;1;1.1;1]"],
     [{ x: 1, y: 1, z: 1, w: 1 }, { x: 1, y: 1, z: 1, w: 1.1 }, "[1;1;1;1.1]"],
-    [{ x: 1.3, y: 1.2, z: 1.1, w: 1.5 }, { x: 1.2, y: 1.3, z: 1.2, w: 1.1 }, "[1.2;1.3;1.2;1.1]"],
+    [
+      { x: 1.3, y: 1.2, z: 1.1, w: 1.5 },
+      { x: 1.2, y: 1.3, z: 1.2, w: 1.1 },
+      "[1.2;1.3;1.2;1.1]",
+    ],
   ],
   floatQ: [
     [{ x: 1, y: 1, z: 1 }, undefined, null],
@@ -155,7 +169,7 @@ it.each(
   )
 )("%s should stringify %s and %s to %s", (type, oldVal, newVal, expected) => {
   const diff = [] as any;
-  (props as any)[type as any](oldVal, newVal, {
+  (props as any)[type as any].field()(oldVal, newVal, {
     diff: (d: any) => diff.push(d),
   });
   expect(diff[0]).toStrictEqual(

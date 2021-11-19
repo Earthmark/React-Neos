@@ -1,4 +1,4 @@
-import { OutboundSignal, InboundSignal } from "./renderer";
+import { OutboundSignal, InboundSignal } from "./signal";
 
 export const nullSymbol: "$" = "$";
 

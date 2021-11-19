@@ -1,7 +1,7 @@
 import React from "react";
 import Reconciler from "react-reconciler";
 import { performance } from "perf_hooks";
-import { componentDefs } from "./components";
+import { ElementId, InboundSignal, OutboundSignal, PropUpdate } from "./signal";
 
 export interface ReactNeosRenderer {
   createInstance(): {
@@ -9,73 +9,27 @@ export interface ReactNeosRenderer {
   };
 }
 
-export type ElementId = string;
-
-export interface CreateSignal {
-  signal: "create";
-  id: ElementId;
-  type: string;
-}
-
-export interface RemoveSignal {
-  signal: "remove";
-  id: ElementId;
-}
-
-export interface PropUpdate {
-  prop: string;
-  type: string;
-  value: string | null;
-}
-
-export interface UpdateSignal {
-  signal: "update";
-  id: ElementId;
-  props: Array<PropUpdate>;
-}
-
-export interface SetParentSignal {
-  signal: "setParent";
-  id: ElementId;
-  parentId: ElementId;
-  after?: ElementId;
-}
-
-export type OutboundSignal =
-  | CreateSignal
-  | RemoveSignal
-  | UpdateSignal
-  | SetParentSignal;
-
-interface EventSignal {
-  signal: "event";
-  id: ElementId;
-  event: string;
-  arg: string;
-}
-
-export type InboundSignal = EventSignal;
-
-interface ComponentUpdate {
-  diff(prop: PropUpdate): void;
-}
-
-export type ComponentUpdater<Props = {}> = (
-  oldProps: Props,
-  newProps: Props,
-  update: ComponentUpdate
+export type ElementUpdater<Props = {}> = (
+  oldProps: Partial<Props>,
+  newProps: Partial<Props>,
+  update: {
+    diff(prop: PropUpdate): void;
+  }
 ) => void;
 
-interface PropsDelta {
-  diffs: Array<PropUpdate>;
-}
-
-type ObjectRefs<K extends string, T> = {
-  [Key in K]: {
-    type: T;
+export type FieldRefs<Fields> = {
+  [Field in keyof Fields]: {
+    type: Fields[Field];
     id: string;
   };
 };
+
+export type ElementRefFactory<Refs = {}> = (id: ElementId) => FieldRefs<Refs>;
+
+export interface ElementTemplate<Props = {}, Refs = {}> {
+  updater: ElementUpdater<Props>;
+  refFactory: ElementRefFactory<Refs>;
+}
 
 interface Container {
   rootId: string;
@@ -86,32 +40,32 @@ interface Container {
 type Instance = {
   id: string;
   container: Container;
-  updater: UpdateFunc;
+  updater: ElementUpdater<any>;
+  refs: any;
 };
 
-type UpdateFunc = ComponentUpdater<Record<string, any>>;
-
-/*
-ElementDefinitions extends { [prop: string]: any }
-definitions?: {
-  [ElementType in keyof ElementDefinitions]: ComponentUpdater<
-    ElementDefinitions[ElementType]
-  >;
-}
-*/
-
-export default function createRender(node: React.ReactNode): ReactNeosRenderer {
+export default function createRender<
+  ElementTemplates extends {
+    [ElementName in ElementNames]: ElementTemplate<any, any>;
+  },
+  ElementNames extends keyof ElementTemplates & string
+>(
+  node: React.ReactNode,
+  elementTemplates: ElementTemplates
+): ReactNeosRenderer {
   const reconciler = Reconciler<
-    keyof typeof componentDefs,
+    ElementNames,
     Record<string, any>,
     Container,
     Instance,
     never,
     never,
     never,
-    ObjectRefs<string, string>,
+    FieldRefs<any>,
     {},
-    PropsDelta,
+    {
+      diffs: Array<PropUpdate>;
+    },
     never,
     NodeJS.Timer,
     number
@@ -129,12 +83,12 @@ export default function createRender(node: React.ReactNode): ReactNeosRenderer {
         id,
         type,
       });
-      const updater = componentDefs[type] as UpdateFunc;
-      if (updater === undefined) {
+      const template = elementTemplates[type];
+      if (template === undefined) {
         throw new Error(`Unknown element type ${type}`);
       }
       const diffs: Array<PropUpdate> = [];
-      updater({}, props, {
+      template.updater({}, props, {
         diff: (prop) => {
           diffs.push(prop);
         },
@@ -149,7 +103,8 @@ export default function createRender(node: React.ReactNode): ReactNeosRenderer {
       return {
         id,
         container,
-        updater,
+        updater: template.updater,
+        refs: template.refFactory(id),
       };
     },
     createTextInstance() {
@@ -252,7 +207,7 @@ export default function createRender(node: React.ReactNode): ReactNeosRenderer {
     },
 
     getPublicInstance(instance) {
-      return {};
+      return instance.refs;
     },
     prepareForCommit() {
       return null;

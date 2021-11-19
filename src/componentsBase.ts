@@ -1,29 +1,22 @@
 import { ReactNode } from "react";
-import { PropUpdater } from "./propsBase";
-import { ComponentUpdater } from "./renderer";
+import { ElementTemplate, ElementUpdater } from "./renderer";
 
-type Optional<T> = T | undefined;
-
-export type ComponentDefinition<Props = {}> = {
-  [Prop in keyof Props]: ComponentPropDefinition<Props[Prop]>;
-};
-
-type ComponentPropDefinition<T extends { [Prop: string]: any }> = (
-  oldProp: Optional<T>,
-  newProp: Optional<T>,
-  update: { diff(o: { type: string; value: string | null }): void }
+export type ElementProp<Value, Type extends string = string> = (
+  oldProp: Value | undefined,
+  newProp: Value | undefined,
+  update: { diff(o: { type: Type; value: string | null }): void }
 ) => void;
 
-type UpdaterToProps<U> = U extends ComponentUpdater<infer Props>
-  ? Props
-  : never;
+export type ElementProps<Props = {}> = {
+  [Prop in keyof Props]: ElementProp<Props[Prop]>;
+};
 
-function definitionToUpdater<Props>(
-  elementDef: ComponentDefinition<Props>
-): ComponentUpdater<Partial<Props>> {
+function elementPropsToUpdater<Props>(
+  elementProps: ElementProps<Props>
+): ElementUpdater<Props> {
   return (oldProps, newProps, update) => {
-    for (const prop in elementDef) {
-      elementDef[prop](oldProps[prop], newProps[prop], {
+    for (const prop in elementProps) {
+      elementProps[prop](oldProps[prop], newProps[prop], {
         diff: (delta) => {
           update.diff({ ...delta, prop });
         },
@@ -31,6 +24,17 @@ function definitionToUpdater<Props>(
     }
   };
 }
+
+type ElementPropsSet<ElementPropsSets> = {
+  [Element in keyof ElementPropsSets]: ElementProps<ElementPropsSets[Element]>;
+};
+
+type ElementTemplateSet<ElementPropsSets> = {
+  [Element in keyof ElementPropsSets]: ElementTemplate<
+    ElementPropsSets[Element],
+    any
+  >;
+};
 
 /**
  * Converts a set of element definitions into element updaters, ready for use in the NeosRenderer.
@@ -40,29 +44,39 @@ function definitionToUpdater<Props>(
  * @param definitions A keyed set of element definitions.
  * @returns A keyed set of element updaters.
  */
-export function definitionsToUpdaters<DefinitionProperties>(definitions: {
-  [Element in keyof DefinitionProperties]: ComponentDefinition<
-    DefinitionProperties[Element]
-  >;
-}): {
-  [Element in keyof DefinitionProperties]: ComponentUpdater<
-    Partial<DefinitionProperties[Element]>
-  >;
-} {
-  const result: {
-    [Element in keyof DefinitionProperties]?: ComponentUpdater<
-      Partial<DefinitionProperties[Element]>
-    >;
-  } = {};
+export function elementPropsSetToTemplates<ElementPropSets>(
+  definitions: ElementPropsSet<ElementPropSets>
+): ElementTemplateSet<ElementPropSets> {
+  const result: Partial<ElementTemplateSet<ElementPropSets>> = {};
   for (const key in definitions) {
-    result[key] = definitionToUpdater(definitions[key]);
+    result[key] = elementPropsToTemplate(definitions[key]);
   }
-  return result as any;
+  return result as ElementTemplateSet<ElementPropSets>;
 }
 
-export type UpdatersToProps<D> = D extends ComponentDefinition<infer Props>
+function elementPropsToTemplate<Props, Refs>(
+  definition: ElementProps<Props>
+): ElementTemplate<Props> {
+  return {
+    updater: elementPropsToUpdater(definition),
+    refFactory: (id) => ({} as Refs),
+  };
+}
+
+type UpdaterToProps<U> = U extends ElementTemplate<infer Props, any>
   ? Props
   : never;
+
+type ElementTemplateJsxSignature<Props, Element extends string> = (
+  p: Props
+) => React.ReactElement<Props, Element>;
+
+export type ElementTemplateSetJsxSignatureLibrary<ElementTemplates> = {
+  [Element in keyof ElementTemplates & string]: ElementTemplateJsxSignature<
+    Partial<UpdaterToProps<ElementTemplates[Element]>>,
+    Element
+  >;
+};
 
 /**
  * Extracts the typescript definitions of the properties of a set of element updaters as rendering functions.
@@ -80,16 +94,14 @@ export type UpdatersToProps<D> = D extends ComponentDefinition<infer Props>
  * NOTE: The type signature of the result is a lie,
  * a set of strings is returned by typescript recognizes it as a set of functions.
  *
- * @param updaters The set of updaters to map the props from.
+ * @param templates The set of element templates to map the props from.
  * @returns A map of key -> key, with type definitions that look like React element construction functions.
  */
-export function updatersToComponents<Updaters>(updaters: Updaters): {
-  [Element in keyof Updaters & string]: (
-    p: UpdaterToProps<Updaters[Element]>
-  ) => React.ReactElement<UpdaterToProps<Updaters[Element]>, Element>;
-} {
+export function elementTemplatesToJsxPrototypes<ElementTemplates>(
+  templates: ElementTemplates
+): ElementTemplateSetJsxSignatureLibrary<ElementTemplates> {
   return Object.fromEntries(
-    Object.keys(updaters).map((e) => [e, e])
+    Object.keys(templates).map((e) => [e, e])
   ) as unknown as any;
 }
 
@@ -99,7 +111,7 @@ export function updatersToComponents<Updaters>(updaters: Updaters): {
  * @returns A type declaration that implies the element has react children.
  */
 export function hasReactChildren(): {
-  children: PropUpdater<ReactNode>;
+  children: ElementProp<ReactNode>;
 } {
-  return { children: () => null };
+  return {} as unknown as any;
 }

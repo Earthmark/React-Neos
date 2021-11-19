@@ -1,6 +1,6 @@
 import React from 'react';
 import createRender from "./renderer";
-import n from "./components";
+import n, {componentDefs} from "./components";
 
 interface Fixture {
   toggleCanvas?: boolean,
@@ -46,7 +46,7 @@ test("Verify hierarchy shows as expected", () => {
     </React.Fragment>;
   }
 
-  const renderer = createRender(<TestComponent/>);
+  const renderer = createRender(<TestComponent/>, componentDefs);
   const instance = renderer.createInstance();
 
   expect(instance.render()).toMatchSnapshot();
@@ -96,13 +96,13 @@ test("Verify hierarchy shows as expected", () => {
 });
 
 test("unexpected components raise errors", () => {
-  const renderer = createRender(<div/>);
+  const renderer = createRender(<div/>, componentDefs);
   const instance = renderer.createInstance();
   expect(() => instance.render()).toThrowError();
 });
 
 test("components raise errors when they unexpectedly contain text", () => {
-  const renderer = createRender(<n.transform>{"I'm illegal!" as any}</n.transform>);
+  const renderer = createRender(<n.transform>{"I'm illegal!" as any}</n.transform>, componentDefs);
   const instance = renderer.createInstance();
   expect(() => instance.render()).toThrowError();
 });
