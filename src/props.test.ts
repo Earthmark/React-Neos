@@ -1,5 +1,6 @@
 import { ElementPropFactory } from "./propsBase";
 import props from "./props";
+import { PropUpdate } from "./signal";
 
 type UpdaterInput<Prop> = Prop extends ElementPropFactory<
   infer Name,
@@ -9,12 +10,14 @@ type UpdaterInput<Prop> = Prop extends ElementPropFactory<
   ? Arg
   : never;
 
+type TestCaseInput<PropFactory> = [
+  UpdaterInput<PropFactory> | undefined,
+  UpdaterInput<PropFactory> | undefined,
+  string | null | undefined
+];
+
 type TestCaseMap = {
-  [key in keyof typeof props]: [
-    UpdaterInput<typeof props[key]> | undefined,
-    UpdaterInput<typeof props[key]> | undefined,
-    string | null | undefined
-  ][];
+  [key in keyof typeof props]: TestCaseInput<typeof props[key]>[];
 };
 
 const testCases: TestCaseMap = {
@@ -163,21 +166,36 @@ const testCases: TestCaseMap = {
   ],
 };
 
-it.each(
-  Object.entries(testCases).flatMap(([k, v]) =>
-    v.map(([o, n, e]) => [k, o, n, e])
-  )
-)("%s should stringify %s and %s to %s", (type, oldVal, newVal, expected) => {
-  const diff = [] as any;
-  (props as any)[type as any].field()(oldVal, newVal, {
-    diff: (d: any) => diff.push(d),
+function testPropFactory<
+  TypeName extends string,
+  PropFactory extends ElementPropFactory<TypeName, unknown, unknown>
+>(
+  typeName: TypeName,
+  factory: PropFactory,
+  [oldValue, newValue, expected]: TestCaseInput<PropFactory>
+) {
+  const diff: Omit<PropUpdate<TypeName>, "prop">[] = [];
+  factory.field().field(oldValue, newValue, {
+    diff: (d: Omit<PropUpdate<TypeName>, "prop">) => diff.push(d),
   });
   expect(diff[0]).toStrictEqual(
     expected === undefined
       ? undefined
       : {
-          type: type,
+          type: typeName,
           value: expected,
         }
   );
+}
+
+test("Test case maps", () => {
+  for (const cases in testCases) {
+    for (const testCase of testCases[cases as keyof typeof testCases]) {
+      testPropFactory(
+        cases as any,
+        (props as any)[cases as any] as any,
+        testCase
+      );
+    }
+  }
 });

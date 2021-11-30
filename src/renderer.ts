@@ -1,6 +1,5 @@
 import React from "react";
 import Reconciler from "react-reconciler";
-import { performance } from "perf_hooks";
 import { ElementId, InboundSignal, OutboundSignal, PropUpdate } from "./signal";
 
 export interface ReactNeosRenderer {
@@ -17,16 +16,19 @@ export type ElementUpdater<Props = {}> = (
   }
 ) => void;
 
-export type FieldRefs<Fields> = {
-  [Field in keyof Fields]: {
-    type: Fields[Field];
-    id: string;
-  };
+export type FieldRef<TypeName extends string> = {
+  type: TypeName;
+  name: string;
+  elementId: string;
 };
 
-export type ElementRefFactory<Refs = {}> = (id: ElementId) => FieldRefs<Refs>;
+export type FieldRefs<Fields> = {
+  [Field in keyof Fields]: FieldRef<Extract<Fields[Field], string>>;
+};
 
-export interface ElementTemplate<Props = {}, Refs = {}> {
+export type ElementRefFactory<Refs> = (id: ElementId) => FieldRefs<Refs>;
+
+export interface ElementTemplate<Props, Refs> {
   updater: ElementUpdater<Props>;
   refFactory: ElementRefFactory<Refs>;
 }
@@ -41,7 +43,7 @@ type Instance = {
   id: string;
   container: Container;
   updater: ElementUpdater<any>;
-  refs: any;
+  refs: FieldRefs<any>;
 };
 
 export default function createRender<
@@ -64,7 +66,7 @@ export default function createRender<
     FieldRefs<any>,
     {},
     {
-      diffs: Array<PropUpdate>;
+      diffs: Array<PropUpdate<any>>;
     },
     never,
     NodeJS.Timer,
@@ -87,7 +89,7 @@ export default function createRender<
       if (template === undefined) {
         throw new Error(`Unknown element type ${type}`);
       }
-      const diffs: Array<PropUpdate> = [];
+      const diffs: Array<PropUpdate<any>> = [];
       template.updater({}, props, {
         diff: (prop) => {
           diffs.push(prop);
@@ -178,7 +180,7 @@ export default function createRender<
     },
 
     prepareUpdate(instance, type, oldProps, newProps) {
-      const diffs: Array<PropUpdate> = [];
+      const diffs: Array<PropUpdate<any>> = [];
       instance.updater(oldProps, newProps, {
         diff: (prop) => {
           diffs.push(prop);

@@ -1,5 +1,7 @@
 import prop from "./props";
 import {
+  elementPropsToUpdater,
+  elementPropsToTemplate,
   hasReactChildren,
   elementPropsSetToTemplates,
   elementTemplatesToJsxPrototypes,
@@ -29,24 +31,24 @@ const base2DComponentDef = {
   pivot: prop.float2.field(),
 };
 
-export const componentDefs = elementPropsSetToTemplates({
-  transform: {
+export const componentDefs = {
+  transform: elementPropsToTemplate({
     ...base3DComponentDef,
     ...hasReactChildren(),
-  },
-  smoothTransform: {
+  }),
+  smoothTransform: elementPropsToTemplate({
     ...base3DComponentDef,
     ...hasReactChildren(),
     smoothTransformEnabled: prop.bool.field(),
     smoothSpeed: prop.float.field(),
-  },
-  spinner: {
+  }),
+  spinner: elementPropsToTemplate({
     ...base3DComponentDef,
     ...hasReactChildren(),
     speed: prop.float3.field(),
     range: prop.float3.field(),
-  },
-  box: {
+  }),
+  box: elementPropsToTemplate({
     ...base3DComponentDef,
     albedoColor: prop.color.field(),
     emissiveColor: prop.color.field(),
@@ -54,42 +56,42 @@ export const componentDefs = elementPropsSetToTemplates({
     colliderActive: prop.bool.field(),
     characterCollider: prop.bool.field(),
     ignoreRaycasts: prop.bool.field(),
-  },
-  canvas: {
+  }),
+  canvas: elementPropsToTemplate({
     ...base3DComponentDef,
     ...hasReactChildren(),
-  },
-  rect: {
+  }),
+  rect: elementPropsToTemplate({
     ...base2DComponentDef,
     ...hasReactChildren(),
-  },
-  image: {
+  }),
+  image: elementPropsToTemplate({
     ...base2DComponentDef,
     ...hasReactChildren(),
     color: prop.color.field(),
-  },
-  horizontalLayout: {
+  }),
+  horizontalLayout: elementPropsToTemplate({
     ...base2DComponentDef,
     ...hasReactChildren(),
-  },
-  verticalLayout: {
+  }),
+  verticalLayout: elementPropsToTemplate({
     ...base2DComponentDef,
     ...hasReactChildren(),
-  },
-  text: {
+  }),
+  text: elementPropsToTemplate({
     ...base2DComponentDef,
     children: prop.string.field(),
     color: prop.color.field(),
-  },
-  button: {
+  }),
+  button: elementPropsToTemplate({
     ...base2DComponentDef,
     ...hasReactChildren(),
-  },
-  texture: {
+  }),
+  texture: elementPropsToTemplate({
     ...baseComponentDef,
     uri: prop.string.field(),
-  },
-});
+  }),
+};
 
 export type Props = ElementTemplateSetJsxSignatureLibrary<typeof componentDefs>;
 

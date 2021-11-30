@@ -1,40 +1,97 @@
 import { ReactNode } from "react";
-import { ElementTemplate, ElementUpdater } from "./renderer";
+import {
+  ElementTemplate,
+  ElementUpdater,
+  ElementRefFactory,
+  FieldRefs,
+  FieldRef,
+} from "./renderer";
+import { ElementProp, ElementRef } from "./propsBase";
 
-export type ElementProp<Value, Type extends string = string> = (
-  oldProp: Value | undefined,
-  newProp: Value | undefined,
-  update: { diff(o: { type: Type; value: string | null }): void }
-) => void;
-
-export type ElementProps<Props = {}> = {
-  [Prop in keyof Props]: ElementProp<Props[Prop]>;
+export type ElementPropsToUpdaterInput<Fields> = {
+  [Field in keyof Fields]: ElementProp<string, any>;
 };
 
-function elementPropsToUpdater<Props>(
-  elementProps: ElementProps<Props>
-): ElementUpdater<Props> {
+type ElementPropToProp<ElemProp> = ElemProp extends ElementProp<
+  infer TypeName,
+  infer Value
+>
+  ? Value
+  : never;
+
+type ElementPropsToProps<Fields> = {
+  [Field in keyof Fields]: ElementPropToProp<Fields[Field]>;
+};
+
+export function elementPropsToUpdater<
+  Fields extends ElementPropsToUpdaterInput<Fields>
+>(elementProps: Fields): ElementUpdater<ElementPropsToProps<Fields>> {
   return (oldProps, newProps, update) => {
     for (const prop in elementProps) {
-      elementProps[prop](oldProps[prop], newProps[prop], {
-        diff: (delta) => {
-          update.diff({ ...delta, prop });
-        },
-      });
+      const element = elementProps[prop];
+      if (element.field) {
+        element.field(oldProps[prop], newProps[prop], {
+          diff: (delta) => {
+            update.diff({ ...delta, prop });
+          },
+        });
+      }
     }
   };
 }
 
-type ElementPropsSet<ElementPropsSets> = {
-  [Element in keyof ElementPropsSets]: ElementProps<ElementPropsSets[Element]>;
+export type ElementPropsToRefFactoryInput<Fields> = {
+  [Field in keyof Fields]: ElementRef<string>;
 };
 
-type ElementTemplateSet<ElementPropsSets> = {
-  [Element in keyof ElementPropsSets]: ElementTemplate<
-    ElementPropsSets[Element],
-    any
-  >;
+type ElementPropsToRefs<Fields> = {
+  [Field in keyof Fields]: Fields[Field] extends ElementRef<infer TypeName>
+    ? TypeName
+    : never;
 };
+
+function elementPropsToRefFactory<
+  Fields extends ElementPropsToRefFactoryInput<Fields>
+>(elementProps: Fields): ElementRefFactory<ElementPropsToRefs<Fields>> {
+  return (elementId) => {
+    const refs: Partial<FieldRefs<ElementPropsToRefs<Fields>>> = {};
+    for (const prop in elementProps) {
+      const element = elementProps[prop];
+      if (element.ref) {
+        refs[prop] = element.ref(elementId);
+      }
+    }
+    return refs as FieldRefs<ElementPropsToRefs<Fields>>;
+  };
+}
+
+type ElementPropTemplateInput<Fields> =
+  | ElementPropsToUpdaterInput<Fields>
+  | ElementPropsToRefFactoryInput<Fields>;
+
+export function elementPropsToTemplate<
+  Definition extends ElementPropTemplateInput<Definition>
+>(
+  definition: Definition
+): ElementTemplate<
+  ElementPropsToProps<
+    Extract<Definition, ElementPropsToUpdaterInput<Definition>>
+  >,
+  ElementPropsToRefs<
+    Extract<Definition, ElementPropsToRefFactoryInput<Definition>>
+  >
+> {
+  return {
+    updater: elementPropsToUpdater(
+      definition as ElementPropsToUpdaterInput<Definition>
+    ),
+    refFactory: elementPropsToRefFactory(
+      definition as ElementPropsToRefFactoryInput<Definition>
+    ),
+  };
+}
+
+type ElementPropsToTemplateSig = typeof elementPropsToTemplate;
 
 /**
  * Converts a set of element definitions into element updaters, ready for use in the NeosRenderer.
@@ -44,37 +101,37 @@ type ElementTemplateSet<ElementPropsSets> = {
  * @param definitions A keyed set of element definitions.
  * @returns A keyed set of element updaters.
  */
-export function elementPropsSetToTemplates<ElementPropSets>(
-  definitions: ElementPropsSet<ElementPropSets>
-): ElementTemplateSet<ElementPropSets> {
-  const result: Partial<ElementTemplateSet<ElementPropSets>> = {};
-  for (const key in definitions) {
-    result[key] = elementPropsToTemplate(definitions[key]);
+export function elementPropsSetToTemplates<
+  Elements extends {
+    [Element in keyof Elements]: ElementPropTemplateInput<Elements[Element]>;
   }
-  return result as ElementTemplateSet<ElementPropSets>;
+>(definitions: Elements) {
+  const result: Partial<{
+    [Element in keyof Elements]: ReturnType<
+      ElementPropsToTemplateSig<Elements[Element]>
+    >;
+  }> = {};
+  for (const key in definitions) {
+    result[key] = elementPropsToTemplate(definitions[key]) as any;
+  }
+  return result as Required<typeof result>;
 }
 
-function elementPropsToTemplate<Props, Refs>(
-  definition: ElementProps<Props>
-): ElementTemplate<Props> {
-  return {
-    updater: elementPropsToUpdater(definition),
-    refFactory: (id) => ({} as Refs),
-  };
-}
-
-type UpdaterToProps<U> = U extends ElementTemplate<infer Props, any>
-  ? Props
+type UpdaterToReactElementSignature<
+  Element extends string,
+  Template
+> = Template extends ElementTemplate<infer Props, infer Refs>
+  ? ElementTemplateJsxSignature<Props, Refs, Element>
   : never;
 
-type ElementTemplateJsxSignature<Props, Element extends string> = (
+type ElementTemplateJsxSignature<Props, Refs, Element extends string> = (
   p: Props
-) => React.ReactElement<Props, Element>;
+) => React.ReactElement<Partial<Props & { ref: React.Ref<Refs> }>, Element>;
 
 export type ElementTemplateSetJsxSignatureLibrary<ElementTemplates> = {
-  [Element in keyof ElementTemplates & string]: ElementTemplateJsxSignature<
-    Partial<UpdaterToProps<ElementTemplates[Element]>>,
-    Element
+  [Element in keyof ElementTemplates & string]: UpdaterToReactElementSignature<
+    Element,
+    ElementTemplates[Element]
   >;
 };
 
@@ -111,7 +168,7 @@ export function elementTemplatesToJsxPrototypes<ElementTemplates>(
  * @returns A type declaration that implies the element has react children.
  */
 export function hasReactChildren(): {
-  children: ElementProp<ReactNode>;
+  children: ElementProp<"children", ReactNode>;
 } {
   return {} as unknown as any;
 }

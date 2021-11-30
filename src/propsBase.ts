@@ -1,26 +1,35 @@
-import { ElementProp } from "./componentsBase";
+import { PropUpdate } from "./signal";
 
 /**
  * The core business logic in a handler, this is normally used in conjunction with propDefinitionsToUpdaters.
  */
-export interface PropComponents<Input, Normalized = any> {
+export interface PropComponents<Input, Normalized = Input> {
   normalize(value: Input, def?: Normalized): Normalized;
   stringify(value: Normalized): string;
   equals(a: Normalized, b: Normalized): boolean;
 }
 
-type PropComponentsFactory<Input, Normalized> = (
-  def?: Normalized
-) => ElementProp<Input>;
+export type ElementProp<TypeName extends string, Value> = {
+  field: (
+    oldProp: Value | undefined,
+    newProp: Value | undefined,
+    update: {
+      diff(o: Omit<PropUpdate<TypeName>, "prop">): void;
+    }
+  ) => void;
+};
 
-interface FieldRef<TypeName> {
+export type ElementRef<TypeName extends string> = {
+  ref: (elementId: string) => FieldRef<TypeName>;
+};
+
+export interface FieldRef<TypeName extends string> {
   type: TypeName;
-  elementId: string;
   name: string;
+  elementId: string;
 }
 
-function createRefPropComponents<TypeName>(): PropComponents<
-  FieldRef<TypeName>,
+function createRefPropComponents<TypeName extends string>(): PropComponents<
   FieldRef<TypeName>
 > {
   return {
@@ -31,41 +40,51 @@ function createRefPropComponents<TypeName>(): PropComponents<
   };
 }
 
-type RefBuilder<Value> = (elementId: string, name: string) => FieldRef<Value>;
+type RefBuilder<TypeName extends string> = () => {
+  ref: (elementId: string, name: string) => FieldRef<TypeName>;
+};
+
+type PropComponentsFactory<TypeName extends string, Input, Normalized> = (
+  def?: Normalized
+) => ElementProp<TypeName, Input>;
 
 export interface ElementPropFactory<
-  PropTypeName extends string,
-  PropType,
-  NormalizedPropType = PropType
+  TypeName extends string,
+  Input,
+  Normalized = Input
 > {
   indirectRefProp: () => ElementPropFactory<
-    `IField<${PropTypeName}>`,
-    FieldRef<`IField<${PropTypeName}>`>
+    `IField<${TypeName}>`,
+    FieldRef<`IField<${TypeName}>`>
   >;
-  ref: RefBuilder<PropTypeName>;
-  field: PropComponentsFactory<PropType, NormalizedPropType>;
+  ref: RefBuilder<TypeName>;
+  field: PropComponentsFactory<TypeName, Input, Normalized>;
 }
 
-export function createRefPropTemplate<PropName extends string>(
-  type: PropName
-): ElementPropFactory<PropName, FieldRef<PropName>> {
+export function createRefPropTemplate<TypeName extends string>(
+  type: TypeName
+): ElementPropFactory<TypeName, FieldRef<TypeName>> {
   return {
     indirectRefProp: () => createRefPropTemplate(`IField<${type}>`),
-    ref: (elementId, fieldName) => ({ type, elementId, name: fieldName }),
-    field: (defaultValue) => (oldValue, newValue, updater) => {
-      const prop = diffProp(
-        createRefPropComponents(),
-        defaultValue,
-        oldValue,
-        newValue
-      );
-      if (prop !== null) {
-        updater.diff({
-          ...prop,
-          type,
-        });
-      }
-    },
+    ref: () => ({
+      ref: (elementId, name) => ({ type, elementId, name }),
+    }),
+    field: (defaultValue) => ({
+      field: (oldValue, newValue, updater) => {
+        const diff = diffProp(
+          createRefPropComponents(),
+          defaultValue,
+          oldValue,
+          newValue
+        );
+        if (diff !== null) {
+          updater.diff({
+            ...diff,
+            type,
+          });
+        }
+      },
+    }),
   };
 }
 
@@ -97,43 +116,40 @@ function diffProp<Input, Normalized>(
 
 function elementPropComponentsToPropUpdater<
   TypeName extends string,
-  PropType,
-  NormalizedPropType
+  Input,
+  Normalized
 >(
   type: TypeName,
-  definition: PropComponents<PropType, NormalizedPropType>
-): ElementPropFactory<TypeName, PropType, NormalizedPropType> {
+  definition: PropComponents<Input, Normalized>
+): ElementPropFactory<TypeName, Input, Normalized> {
   return {
     indirectRefProp: () => createRefPropTemplate(`IField<${type}>`),
-    ref: (elementId, name) => ({
-      elementId,
-      name,
-      type: type,
+    ref: () => ({
+      ref: (elementId, name) => ({
+        elementId,
+        name,
+        type: type,
+      }),
     }),
-    field: (def) => (oldProp, newProp, delta) => {
-      const updater = diffProp(definition, def, oldProp, newProp);
-      if (updater !== null) {
-        delta.diff({
-          ...updater,
-          type: type,
-        });
-      }
-    },
+    field: (def) => ({
+      field: (oldProp, newProp, delta) => {
+        const updater = diffProp(definition, def, oldProp, newProp);
+        if (updater !== null) {
+          delta.diff({
+            ...updater,
+            type: type,
+          });
+        }
+      },
+    }),
   };
 }
 
-type PropFactorySet<Components> = {
-  [PropName in keyof Components]: PropComponentsToPropFactory<
-    Exclude<PropName, number | symbol>,
-    Components[PropName]
-  >;
-};
-
-type PropComponentsToPropFactory<
-  PropType extends string,
-  Component
-> = Component extends PropComponents<infer Input, infer Normalized>
-  ? ElementPropFactory<PropType, Input, Normalized>
+type FactoryForComponent<
+  TypeName extends string,
+  Components
+> = Components extends PropComponents<infer Input, infer Normalized>
+  ? ElementPropFactory<TypeName, Input, Normalized>
   : never;
 
 /**
@@ -141,13 +157,22 @@ type PropComponentsToPropFactory<
  * @param propBases The primitive components to assemble into fully formed props, where the type name is the key.
  * @returns An object keyed by the input, where each value is an assembled prop differ.
  */
-export function propComponentsToPropFactories<RawProps>(propBases: RawProps) {
-  const result: Partial<PropFactorySet<RawProps>> = {};
+export function propComponentsToPropFactories<
+  FactoryComponents extends {
+    [Prop in keyof FactoryComponents]: PropComponents<unknown, unknown>;
+  }
+>(propBases: FactoryComponents) {
+  const result: Partial<{
+    [PropType in Extract<keyof FactoryComponents, string>]: FactoryForComponent<
+      PropType,
+      FactoryComponents[PropType]
+    >;
+  }> = {};
   for (const key in propBases) {
     result[key] = elementPropComponentsToPropUpdater(
       key,
-      propBases[key] as any
+      propBases[key]
     ) as any;
   }
-  return result as PropFactorySet<RawProps>;
+  return result as Required<typeof result>;
 }
