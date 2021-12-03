@@ -1,4 +1,8 @@
-import { PropComponents, propComponentsToPropFactories } from "./propsBase";
+import {
+  PropComponents,
+  propComponentsToPropFactories,
+  refComponentsToRefFactories,
+} from "./propsBase";
 
 const int: PropComponents<number, number> = {
   normalize: (value) => Math.floor(value),
@@ -154,17 +158,24 @@ const bool: PropComponents<boolean, boolean> = {
   equals: (a, b) => a === b,
 };
 
-export default propComponentsToPropFactories({
-  int,
-  int2,
-  int3,
-  int4,
-  float,
-  float2,
-  float3,
-  float4,
-  floatQ,
-  color,
-  string,
-  bool,
-});
+export default {
+  ...propComponentsToPropFactories({
+    int,
+    int2,
+    int3,
+    int4,
+    float,
+    float2,
+    float3,
+    float4,
+    floatQ,
+    color,
+    string,
+    bool,
+  }),
+  ...refComponentsToRefFactories({
+    slot: "Slot" as "Slot",
+    texture2d: "Texture2D" as "Texture2D",
+    mesh: "Mesh" as "Mesh",
+  }),
+};

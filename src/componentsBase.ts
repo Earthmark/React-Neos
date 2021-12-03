@@ -4,7 +4,6 @@ import {
   ElementUpdater,
   ElementRefFactory,
   FieldRefs,
-  FieldRef,
 } from "./renderer";
 import { ElementProp, ElementRef } from "./propsBase";
 
@@ -60,7 +59,7 @@ function elementPropsToRefFactory<
     for (const prop in elementProps) {
       const element = elementProps[prop];
       if (element.ref) {
-        refs[prop] = element.ref(elementId);
+        refs[prop] = element.ref(elementId, prop);
       }
     }
     return refs as FieldRefs<MapDefRefToRefType<Fields>>;
@@ -123,7 +122,7 @@ export function elementPropsSetToTemplates<
     [Element in keyof Elements]: DefinitionToElementTemplate<Elements[Element]>;
   }> = {};
   for (const key in definitions) {
-    result[key] = elementPropsToTemplate(definitions[key]) as any;
+    result[key] = elementPropsToTemplate(definitions[key]);
   }
   return result as {
     [Element in keyof Elements]: DefinitionToElementTemplate<Elements[Element]>;
@@ -138,7 +137,7 @@ type UpdaterToReactElementSignature<
   : never;
 
 type ReactElementSignatureProps<Props, Refs> = Partial<
-  Props & { ref: React.Ref<Refs> }
+  Props & { ref: React.LegacyRef<Refs> }
 >;
 
 type ElementTemplateJsxSignature<Props, Refs, Element extends string> = (

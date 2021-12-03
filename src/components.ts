@@ -1,7 +1,5 @@
 import prop from "./props";
 import {
-  elementPropsToUpdater,
-  elementPropsToTemplate,
   hasReactChildren,
   elementPropsSetToTemplates,
   elementTemplatesToJsxPrototypes,
@@ -9,10 +7,11 @@ import {
 } from "./componentsBase";
 
 const baseComponentDef = {
-  active: prop.bool.field(),
+  active: { ...prop.bool.field(), ...prop.bool.ref() },
   persistent: prop.bool.field(),
   name: prop.string.field(),
   tag: prop.string.field(),
+  self: prop.slot.ref(),
 };
 
 const base3DComponentDef = {

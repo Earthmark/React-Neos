@@ -95,6 +95,22 @@ test("Verify hierarchy shows as expected", () => {
   expect(instance.render()).toStrictEqual([]);
 });
 
+test("Refs Interconnect", () => {
+  const TestComponent = () => {
+    const [current, setter] = React.useState<any>();
+    return <n.text ref={setter}>
+        {current?.active.name}
+      </n.text>;
+  }
+
+  const renderer = createRender(<TestComponent/>, componentDefs);
+  const instance = renderer.createInstance();
+
+  expect(instance.render()).toMatchSnapshot();
+  expect(instance.render()).toStrictEqual([]);
+});
+
+
 test("unexpected components raise errors", () => {
   const renderer = createRender(<div/>, componentDefs);
   const instance = renderer.createInstance();

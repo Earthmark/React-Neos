@@ -20,7 +20,7 @@ export type ElementProp<TypeName extends string, Value> = {
 };
 
 export type ElementRef<TypeName extends string> = {
-  ref: (elementId: string) => FieldRef<TypeName>;
+  ref: (elementId: string, name: string) => FieldRef<TypeName>;
 };
 
 export interface FieldRef<TypeName extends string> {
@@ -40,9 +40,7 @@ function createRefPropComponents<TypeName extends string>(): PropComponents<
   };
 }
 
-type RefBuilder<TypeName extends string> = () => {
-  ref: (elementId: string, name: string) => FieldRef<TypeName>;
-};
+type RefBuilder<TypeName extends string> = () => ElementRef<TypeName>;
 
 type PropComponentsFactory<TypeName extends string, Input, Normalized> = (
   def?: Normalized
@@ -61,11 +59,16 @@ export interface ElementPropFactory<
   field: PropComponentsFactory<TypeName, Input, Normalized>;
 }
 
-export function createRefPropTemplate<TypeName extends string>(
+export type ElementRefFactory<TypeName extends string> = ElementPropFactory<
+  TypeName,
+  FieldRef<TypeName>
+>;
+
+export function createRefPropFactory<TypeName extends string>(
   type: TypeName
-): ElementPropFactory<TypeName, FieldRef<TypeName>> {
+): ElementRefFactory<TypeName> {
   return {
-    indirectRefProp: () => createRefPropTemplate(`IField<${type}>`),
+    indirectRefProp: () => createRefPropFactory(`IField<${type}>`),
     ref: () => ({
       ref: (elementId, name) => ({ type, elementId, name }),
     }),
@@ -123,7 +126,7 @@ function elementPropComponentsToPropUpdater<
   definition: PropComponents<Input, Normalized>
 ): ElementPropFactory<TypeName, Input, Normalized> {
   return {
-    indirectRefProp: () => createRefPropTemplate(`IField<${type}>`),
+    indirectRefProp: () => createRefPropFactory(`IField<${type}>`),
     ref: () => ({
       ref: (elementId, name) => ({
         elementId,
@@ -175,4 +178,26 @@ export function propComponentsToPropFactories<
     ) as any;
   }
   return result as Required<typeof result>;
+}
+
+export function refComponentsToRefFactories<
+  RefComponents extends {
+    [Ref in keyof RefComponents]: Extract<any, string>;
+  }
+>(
+  refs: RefComponents
+): {
+  [RefType in Extract<keyof RefComponents, string>]: ElementRefFactory<
+    RefComponents[RefType]
+  >;
+} {
+  const result: Partial<{
+    [RefType in keyof RefComponents]: ElementRefFactory<RefComponents[RefType]>;
+  }> = {};
+  for (const key in refs) {
+    result[key] = createRefPropFactory(refs[key]);
+  }
+  return result as {
+    [RefType in keyof RefComponents]: ElementRefFactory<RefComponents[RefType]>;
+  };
 }

@@ -210,6 +210,7 @@ export default function createRender<
     },
 
     getPublicInstance(instance) {
+      console.log(instance);
       return instance.refs;
     },
     prepareForCommit() {
@@ -239,7 +240,12 @@ export default function createRender<
 
       return {
         render(signal?: Array<InboundSignal>): Array<OutboundSignal> {
-          reconciler.updateContainer(node, container);
+          var oldQueueCount, newQueueCount;
+          do {
+            oldQueueCount = containerInfo.eventQueue.length;
+            reconciler.updateContainer(node, container);
+            newQueueCount = containerInfo.eventQueue.length;
+          } while (oldQueueCount !== newQueueCount);
           const queue = containerInfo.eventQueue;
           containerInfo.eventQueue = [];
           return queue;

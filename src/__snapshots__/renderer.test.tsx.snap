@@ -1,5 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Refs Interconnect 1`] = `
+Array [
+  Object {
+    "id": "1",
+    "signal": "create",
+    "type": "text",
+  },
+  Object {
+    "id": "root",
+    "signal": "remove",
+  },
+  Object {
+    "id": "1",
+    "parentId": "root",
+    "signal": "setParent",
+  },
+  Object {
+    "id": "1",
+    "props": Array [
+      Object {
+        "prop": "children",
+        "type": "string",
+        "value": "active",
+      },
+    ],
+    "signal": "update",
+  },
+]
+`;
+
 exports[`Verify hierarchy shows as expected 1`] = `
 Array [
   Object {
