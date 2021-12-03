@@ -1,6 +1,7 @@
 import React from "react";
 import Reconciler from "react-reconciler";
 import { ElementId, InboundSignal, OutboundSignal, PropUpdate } from "./signal";
+import { performance } from "perf_hooks";
 
 export interface ReactNeosRenderer {
   createInstance(): {
@@ -22,8 +23,8 @@ export type FieldRef<TypeName extends string> = {
   elementId: string;
 };
 
-export type FieldRefs<Fields> = {
-  [Field in keyof Fields]: FieldRef<Extract<Fields[Field], string>>;
+export type FieldRefs<FieldTypes> = {
+  [Field in keyof FieldTypes]: FieldRef<Extract<FieldTypes[Field], string>>;
 };
 
 export type ElementRefFactory<Refs> = (id: ElementId) => FieldRefs<Refs>;

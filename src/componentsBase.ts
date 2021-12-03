@@ -9,23 +9,23 @@ import {
 import { ElementProp, ElementRef } from "./propsBase";
 
 export type ElementPropsToUpdaterInput<Fields> = {
-  [Field in keyof Fields]: ElementProp<string, any>;
+  [Field in keyof Fields]: ElementProp<any, any>;
 };
 
-type ElementPropToProp<ElemProp> = ElemProp extends ElementProp<
-  infer TypeName,
+type ElementPropToType<ElemProp> = ElemProp extends ElementProp<
+  any,
   infer Value
 >
   ? Value
   : never;
 
-type ElementPropsToProps<Fields> = {
-  [Field in keyof Fields]: ElementPropToProp<Fields[Field]>;
+type MapDefPropToType<T> = {
+  [E in keyof T]: ElementPropToType<T[E]>;
 };
 
 export function elementPropsToUpdater<
   Fields extends ElementPropsToUpdaterInput<Fields>
->(elementProps: Fields): ElementUpdater<ElementPropsToProps<Fields>> {
+>(elementProps: Fields): ElementUpdater<MapDefPropToType<Fields>> {
   return (oldProps, newProps, update) => {
     for (const prop in elementProps) {
       const element = elementProps[prop];
@@ -41,57 +41,65 @@ export function elementPropsToUpdater<
 }
 
 export type ElementPropsToRefFactoryInput<Fields> = {
-  [Field in keyof Fields]: ElementRef<string>;
+  [Field in keyof Fields]: ElementRef<any>;
 };
 
-type ElementPropsToRefs<Fields> = {
-  [Field in keyof Fields]: Fields[Field] extends ElementRef<infer TypeName>
-    ? TypeName
-    : never;
+type ElementRefToType<ElemRef> = ElemRef extends ElementRef<infer TypeName>
+  ? TypeName
+  : never;
+
+type MapDefRefToRefType<T> = {
+  [E in keyof T]: ElementRefToType<T[E]>;
 };
 
 function elementPropsToRefFactory<
   Fields extends ElementPropsToRefFactoryInput<Fields>
->(elementProps: Fields): ElementRefFactory<ElementPropsToRefs<Fields>> {
+>(elementProps: Fields): ElementRefFactory<MapDefRefToRefType<Fields>> {
   return (elementId) => {
-    const refs: Partial<FieldRefs<ElementPropsToRefs<Fields>>> = {};
+    const refs: Partial<FieldRefs<MapDefRefToRefType<Fields>>> = {};
     for (const prop in elementProps) {
       const element = elementProps[prop];
       if (element.ref) {
         refs[prop] = element.ref(elementId);
       }
     }
-    return refs as FieldRefs<ElementPropsToRefs<Fields>>;
+    return refs as FieldRefs<MapDefRefToRefType<Fields>>;
   };
 }
 
-type ElementPropTemplateInput<Fields> =
-  | ElementPropsToUpdaterInput<Fields>
-  | ElementPropsToRefFactoryInput<Fields>;
+type ElementPropTemplateInput<Props, Refs> =
+  | ElementPropsToUpdaterInput<Props>
+  | ElementPropsToRefFactoryInput<Refs>;
+
+type FilterDefinitionToProps<T> = {
+  [E in keyof T]: Extract<T[E], ElementProp<any, any>>;
+};
+
+type FilterDefinitionToRefs<T> = {
+  [E in keyof T]: Extract<T[E], ElementRef<any>>;
+};
+
+type DefinitionToElementTemplate<Definition> = ElementTemplate<
+  MapDefPropToType<FilterDefinitionToProps<Definition>>,
+  MapDefRefToRefType<FilterDefinitionToRefs<Definition>>
+>;
 
 export function elementPropsToTemplate<
-  Definition extends ElementPropTemplateInput<Definition>
->(
-  definition: Definition
-): ElementTemplate<
-  ElementPropsToProps<
-    Extract<Definition, ElementPropsToUpdaterInput<Definition>>
-  >,
-  ElementPropsToRefs<
-    Extract<Definition, ElementPropsToRefFactoryInput<Definition>>
-  >
-> {
+  Definition extends ElementPropTemplateInput<unknown, unknown>
+>(definition: Definition): DefinitionToElementTemplate<Definition> {
   return {
     updater: elementPropsToUpdater(
-      definition as ElementPropsToUpdaterInput<Definition>
+      definition as ElementPropsToUpdaterInput<
+        FilterDefinitionToProps<Definition>
+      >
     ),
     refFactory: elementPropsToRefFactory(
-      definition as ElementPropsToRefFactoryInput<Definition>
+      definition as ElementPropsToRefFactoryInput<
+        FilterDefinitionToRefs<Definition>
+      >
     ),
   };
 }
-
-type ElementPropsToTemplateSig = typeof elementPropsToTemplate;
 
 /**
  * Converts a set of element definitions into element updaters, ready for use in the NeosRenderer.
@@ -100,21 +108,26 @@ type ElementPropsToTemplateSig = typeof elementPropsToTemplate;
  *
  * @param definitions A keyed set of element definitions.
  * @returns A keyed set of element updaters.
+ *
  */
 export function elementPropsSetToTemplates<
   Elements extends {
-    [Element in keyof Elements]: ElementPropTemplateInput<Elements[Element]>;
+    [Element in keyof Elements]: ElementPropTemplateInput<unknown, unknown>;
   }
->(definitions: Elements) {
+>(
+  definitions: Elements
+): {
+  [Element in keyof Elements]: DefinitionToElementTemplate<Elements[Element]>;
+} {
   const result: Partial<{
-    [Element in keyof Elements]: ReturnType<
-      ElementPropsToTemplateSig<Elements[Element]>
-    >;
+    [Element in keyof Elements]: DefinitionToElementTemplate<Elements[Element]>;
   }> = {};
   for (const key in definitions) {
     result[key] = elementPropsToTemplate(definitions[key]) as any;
   }
-  return result as Required<typeof result>;
+  return result as {
+    [Element in keyof Elements]: DefinitionToElementTemplate<Elements[Element]>;
+  };
 }
 
 type UpdaterToReactElementSignature<
@@ -124,13 +137,17 @@ type UpdaterToReactElementSignature<
   ? ElementTemplateJsxSignature<Props, Refs, Element>
   : never;
 
+type ReactElementSignatureProps<Props, Refs> = Partial<
+  Props & { ref: React.Ref<Refs> }
+>;
+
 type ElementTemplateJsxSignature<Props, Refs, Element extends string> = (
-  p: Props
-) => React.ReactElement<Partial<Props & { ref: React.Ref<Refs> }>, Element>;
+  p: ReactElementSignatureProps<Props, Refs>
+) => React.ReactElement<ReactElementSignatureProps<Props, Refs>, Element>;
 
 export type ElementTemplateSetJsxSignatureLibrary<ElementTemplates> = {
-  [Element in keyof ElementTemplates & string]: UpdaterToReactElementSignature<
-    Element,
+  [Element in keyof ElementTemplates]: UpdaterToReactElementSignature<
+    Extract<Element, string>,
     ElementTemplates[Element]
   >;
 };

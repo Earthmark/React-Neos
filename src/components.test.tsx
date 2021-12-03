@@ -2,9 +2,60 @@ import React from 'react';
 import { PropUpdate } from "./signal";
 import TestRenderer from "react-test-renderer";
 import n, { Props, componentDefs} from "./components";
+import prop from "./props";
+import {
+  elementPropsToTemplate,
+  elementTemplatesToJsxPrototypes
+} from "./componentsBase";
+
+const simpleElement = elementPropsToTemplate({
+  taco: prop.bool.field(),
+});
+
+const simpleObj = elementTemplatesToJsxPrototypes({ elem: simpleElement });
+
+test("Single Bool element can be created and matches snapshot", () => {
+  expect(TestRenderer.create(<simpleObj.elem taco={true} />).toJSON()).toMatchInlineSnapshot(`
+<elem
+  taco={true}
+/>
+`);
+});
+test("Single boolean element can be updated.", () => {
+  const propDiffs: Array<PropUpdate> = [];
+  simpleElement.updater({
+      taco: false 
+    },
+    {
+      taco: true 
+    },
+    {
+      diff: d => propDiffs.push(d)
+    }
+  );
+  expect(propDiffs).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "prop": "taco",
+    "type": "bool",
+    "value": "true",
+  },
+]
+`);
+});
 
 test("Verify hierarchy shows as expected", () => {
-  expect(TestRenderer.create(<n.transform scale={{x: 3, y: 3, z: 3}} />).toJSON()).toMatchSnapshot();
+  expect(TestRenderer.create(<n.transform scale={{ x: 3, y: 3, z: 3 }} />).toJSON()).toMatchInlineSnapshot(`
+<transform
+  scale={
+    Object {
+      "x": 3,
+      "y": 3,
+      "z": 3,
+    }
+  }
+/>
+`);
 });
 
 test("verify slot stringifies as expected", () => {
