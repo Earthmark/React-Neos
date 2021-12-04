@@ -63,7 +63,7 @@ Array [
     "props": Array [
       Object {
         "prop": "material",
-        "type": "Material",
+        "type": "ref",
         "value": "1.self",
       },
     ],

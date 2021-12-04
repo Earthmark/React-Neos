@@ -1,6 +1,6 @@
 import React from 'react';
 import createRender from "./renderer";
-import {ElementToRef, useNeosRef} from "./componentsBase";
+import {useNeosRef} from "./componentsBase";
 import n, {componentDefs} from "./components";
 
 interface Fixture {
@@ -113,7 +113,6 @@ test("Refs Interconnect", () => {
   expect(instance.render()).toMatchSnapshot();
   expect(instance.render()).toStrictEqual([]);
 });
-
 
 test("unexpected components raise errors", () => {
   const renderer = createRender(<div/>, componentDefs);

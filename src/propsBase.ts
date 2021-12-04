@@ -1,4 +1,5 @@
 import { PropUpdate } from "./signal";
+import { FieldRef } from "./renderer";
 
 /**
  * The core business logic in a handler, this is normally used in conjunction with propDefinitionsToUpdaters.
@@ -9,24 +10,18 @@ export interface PropComponents<Input, Normalized = Input> {
   equals(a: Normalized, b: Normalized): boolean;
 }
 
-export type ElementProp<TypeName extends string, Value> = {
+export interface ElementProp<Value> {
   field: (
     oldProp: Value | undefined,
     newProp: Value | undefined,
     update: {
-      diff(o: Omit<PropUpdate<TypeName>, "prop">): void;
+      diff(o: Omit<PropUpdate, "prop">): void;
     }
   ) => void;
-};
+}
 
-export type ElementRef<TypeName extends string> = {
+export interface ElementRef<TypeName extends string> {
   ref: (elementId: string, name: string) => FieldRef<TypeName>;
-};
-
-export interface FieldRef<TypeName extends string> {
-  type: TypeName;
-  name: string;
-  elementId: string;
 }
 
 function createRefPropComponents<TypeName extends string>(): PropComponents<
@@ -42,9 +37,9 @@ function createRefPropComponents<TypeName extends string>(): PropComponents<
 
 type RefBuilder<TypeName extends string> = () => ElementRef<TypeName>;
 
-type PropComponentsFactory<TypeName extends string, Input, Normalized> = (
+type PropComponentsFactory<Input, Normalized> = (
   def?: Normalized
-) => ElementProp<TypeName, Input>;
+) => ElementProp<Input>;
 
 export interface ElementPropFactory<
   TypeName extends string,
@@ -56,7 +51,7 @@ export interface ElementPropFactory<
     FieldRef<`IField<${TypeName}>`>
   >;
   ref: RefBuilder<TypeName>;
-  field: PropComponentsFactory<TypeName, Input, Normalized>;
+  field: PropComponentsFactory<Input, Normalized>;
 }
 
 export type ElementRefFactory<TypeName extends string> = ElementPropFactory<
@@ -70,7 +65,11 @@ export function createRefPropFactory<TypeName extends string>(
   return {
     indirectRefProp: () => createRefPropFactory(`IField<${type}>`),
     ref: () => ({
-      ref: (elementId, name) => ({ type, elementId, name }),
+      ref: (elementId, name) => ({
+        type,
+        elementId,
+        name,
+      }),
     }),
     field: (defaultValue) => ({
       field: (oldValue, newValue, updater) => {
@@ -83,7 +82,7 @@ export function createRefPropFactory<TypeName extends string>(
         if (diff !== null) {
           updater.diff({
             ...diff,
-            type,
+            type: "ref",
           });
         }
       },
@@ -131,7 +130,7 @@ function elementPropComponentsToPropUpdater<
       ref: (elementId, name) => ({
         elementId,
         name,
-        type: type,
+        type,
       }),
     }),
     field: (def) => ({
@@ -140,7 +139,7 @@ function elementPropComponentsToPropUpdater<
         if (updater !== null) {
           delta.diff({
             ...updater,
-            type: type,
+            type,
           });
         }
       },

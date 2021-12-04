@@ -27,8 +27,8 @@ function v2<CompInput, CompNormalized>(
 ): PropComponents<Partial<V2<CompInput>>, V2<CompNormalized>> {
   return {
     normalize: (value, oDef) => ({
-      x: value.x !== undefined ? d.normalize(value.x) : def.x,
-      y: value.y !== undefined ? d.normalize(value.y) : def.y,
+      x: value.x !== undefined ? d.normalize(value.x) : oDef?.x ?? def.x,
+      y: value.y !== undefined ? d.normalize(value.y) : oDef?.y ?? def.y,
     }),
     stringify: (value) => `[${d.stringify(value.x)};${d.stringify(value.y)}]`,
     equals: (a, b) => d.equals(a.x, b.x) && d.equals(a.y, b.y),

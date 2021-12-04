@@ -62,7 +62,7 @@ export const componentDefs = elementPropsSetToTemplates({
     material: prop.material.field(),
   },
   unlitMaterial: {
-    color: prop.color.field(),
+    color: { ...prop.color.field(), ...prop.color.ref() },
     self: prop.material.ref(),
   },
   canvas: {

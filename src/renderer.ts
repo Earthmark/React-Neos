@@ -18,11 +18,11 @@ export type ElementUpdater<Props = {}> = (
   }
 ) => void;
 
-export type FieldRef<TypeName extends string> = {
+export interface FieldRef<TypeName extends string> {
   type: TypeName;
   name: string;
   elementId: string;
-};
+}
 
 export type FieldRefs<FieldTypes> = {
   [Field in keyof FieldTypes]: FieldRef<Extract<FieldTypes[Field], string>>;
@@ -41,12 +41,12 @@ interface Container {
   eventQueue: Array<OutboundSignal>;
 }
 
-type Instance = {
+interface Instance {
   id: string;
   container: Container;
   updater: ElementUpdater<any>;
   refs: FieldRefs<any>;
-};
+}
 
 export default function createRender<
   AdditionalComponents extends Record<
@@ -69,7 +69,7 @@ export default function createRender<
     FieldRefs<any>,
     {},
     {
-      diffs: Array<PropUpdate<any>>;
+      diffs: Array<PropUpdate>;
     },
     never,
     NodeJS.Timer,
@@ -92,7 +92,7 @@ export default function createRender<
       if (template === undefined) {
         throw new Error(`Unknown element type ${type}`);
       }
-      const diffs: Array<PropUpdate<any>> = [];
+      const diffs: Array<PropUpdate> = [];
       template.updater({}, props, {
         diff: (prop) => {
           diffs.push(prop);
@@ -183,7 +183,7 @@ export default function createRender<
     },
 
     prepareUpdate(instance, type, oldProps, newProps) {
-      const diffs: Array<PropUpdate<any>> = [];
+      const diffs: Array<PropUpdate> = [];
       instance.updater(oldProps, newProps, {
         diff: (prop) => {
           diffs.push(prop);
@@ -212,7 +212,6 @@ export default function createRender<
     },
 
     getPublicInstance(instance) {
-      console.log(instance);
       return instance.refs;
     },
     prepareForCommit() {

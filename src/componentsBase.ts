@@ -8,13 +8,10 @@ import {
 import { ElementProp, ElementRef } from "./propsBase";
 
 export type ElementPropsToUpdaterInput<Fields> = {
-  [Field in keyof Fields]: ElementProp<any, any>;
+  [Field in keyof Fields]: ElementProp<any>;
 };
 
-type ElementPropToType<ElemProp> = ElemProp extends ElementProp<
-  any,
-  infer Value
->
+type ElementPropToType<ElemProp> = ElemProp extends ElementProp<infer Value>
   ? Value
   : never;
 
@@ -76,7 +73,7 @@ type FilterByValue<Source, ValueFilter> = {
     : never]: Source[Key];
 };
 
-type FilterDefinitionToProps<T> = FilterByValue<T, ElementProp<any, any>>;
+type FilterDefinitionToProps<T> = FilterByValue<T, ElementProp<any>>;
 
 type FilterDefinitionToRefs<T> = FilterByValue<T, ElementRef<any>>;
 
@@ -203,7 +200,7 @@ export function elementTemplatesToJsxPrototypes<ElementTemplates>(
  * @returns A type declaration that implies the element has react children.
  */
 export function hasReactChildren(): {
-  children: ElementProp<"children", ReactNode>;
+  children: ElementProp<ReactNode>;
 } {
   return {} as unknown as any;
 }
