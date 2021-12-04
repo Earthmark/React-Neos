@@ -98,10 +98,13 @@ test("Verify hierarchy shows as expected", () => {
 
 test("Refs Interconnect", () => {
   const TestComponent = () => {
-    const [current, setter] = useNeosRef<typeof n.text>();
-    return <n.text ref={setter}>
-        {current?.active.name}
-      </n.text>;
+    const [unlitMat, getUnlitMat] = useNeosRef<typeof n.unlitMaterial>();
+    return <React.Fragment>
+      <n.unlitMaterial color={{ r: 1, g: 0, b: 1 }} ref={getUnlitMat} />
+      <n.transform position={{x: 2, y: 4, z: 19}}>
+        <n.renderer material={unlitMat?.self} />
+      </n.transform>
+    </React.Fragment> ;
   }
 
   const renderer = createRender(<TestComponent/>, componentDefs);
@@ -119,7 +122,7 @@ test("unexpected components raise errors", () => {
 });
 
 test("components raise errors when they unexpectedly contain text", () => {
-  const renderer = createRender(<n.transform>{"I'm illegal!" as any}</n.transform>, componentDefs);
+  const renderer = createRender(<n.transform>{"I'm illegal!" as any}</n.transform>);
   const instance = renderer.createInstance();
   expect(() => instance.render()).toThrowError();
 });

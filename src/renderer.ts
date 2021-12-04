@@ -2,6 +2,7 @@ import React from "react";
 import Reconciler from "react-reconciler";
 import { ElementId, InboundSignal, OutboundSignal, PropUpdate } from "./signal";
 import { performance } from "perf_hooks";
+import { componentDefs } from "./components";
 
 export interface ReactNeosRenderer {
   createInstance(): {
@@ -48,16 +49,17 @@ type Instance = {
 };
 
 export default function createRender<
-  ElementTemplates extends {
-    [ElementName in ElementNames]: ElementTemplate<any, any>;
-  },
-  ElementNames extends keyof ElementTemplates & string
+  AdditionalComponents extends Record<
+    keyof AdditionalComponents,
+    ElementTemplate<any, any>
+  >
 >(
   node: React.ReactNode,
-  elementTemplates: ElementTemplates
+  elementTemplates?: AdditionalComponents
 ): ReactNeosRenderer {
+  const components = elementTemplates ?? componentDefs;
   const reconciler = Reconciler<
-    ElementNames,
+    Extract<keyof typeof components, string>,
     Record<string, any>,
     Container,
     Instance,
@@ -86,7 +88,7 @@ export default function createRender<
         id,
         type,
       });
-      const template = elementTemplates[type];
+      const template = components[type];
       if (template === undefined) {
         throw new Error(`Unknown element type ${type}`);
       }

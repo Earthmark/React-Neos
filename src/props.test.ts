@@ -167,6 +167,7 @@ const testCases: TestCaseMap = {
   slot: [],
   texture2d: [],
   mesh: [],
+  material: [],
 };
 
 function testPropFactory<

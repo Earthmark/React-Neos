@@ -4,3 +4,4 @@ import Root from "./MoreComplicatedBox";
 
 const render = createRender(<Root />);
 wsNeosProxyServer(render, { port: 8080 });
+console.log("Server started on port 8080");

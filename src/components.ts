@@ -56,6 +56,15 @@ export const componentDefs = elementPropsSetToTemplates({
     characterCollider: prop.bool.field(),
     ignoreRaycasts: prop.bool.field(),
   },
+  renderer: {
+    ...base3DComponentDef,
+    mesh: prop.mesh.field(),
+    material: prop.material.field(),
+  },
+  unlitMaterial: {
+    color: prop.color.field(),
+    self: prop.material.ref(),
+  },
   canvas: {
     ...base3DComponentDef,
     ...hasReactChildren(),

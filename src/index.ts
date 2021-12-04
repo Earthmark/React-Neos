@@ -1,6 +1,8 @@
 import wsNeosProxyServer from "./wsNeosProxyServer";
-import n, { Props } from "./components";
+import n, { Props, componentDefs as coreElements } from "./components";
+import { useNeosRef } from "./componentsBase";
 import createRender from "./renderer";
 
-export { createRender, wsNeosProxyServer, Props };
+export { createRender, coreElements, useNeosRef, wsNeosProxyServer, Props };
+
 export default n;

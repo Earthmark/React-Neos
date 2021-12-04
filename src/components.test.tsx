@@ -154,6 +154,8 @@ const testCases : {
   horizontalLayout: [],
   verticalLayout: [],
   texture: [],
+  renderer: [],
+  unlitMaterial: [],
 }
 
 it.each(

@@ -5,7 +5,44 @@ Array [
   Object {
     "id": "1",
     "signal": "create",
-    "type": "text",
+    "type": "unlitMaterial",
+  },
+  Object {
+    "id": "1",
+    "props": Array [
+      Object {
+        "prop": "color",
+        "type": "color",
+        "value": "[1;0;1;1]",
+      },
+    ],
+    "signal": "update",
+  },
+  Object {
+    "id": "2",
+    "signal": "create",
+    "type": "renderer",
+  },
+  Object {
+    "id": "3",
+    "signal": "create",
+    "type": "transform",
+  },
+  Object {
+    "id": "3",
+    "props": Array [
+      Object {
+        "prop": "position",
+        "type": "float3",
+        "value": "[2;4;19]",
+      },
+    ],
+    "signal": "update",
+  },
+  Object {
+    "id": "2",
+    "parentId": "3",
+    "signal": "setParent",
   },
   Object {
     "id": "root",
@@ -17,12 +54,17 @@ Array [
     "signal": "setParent",
   },
   Object {
-    "id": "1",
+    "id": "3",
+    "parentId": "root",
+    "signal": "setParent",
+  },
+  Object {
+    "id": "2",
     "props": Array [
       Object {
-        "prop": "children",
-        "type": "string",
-        "value": "active",
+        "prop": "material",
+        "type": "Material",
+        "value": "1.self",
       },
     ],
     "signal": "update",
