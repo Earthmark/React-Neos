@@ -1,35 +1,36 @@
 import prop from "./props";
 import {
-  definitionsToUpdaters,
-  updatersToComponents,
   hasReactChildren,
-  UpdatersToProps,
+  elementPropsSetToTemplates,
+  elementTemplatesToJsxPrototypes,
+  ElementTemplateSetJsxSignatureLibrary,
 } from "./componentsBase";
 
 const baseComponentDef = {
-  active: prop.bool,
-  persistent: prop.bool,
-  name: prop.string,
-  tag: prop.string,
+  active: { ...prop.bool.field(), ...prop.bool.ref() },
+  persistent: prop.bool.field(),
+  name: prop.string.field(),
+  tag: prop.string.field(),
+  self: prop.slot.ref(),
 };
 
 const base3DComponentDef = {
   ...baseComponentDef,
-  position: prop.float3,
-  rotation: prop.floatQ,
-  scale: prop.float3,
+  position: prop.float3.field(),
+  rotation: prop.floatQ.field(),
+  scale: prop.float3.field({ x: 1, y: 1, z: 1 }),
 };
 
 const base2DComponentDef = {
   ...baseComponentDef,
-  anchorMin: prop.float2,
-  anchorMax: prop.float2,
-  offsetMin: prop.float2,
-  offsetMax: prop.float2,
-  pivot: prop.float2,
+  anchorMin: prop.float2.field(),
+  anchorMax: prop.float2.field(),
+  offsetMin: prop.float2.field(),
+  offsetMax: prop.float2.field(),
+  pivot: prop.float2.field(),
 };
 
-export const componentDefs = definitionsToUpdaters({
+export const componentDefs = elementPropsSetToTemplates({
   transform: {
     ...base3DComponentDef,
     ...hasReactChildren(),
@@ -37,23 +38,32 @@ export const componentDefs = definitionsToUpdaters({
   smoothTransform: {
     ...base3DComponentDef,
     ...hasReactChildren(),
-    smoothTransformEnabled: prop.bool,
-    smoothSpeed: prop.float,
+    smoothTransformEnabled: prop.bool.field(),
+    smoothSpeed: prop.float.field(),
   },
   spinner: {
     ...base3DComponentDef,
     ...hasReactChildren(),
-    speed: prop.float3,
-    range: prop.float3,
+    speed: prop.float3.field(),
+    range: prop.float3.field(),
   },
   box: {
     ...base3DComponentDef,
-    albedoColor: prop.color,
-    emissiveColor: prop.color,
-    size: prop.float3,
-    colliderActive: prop.bool,
-    characterCollider: prop.bool,
-    ignoreRaycasts: prop.bool,
+    albedoColor: prop.color.field(),
+    emissiveColor: prop.color.field(),
+    size: prop.float3.field({ x: 1, y: 1, z: 1 }),
+    colliderActive: prop.bool.field(),
+    characterCollider: prop.bool.field(),
+    ignoreRaycasts: prop.bool.field(),
+  },
+  renderer: {
+    ...base3DComponentDef,
+    mesh: prop.mesh.field(),
+    material: prop.material.field(),
+  },
+  unlitMaterial: {
+    color: prop.color.field(),
+    self: prop.material.ref(),
   },
   canvas: {
     ...base3DComponentDef,
@@ -66,7 +76,7 @@ export const componentDefs = definitionsToUpdaters({
   image: {
     ...base2DComponentDef,
     ...hasReactChildren(),
-    color: prop.color,
+    color: prop.color.field(),
   },
   horizontalLayout: {
     ...base2DComponentDef,
@@ -78,15 +88,19 @@ export const componentDefs = definitionsToUpdaters({
   },
   text: {
     ...base2DComponentDef,
-    children: prop.string,
-    color: prop.color,
+    children: prop.string.field(),
+    color: prop.color.field(),
   },
   button: {
     ...base2DComponentDef,
     ...hasReactChildren(),
   },
+  texture: {
+    ...baseComponentDef,
+    uri: prop.string.field(),
+  },
 });
 
-export type Props = UpdatersToProps<typeof componentDefs>;
+export type Props = ElementTemplateSetJsxSignatureLibrary<typeof componentDefs>;
 
-export default updatersToComponents(componentDefs);
+export default elementTemplatesToJsxPrototypes(componentDefs);

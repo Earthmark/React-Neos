@@ -1,6 +1,7 @@
 import React from 'react';
 import createRender from "./renderer";
-import n from "./components";
+import {ElementToRef, useNeosRef} from "./componentsBase";
+import n, {componentDefs} from "./components";
 
 interface Fixture {
   toggleCanvas?: boolean,
@@ -46,7 +47,7 @@ test("Verify hierarchy shows as expected", () => {
     </React.Fragment>;
   }
 
-  const renderer = createRender(<TestComponent/>);
+  const renderer = createRender(<TestComponent/>, componentDefs);
   const instance = renderer.createInstance();
 
   expect(instance.render()).toMatchSnapshot();
@@ -95,8 +96,27 @@ test("Verify hierarchy shows as expected", () => {
   expect(instance.render()).toStrictEqual([]);
 });
 
+test("Refs Interconnect", () => {
+  const TestComponent = () => {
+    const [unlitMat, getUnlitMat] = useNeosRef<typeof n.unlitMaterial>();
+    return <React.Fragment>
+      <n.unlitMaterial color={{ r: 1, g: 0, b: 1 }} ref={getUnlitMat} />
+      <n.transform position={{x: 2, y: 4, z: 19}}>
+        <n.renderer material={unlitMat?.self} />
+      </n.transform>
+    </React.Fragment> ;
+  }
+
+  const renderer = createRender(<TestComponent/>, componentDefs);
+  const instance = renderer.createInstance();
+
+  expect(instance.render()).toMatchSnapshot();
+  expect(instance.render()).toStrictEqual([]);
+});
+
+
 test("unexpected components raise errors", () => {
-  const renderer = createRender(<div/>);
+  const renderer = createRender(<div/>, componentDefs);
   const instance = renderer.createInstance();
   expect(() => instance.render()).toThrowError();
 });

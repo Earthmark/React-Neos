@@ -1,15 +1,66 @@
 import React from 'react';
-import { PropUpdate } from "./renderer";
+import { PropUpdate } from "./signal";
 import TestRenderer from "react-test-renderer";
 import n, { Props, componentDefs} from "./components";
+import prop from "./props";
+import {
+  elementPropsToTemplate,
+  elementTemplatesToJsxPrototypes,
+} from "./componentsBase";
+
+const simpleElement = elementPropsToTemplate({
+  taco: prop.bool.field(),
+});
+
+const simpleObj = elementTemplatesToJsxPrototypes({ elem: simpleElement });
+
+test("Single Bool element can be created and matches snapshot", () => {
+  expect(TestRenderer.create(<simpleObj.elem taco={true} />).toJSON()).toMatchInlineSnapshot(`
+<elem
+  taco={true}
+/>
+`);
+});
+test("Single boolean element can be updated.", () => {
+  const propDiffs: Array<PropUpdate> = [];
+  simpleElement.updater({
+      taco: false 
+    },
+    {
+      taco: true 
+    },
+    {
+      diff: d => propDiffs.push(d)
+    }
+  );
+  expect(propDiffs).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "prop": "taco",
+    "type": "bool",
+    "value": "true",
+  },
+]
+`);
+});
 
 test("Verify hierarchy shows as expected", () => {
-  expect(TestRenderer.create(<n.transform scale={{x: 3, y: 3, z: 3}} />).toJSON()).toMatchSnapshot();
+  expect(TestRenderer.create(<n.transform scale={{ x: 3, y: 3, z: 3 }} />).toJSON()).toMatchInlineSnapshot(`
+<transform
+  scale={
+    Object {
+      "x": 3,
+      "y": 3,
+      "z": 3,
+    }
+  }
+/>
+`);
 });
 
 test("verify slot stringifies as expected", () => {
   const propDiffs: Array<PropUpdate> = [];
-  componentDefs.transform({
+  componentDefs.transform.updater({
       active: true,
       persistent: true,
       scale: {x: 2, y: 2, z: 2},
@@ -41,8 +92,8 @@ Array [
 const testCases : {
   [key in keyof Props]: 
   {
-    oldProps: Props[key],
-    newProps: Props[key],
+    oldProps: Partial<Props[key]>,
+    newProps: Partial<Props[key]>,
     expected: Array<PropUpdate>
   }[]
 } = {
@@ -102,6 +153,9 @@ const testCases : {
   image: [],
   horizontalLayout: [],
   verticalLayout: [],
+  texture: [],
+  renderer: [],
+  unlitMaterial: [],
 }
 
 it.each(
@@ -110,7 +164,7 @@ it.each(
   )
 )("element processes expected diff for set %s", ({name, oldProps, newProps, expected}) => {
   const src: Array<PropUpdate> = [];
-  (componentDefs as any)[name as any](oldProps as any, newProps as any, {
+  (componentDefs as any)[name as any].updater(oldProps as any, newProps as any, {
     diff: (d: any) => src.push(d),
   });
   expect(src).toStrictEqual(expected);
