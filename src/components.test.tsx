@@ -5,7 +5,7 @@ import n, { Props, componentDefs} from "./components";
 import prop from "./props";
 import {
   elementPropsToTemplate,
-  elementTemplatesToJsxPrototypes
+  elementTemplatesToJsxPrototypes,
 } from "./componentsBase";
 
 const simpleElement = elementPropsToTemplate({

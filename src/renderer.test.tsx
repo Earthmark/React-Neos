@@ -1,5 +1,6 @@
 import React from 'react';
 import createRender from "./renderer";
+import {ElementToRef, useNeosRef} from "./componentsBase";
 import n, {componentDefs} from "./components";
 
 interface Fixture {
@@ -97,7 +98,7 @@ test("Verify hierarchy shows as expected", () => {
 
 test("Refs Interconnect", () => {
   const TestComponent = () => {
-    const [current, setter] = React.useState<any>();
+    const [current, setter] = useNeosRef<typeof n.text>();
     return <n.text ref={setter}>
         {current?.active.name}
       </n.text>;

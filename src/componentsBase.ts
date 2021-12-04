@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import {
   ElementTemplate,
   ElementUpdater,
@@ -70,13 +70,15 @@ type ElementPropTemplateInput<Props, Refs> =
   | ElementPropsToUpdaterInput<Props>
   | ElementPropsToRefFactoryInput<Refs>;
 
-type FilterDefinitionToProps<T> = {
-  [E in keyof T]: Extract<T[E], ElementProp<any, any>>;
+type FilterByValue<Source, ValueFilter> = {
+  [Key in keyof Source as Source[Key] extends ValueFilter
+    ? Key
+    : never]: Source[Key];
 };
 
-type FilterDefinitionToRefs<T> = {
-  [E in keyof T]: Extract<T[E], ElementRef<any>>;
-};
+type FilterDefinitionToProps<T> = FilterByValue<T, ElementProp<any, any>>;
+
+type FilterDefinitionToRefs<T> = FilterByValue<T, ElementRef<any>>;
 
 type DefinitionToElementTemplate<Definition> = ElementTemplate<
   MapDefPropToType<FilterDefinitionToProps<Definition>>,
@@ -96,7 +98,7 @@ export function elementPropsToTemplate<
       definition as ElementPropsToRefFactoryInput<
         FilterDefinitionToRefs<Definition>
       >
-    ),
+    ) as any,
   };
 }
 
@@ -137,7 +139,7 @@ type UpdaterToReactElementSignature<
   : never;
 
 type ReactElementSignatureProps<Props, Refs> = Partial<
-  Props & { ref: React.LegacyRef<Refs> }
+  Props & { ref: React.Ref<FieldRefs<Refs>> }
 >;
 
 type ElementTemplateJsxSignature<Props, Refs, Element extends string> = (
@@ -150,6 +152,23 @@ export type ElementTemplateSetJsxSignatureLibrary<ElementTemplates> = {
     ElementTemplates[Element]
   >;
 };
+
+export type ElementToRef<Element> = Element extends (p: {
+  ref?: React.Ref<infer Refs>;
+}) => any
+  ? Refs
+  : never;
+
+type UseNeosRefResult<RefType> = [
+  RefType,
+  React.Dispatch<React.SetStateAction<RefType>>
+];
+
+export function useNeosRef<
+  Element
+>(): UseNeosRefResult<ElementToRef<Element> | null> {
+  return React.useState<ElementToRef<Element> | null>(null);
+}
 
 /**
  * Extracts the typescript definitions of the properties of a set of element updaters as rendering functions.
