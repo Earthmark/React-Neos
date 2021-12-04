@@ -7,27 +7,27 @@ import {
 } from "./componentsBase";
 
 const baseComponentDef = {
-  active: { ...prop.bool.field(), ...prop.bool.ref() },
-  persistent: prop.bool.field(),
-  name: prop.string.field(),
-  tag: prop.string.field(),
+  active: prop.bool.refField(),
+  persistent: prop.bool.refField(),
+  name: prop.string.refField(),
+  tag: prop.string.refField(),
   self: prop.slot.ref(),
 };
 
 const base3DComponentDef = {
   ...baseComponentDef,
-  position: prop.float3.field(),
-  rotation: prop.floatQ.field(),
-  scale: prop.float3.field({ x: 1, y: 1, z: 1 }),
+  position: prop.float3.refField(),
+  rotation: prop.floatQ.refField(),
+  scale: prop.float3.refField({ x: 1, y: 1, z: 1 }),
 };
 
 const base2DComponentDef = {
   ...baseComponentDef,
-  anchorMin: prop.float2.field(),
-  anchorMax: prop.float2.field(),
-  offsetMin: prop.float2.field(),
-  offsetMax: prop.float2.field(),
-  pivot: prop.float2.field(),
+  anchorMin: prop.float2.refField(),
+  anchorMax: prop.float2.refField(),
+  offsetMin: prop.float2.refField(),
+  offsetMax: prop.float2.refField(),
+  pivot: prop.float2.refField(),
 };
 
 export const componentDefs = elementPropsSetToTemplates({
@@ -38,31 +38,31 @@ export const componentDefs = elementPropsSetToTemplates({
   smoothTransform: {
     ...base3DComponentDef,
     ...hasReactChildren(),
-    smoothTransformEnabled: prop.bool.field(),
-    smoothSpeed: prop.float.field(),
+    smoothTransformEnabled: prop.bool.refField(),
+    smoothSpeed: prop.float.refField(),
   },
   spinner: {
     ...base3DComponentDef,
     ...hasReactChildren(),
-    speed: prop.float3.field(),
-    range: prop.float3.field(),
+    speed: prop.float3.refField(),
+    range: prop.float3.refField(),
   },
   box: {
     ...base3DComponentDef,
-    albedoColor: prop.color.field(),
-    emissiveColor: prop.color.field(),
-    size: prop.float3.field({ x: 1, y: 1, z: 1 }),
-    colliderActive: prop.bool.field(),
-    characterCollider: prop.bool.field(),
-    ignoreRaycasts: prop.bool.field(),
+    albedoColor: prop.color.refField(),
+    emissiveColor: prop.color.refField(),
+    size: prop.float3.refField({ x: 1, y: 1, z: 1 }),
+    colliderActive: prop.bool.refField(),
+    characterCollider: prop.bool.refField(),
+    ignoreRaycasts: prop.bool.refField(),
   },
   renderer: {
     ...base3DComponentDef,
-    mesh: prop.mesh.field(),
-    material: prop.material.field(),
+    mesh: prop.mesh.refField(),
+    material: prop.material.refField(),
   },
   unlitMaterial: {
-    color: { ...prop.color.field(), ...prop.color.ref() },
+    color: prop.color.refField(),
     self: prop.material.ref(),
   },
   canvas: {
@@ -76,7 +76,7 @@ export const componentDefs = elementPropsSetToTemplates({
   image: {
     ...base2DComponentDef,
     ...hasReactChildren(),
-    color: prop.color.field(),
+    color: prop.color.refField(),
   },
   horizontalLayout: {
     ...base2DComponentDef,
@@ -88,8 +88,8 @@ export const componentDefs = elementPropsSetToTemplates({
   },
   text: {
     ...base2DComponentDef,
-    children: prop.string.field(),
-    color: prop.color.field(),
+    children: prop.string.refField(),
+    color: prop.color.refField(),
   },
   button: {
     ...base2DComponentDef,
@@ -97,7 +97,7 @@ export const componentDefs = elementPropsSetToTemplates({
   },
   texture: {
     ...baseComponentDef,
-    uri: prop.string.field(),
+    uri: prop.string.refField(),
   },
 });
 

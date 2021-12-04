@@ -4,10 +4,9 @@ import { ElementId, InboundSignal, OutboundSignal, PropUpdate } from "./signal";
 import { performance } from "perf_hooks";
 import { componentDefs } from "./components";
 
-export interface ReactNeosRenderer {
-  createInstance(): {
-    render(signal?: Array<InboundSignal>): Array<OutboundSignal>;
-  };
+export interface ElementTemplate<Props, Refs> {
+  updater: ElementUpdater<Props>;
+  refFactory: ElementRefFactory<Refs>;
 }
 
 export type ElementUpdater<Props = {}> = (
@@ -18,21 +17,22 @@ export type ElementUpdater<Props = {}> = (
   }
 ) => void;
 
+export type ElementRefFactory<Refs> = (id: ElementId) => FieldRefs<Refs>;
+
+export type FieldRefs<FieldTypes> = {
+  [Field in keyof FieldTypes]: FieldRef<Extract<FieldTypes[Field], string>>;
+};
+
 export interface FieldRef<TypeName extends string> {
   type: TypeName;
   name: string;
   elementId: string;
 }
 
-export type FieldRefs<FieldTypes> = {
-  [Field in keyof FieldTypes]: FieldRef<Extract<FieldTypes[Field], string>>;
-};
-
-export type ElementRefFactory<Refs> = (id: ElementId) => FieldRefs<Refs>;
-
-export interface ElementTemplate<Props, Refs> {
-  updater: ElementUpdater<Props>;
-  refFactory: ElementRefFactory<Refs>;
+export interface ReactNeosRenderer {
+  createInstance(): {
+    render(signal?: Array<InboundSignal>): Array<OutboundSignal>;
+  };
 }
 
 interface Container {

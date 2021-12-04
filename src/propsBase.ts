@@ -37,9 +37,11 @@ function createRefPropComponents<TypeName extends string>(): PropComponents<
 
 type RefBuilder<TypeName extends string> = () => ElementRef<TypeName>;
 
-type PropComponentsFactory<Input, Normalized> = (
+type FieldBuilder<Input, Normalized> = (def?: Normalized) => ElementProp<Input>;
+
+type RefFieldBuilder<TypeName extends string, Input, Normalized> = (
   def?: Normalized
-) => ElementProp<Input>;
+) => ElementRef<TypeName> & ElementProp<Input>;
 
 export interface ElementPropFactory<
   TypeName extends string,
@@ -51,43 +53,8 @@ export interface ElementPropFactory<
     FieldRef<`IField<${TypeName}>`>
   >;
   ref: RefBuilder<TypeName>;
-  field: PropComponentsFactory<Input, Normalized>;
-}
-
-export type ElementRefFactory<TypeName extends string> = ElementPropFactory<
-  TypeName,
-  FieldRef<TypeName>
->;
-
-export function createRefPropFactory<TypeName extends string>(
-  type: TypeName
-): ElementRefFactory<TypeName> {
-  return {
-    indirectRefProp: () => createRefPropFactory(`IField<${type}>`),
-    ref: () => ({
-      ref: (elementId, name) => ({
-        type,
-        elementId,
-        name,
-      }),
-    }),
-    field: (defaultValue) => ({
-      field: (oldValue, newValue, updater) => {
-        const diff = diffProp(
-          createRefPropComponents(),
-          defaultValue,
-          oldValue,
-          newValue
-        );
-        if (diff !== null) {
-          updater.diff({
-            ...diff,
-            type: "ref",
-          });
-        }
-      },
-    }),
-  };
+  field: FieldBuilder<Input, Normalized>;
+  refField: RefFieldBuilder<TypeName, Input, Normalized>;
 }
 
 /**
@@ -116,6 +83,45 @@ function diffProp<Input, Normalized>(
   return null;
 }
 
+function makeRefBuilder<TypeName extends string>(
+  type: TypeName
+): RefBuilder<TypeName> {
+  return () => ({
+    ref: (elementId, name) => ({
+      elementId,
+      name,
+      type,
+    }),
+  });
+}
+
+function makeFieldBuilder<Input, Normalized>(
+  type: string,
+  definition: PropComponents<Input, Normalized>
+): FieldBuilder<Input, Normalized> {
+  return (def) => ({
+    field: (oldProp, newProp, delta) => {
+      const updater = diffProp(definition, def, oldProp, newProp);
+      if (updater !== null) {
+        delta.diff({
+          ...updater,
+          type,
+        });
+      }
+    },
+  });
+}
+
+function makeRefFieldBuilder<TypeName extends string, Input, Normalized>(
+  refBuilder: RefBuilder<TypeName>,
+  fieldBuilder: FieldBuilder<Input, Normalized>
+): RefFieldBuilder<TypeName, Input, Normalized> {
+  return (def) => ({
+    ...refBuilder(),
+    ...fieldBuilder(def),
+  });
+}
+
 function elementPropComponentsToPropUpdater<
   TypeName extends string,
   Input,
@@ -124,26 +130,33 @@ function elementPropComponentsToPropUpdater<
   type: TypeName,
   definition: PropComponents<Input, Normalized>
 ): ElementPropFactory<TypeName, Input, Normalized> {
+  const ref = makeRefBuilder(type);
+  const field = makeFieldBuilder(type, definition);
   return {
     indirectRefProp: () => createRefPropFactory(`IField<${type}>`),
-    ref: () => ({
-      ref: (elementId, name) => ({
-        elementId,
-        name,
-        type,
-      }),
-    }),
-    field: (def) => ({
-      field: (oldProp, newProp, delta) => {
-        const updater = diffProp(definition, def, oldProp, newProp);
-        if (updater !== null) {
-          delta.diff({
-            ...updater,
-            type,
-          });
-        }
-      },
-    }),
+    ref,
+    field,
+    refField: makeRefFieldBuilder(ref, field),
+  };
+}
+
+export type ElementRefFactory<TypeName extends string> = ElementPropFactory<
+  TypeName,
+  FieldRef<TypeName>
+>;
+
+const refPropComponents = createRefPropComponents();
+
+export function createRefPropFactory<TypeName extends string>(
+  type: TypeName
+): ElementRefFactory<TypeName> {
+  const ref = makeRefBuilder(type);
+  const field = makeFieldBuilder("ref", refPropComponents);
+  return {
+    indirectRefProp: () => createRefPropFactory(`IField<${type}>`),
+    ref,
+    field,
+    refField: makeRefFieldBuilder(ref, field),
   };
 }
 
