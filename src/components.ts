@@ -56,14 +56,23 @@ export const componentDefs = elementPropsSetToTemplates({
     characterCollider: prop.bool.refField(),
     ignoreRaycasts: prop.bool.refField(),
   },
-  renderer: {
+  meshRenderer: {
     ...base3DComponentDef,
+    name: prop.string.refField(),
+    tag: prop.string.refField(),
     mesh: prop.mesh.refField(),
     material: prop.material.refField(),
   },
   unlitMaterial: {
+    name: prop.string.refField(),
+    tag: prop.string.refField(),
     color: prop.color.refField(),
     self: prop.material.ref(),
+  },
+  boxMesh: {
+    name: prop.string.refField(),
+    tag: prop.string.refField(),
+    self: prop.mesh.ref(),
   },
   canvas: {
     ...base3DComponentDef,

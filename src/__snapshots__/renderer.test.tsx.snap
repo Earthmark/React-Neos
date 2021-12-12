@@ -21,7 +21,7 @@ Array [
   Object {
     "id": "2",
     "signal": "create",
-    "type": "renderer",
+    "type": "meshRenderer",
   },
   Object {
     "id": "3",

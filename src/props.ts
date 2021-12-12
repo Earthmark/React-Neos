@@ -176,7 +176,7 @@ export default {
   ...refComponentsToRefFactories({
     slot: "Slot" as "Slot",
     material: "Material" as "Material",
-    texture2d: "Texture2D" as "Texture2D",
+    iTexture2D: "ITexture2D" as "ITexture2D",
     mesh: "Mesh" as "Mesh",
   }),
 };

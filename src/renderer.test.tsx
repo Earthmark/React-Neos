@@ -103,9 +103,9 @@ test("Refs Interconnect", () => {
     return <React.Fragment>
       <n.unlitMaterial color={{ r: 1, g: 0, b: 1 }} ref={refUnlitMat} />
       <n.transform position={{x: 2, y: 4, z: 19}} ref={refTransform} >
-        <n.renderer material={unlitMat?.self} />
+        <n.meshRenderer material={unlitMat?.self} />
       </n.transform>
-    </React.Fragment> ;
+    </React.Fragment>;
   }
 
   const renderer = createRender(<TestComponent/>);

@@ -176,7 +176,14 @@ export function propComponentsToPropFactories<
   FactoryComponents extends {
     [Prop in keyof FactoryComponents]: PropComponents<unknown, unknown>;
   }
->(propBases: FactoryComponents) {
+>(
+  propBases: FactoryComponents
+): {
+  [PropType in Extract<keyof FactoryComponents, string>]: FactoryForComponent<
+    PropType,
+    FactoryComponents[PropType]
+  >;
+} {
   const result: Partial<{
     [PropType in Extract<keyof FactoryComponents, string>]: FactoryForComponent<
       PropType,
@@ -189,7 +196,12 @@ export function propComponentsToPropFactories<
       propBases[key]
     ) as any;
   }
-  return result as Required<typeof result>;
+  return result as {
+    [PropType in Extract<keyof FactoryComponents, string>]: FactoryForComponent<
+      PropType,
+      FactoryComponents[PropType]
+    >;
+  };
 }
 
 export function refComponentsToRefFactories<

@@ -133,9 +133,9 @@ type ReactFactory<Props, Element> = (
   p: Props
 ) => React.ReactElement<Props, Extract<Element, string>>;
 
-export function useNeosRef<
-  Element
->(): UseNeosRefResult<ElementToRef<Element> | null> {
+export function useNeosRef<Element>(
+  _elem?: Element
+): UseNeosRefResult<ElementToRef<Element> | null> {
   return React.useState<ElementToRef<Element> | null>(null);
 }
 

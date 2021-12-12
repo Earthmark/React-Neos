@@ -165,7 +165,7 @@ const testCases: TestCaseMap = {
     [true, false, "false"],
   ],
   slot: [],
-  texture2d: [],
+  iTexture2D: [],
   mesh: [],
   material: [],
 };
