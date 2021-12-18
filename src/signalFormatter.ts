@@ -31,15 +31,15 @@ export function parseSignal(signal?: string): Array<InboundSignal> | undefined {
   if (signal === undefined) {
     return undefined;
   }
-  const [signalType, ...args] = signal.split("+");
+  const [signalType, id, event, arg] = signal.split("+");
   switch (signalType) {
     case "event":
       return [
         {
           signal: "event",
-          id: args[0],
-          event: args[1],
-          arg: args[2],
+          id,
+          event,
+          arg,
         },
       ];
   }

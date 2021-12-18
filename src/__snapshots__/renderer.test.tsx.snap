@@ -21,7 +21,7 @@ Array [
   Object {
     "id": "2",
     "signal": "create",
-    "type": "renderer",
+    "type": "meshRenderer",
   },
   Object {
     "id": "3",
@@ -63,7 +63,7 @@ Array [
     "props": Array [
       Object {
         "prop": "material",
-        "type": "Material",
+        "type": "ref",
         "value": "1.self",
       },
     ],

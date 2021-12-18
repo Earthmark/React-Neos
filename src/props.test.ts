@@ -165,7 +165,7 @@ const testCases: TestCaseMap = {
     [true, false, "false"],
   ],
   slot: [],
-  texture2d: [],
+  iTexture2D: [],
   mesh: [],
   material: [],
 };
@@ -178,9 +178,9 @@ function testPropFactory<
   factory: PropFactory,
   [oldValue, newValue, expected]: TestCaseInput<PropFactory>
 ) {
-  const diff: Omit<PropUpdate<TypeName>, "prop">[] = [];
+  const diff: Omit<PropUpdate, "prop">[] = [];
   factory.field().field(oldValue, newValue, {
-    diff: (d: Omit<PropUpdate<TypeName>, "prop">) => diff.push(d),
+    diff: (d: Omit<PropUpdate, "prop">) => diff.push(d),
   });
   expect(diff[0]).toStrictEqual(
     expected === undefined

@@ -8,22 +8,19 @@ import {
 import { ElementProp, ElementRef } from "./propsBase";
 
 export type ElementPropsToUpdaterInput<Fields> = {
-  [Field in keyof Fields]: ElementProp<any, any>;
+  [Field in keyof Fields]: ElementProp<any>;
 };
-
-type ElementPropToType<ElemProp> = ElemProp extends ElementProp<
-  any,
-  infer Value
->
-  ? Value
-  : never;
 
 type MapDefPropToType<T> = {
   [E in keyof T]: ElementPropToType<T[E]>;
 };
 
+type ElementPropToType<ElemProp> = ElemProp extends ElementProp<infer Value>
+  ? Value
+  : never;
+
 export function elementPropsToUpdater<
-  Fields extends ElementPropsToUpdaterInput<Fields>
+  Fields extends Record<keyof Fields, ElementProp<any>>
 >(elementProps: Fields): ElementUpdater<MapDefPropToType<Fields>> {
   return (oldProps, newProps, update) => {
     for (const prop in elementProps) {
@@ -43,13 +40,13 @@ export type ElementPropsToRefFactoryInput<Fields> = {
   [Field in keyof Fields]: ElementRef<any>;
 };
 
-type ElementRefToType<ElemRef> = ElemRef extends ElementRef<infer TypeName>
-  ? TypeName
-  : never;
-
 type MapDefRefToRefType<T> = {
   [E in keyof T]: ElementRefToType<T[E]>;
 };
+
+type ElementRefToType<ElemRef> = ElemRef extends ElementRef<infer TypeName>
+  ? TypeName
+  : never;
 
 function elementPropsToRefFactory<
   Fields extends ElementPropsToRefFactoryInput<Fields>
@@ -70,35 +67,23 @@ type ElementPropTemplateInput<Props, Refs> =
   | ElementPropsToUpdaterInput<Props>
   | ElementPropsToRefFactoryInput<Refs>;
 
+type DefinitionToElementTemplate<Definition> = ElementTemplate<
+  MapDefPropToType<FilterByValue<Definition, ElementProp<any>>>,
+  MapDefRefToRefType<FilterByValue<Definition, ElementRef<any>>>
+>;
+
 type FilterByValue<Source, ValueFilter> = {
   [Key in keyof Source as Source[Key] extends ValueFilter
     ? Key
     : never]: Source[Key];
 };
 
-type FilterDefinitionToProps<T> = FilterByValue<T, ElementProp<any, any>>;
-
-type FilterDefinitionToRefs<T> = FilterByValue<T, ElementRef<any>>;
-
-type DefinitionToElementTemplate<Definition> = ElementTemplate<
-  MapDefPropToType<FilterDefinitionToProps<Definition>>,
-  MapDefRefToRefType<FilterDefinitionToRefs<Definition>>
->;
-
 export function elementPropsToTemplate<
   Definition extends ElementPropTemplateInput<unknown, unknown>
 >(definition: Definition): DefinitionToElementTemplate<Definition> {
   return {
-    updater: elementPropsToUpdater(
-      definition as ElementPropsToUpdaterInput<
-        FilterDefinitionToProps<Definition>
-      >
-    ),
-    refFactory: elementPropsToRefFactory(
-      definition as ElementPropsToRefFactoryInput<
-        FilterDefinitionToRefs<Definition>
-      >
-    ) as any,
+    updater: elementPropsToUpdater(definition as any),
+    refFactory: elementPropsToRefFactory(definition as any) as any,
   };
 }
 
@@ -112,9 +97,10 @@ export function elementPropsToTemplate<
  *
  */
 export function elementPropsSetToTemplates<
-  Elements extends {
-    [Element in keyof Elements]: ElementPropTemplateInput<unknown, unknown>;
-  }
+  Elements extends Record<
+    keyof Elements,
+    ElementPropTemplateInput<unknown, unknown>
+  >
 >(
   definitions: Elements
 ): {
@@ -131,30 +117,30 @@ export function elementPropsSetToTemplates<
   };
 }
 
-type UpdaterToReactElementSignature<
-  Element extends string,
-  Template
-> = Template extends ElementTemplate<infer Props, infer Refs>
-  ? ElementTemplateJsxSignature<Props, Refs, Element>
-  : never;
-
-type ReactElementSignatureProps<Props, Refs> = Partial<
-  Props & { ref: React.Ref<FieldRefs<Refs>> }
->;
-
-type ElementTemplateJsxSignature<Props, Refs, Element extends string> = (
-  p: ReactElementSignatureProps<Props, Refs>
-) => React.ReactElement<ReactElementSignatureProps<Props, Refs>, Element>;
-
 export type ElementTemplateSetJsxSignatureLibrary<ElementTemplates> = {
-  [Element in keyof ElementTemplates]: UpdaterToReactElementSignature<
-    Extract<Element, string>,
-    ElementTemplates[Element]
-  >;
+  [Element in keyof ElementTemplates]: ElementTemplates[Element] extends ElementTemplate<
+    infer Props,
+    infer Refs
+  >
+    ? ReactFactory<
+        Partial<Props & { ref: (refs: FieldRefs<Refs>) => void }>,
+        Element
+      >
+    : never;
 };
 
-export type ElementToRef<Element> = Element extends (p: {
-  ref?: React.Ref<infer Refs>;
+type ReactFactory<Props, Element> = (
+  p: Props
+) => React.ReactElement<Props, Extract<Element, string>>;
+
+export function useNeosRef<Element>(
+  _elem?: Element
+): UseNeosRefResult<Partial<ElementToRef<Element>>> {
+  return React.useState<Partial<ElementToRef<Element>>>({});
+}
+
+type ElementToRef<Element> = Element extends (p: {
+  ref?: (v: infer Refs) => void;
 }) => any
   ? Refs
   : never;
@@ -163,12 +149,6 @@ type UseNeosRefResult<RefType> = [
   RefType,
   React.Dispatch<React.SetStateAction<RefType>>
 ];
-
-export function useNeosRef<
-  Element
->(): UseNeosRefResult<ElementToRef<Element> | null> {
-  return React.useState<ElementToRef<Element> | null>(null);
-}
 
 /**
  * Extracts the typescript definitions of the properties of a set of element updaters as rendering functions.
@@ -203,7 +183,7 @@ export function elementTemplatesToJsxPrototypes<ElementTemplates>(
  * @returns A type declaration that implies the element has react children.
  */
 export function hasReactChildren(): {
-  children: ElementProp<"children", ReactNode>;
+  children: ElementProp<ReactNode>;
 } {
   return {} as unknown as any;
 }

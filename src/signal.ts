@@ -11,16 +11,16 @@ export interface RemoveSignal {
   id: ElementId;
 }
 
-export interface PropUpdate<TypeName extends string = string> {
+export interface PropUpdate {
   prop: string;
-  type: TypeName;
+  type: string;
   value: string | null;
 }
 
 export interface UpdateSignal {
   signal: "update";
   id: ElementId;
-  props: Array<PropUpdate<any>>;
+  props: Array<PropUpdate>;
 }
 
 export interface SetParentSignal {

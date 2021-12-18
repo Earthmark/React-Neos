@@ -154,8 +154,9 @@ const testCases : {
   horizontalLayout: [],
   verticalLayout: [],
   texture: [],
-  renderer: [],
+  meshRenderer: [],
   unlitMaterial: [],
+  boxMesh: [],
 }
 
 it.each(
