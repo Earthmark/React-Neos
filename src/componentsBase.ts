@@ -123,7 +123,7 @@ export type ElementTemplateSetJsxSignatureLibrary<ElementTemplates> = {
     infer Refs
   >
     ? ReactFactory<
-        Partial<Props & { ref: React.Ref<FieldRefs<Refs>> }>,
+        Partial<Props & { ref: (refs: FieldRefs<Refs>) => void }>,
         Element
       >
     : never;
@@ -135,12 +135,12 @@ type ReactFactory<Props, Element> = (
 
 export function useNeosRef<Element>(
   _elem?: Element
-): UseNeosRefResult<ElementToRef<Element> | null> {
-  return React.useState<ElementToRef<Element> | null>(null);
+): UseNeosRefResult<Partial<ElementToRef<Element>>> {
+  return React.useState<Partial<ElementToRef<Element>>>({});
 }
 
 type ElementToRef<Element> = Element extends (p: {
-  ref?: React.Ref<infer Refs>;
+  ref?: (v: infer Refs) => void;
 }) => any
   ? Refs
   : never;

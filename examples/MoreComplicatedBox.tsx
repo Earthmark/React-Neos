@@ -7,8 +7,8 @@ const MoreComplicatedBox = () => {
 
   return <n.transform>
     <n.unlitMaterial color={{r: 0.25}} ref={matRefGetter} />
-    <n.boxMesh name="Meshy box" ref={meshRefGetter} />
-    <n.meshRenderer mesh={meshRef?.self} material={matRef?.self} />
+    <n.boxMesh ref={meshRefGetter} />
+    <n.meshRenderer mesh={meshRef.self} material={matRef.self} />
   </n.transform>;
 }
 
