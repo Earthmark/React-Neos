@@ -1,13 +1,14 @@
 {
   "name": "react-neos-example",
   "version": "1.0.0",
-  "main": "./index.tsx",
+  "main": "index.js",
+  "type": "module",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node ."
+    "start": "node --loader ts-node/esm ."
   },
   "dependencies": {
-    "react-neos": "file:../"
+    "react-neos": "file:../../"
   },
   "devDependencies": {
     "@types/node": "^16.10.1",

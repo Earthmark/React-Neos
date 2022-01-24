@@ -4,8 +4,8 @@ import {
   ElementUpdater,
   ElementRefFactory,
   FieldRefs,
-} from "./renderer";
-import { ElementProp, ElementRef } from "./propsBase";
+} from "./renderer.js";
+import { ElementProp, ElementRef } from "./propsBase.js";
 
 export type ElementPropsToUpdaterInput<Fields> = {
   [Field in keyof Fields]: ElementProp<any>;

@@ -2,7 +2,7 @@ import {
   PropComponents,
   propComponentsToPropFactories,
   refComponentsToRefFactories,
-} from "./propsBase";
+} from "./propsBase.js";
 
 const int: PropComponents<number, number> = {
   normalize: (value) => Math.floor(value),
@@ -132,6 +132,19 @@ const color = c4(float, { r: 0, g: 0, b: 0, a: 1 });
 
 const floatQ = v3(float, { x: 0, y: 0, z: 0 });
 
+type ColliderTypes = "NoCollision" | "Static" | "Trigger" | "StaticTrigger" | "StaticTriggerAuto" | "Active" | "HapticTrigger" | "HapticStaticTrigger" | "HapticStaticTriggerAuto" | "HapticSampler";
+const colliderType: PropComponents<ColliderTypes> = {
+  normalize: (value) => {
+    if (value === undefined) {
+      return "NoCollision";
+    } else {
+      return value;
+    }
+  },
+  stringify: (value) => encodeURIComponent(value),
+  equals: (a, b) => a === b,
+};
+
 const string: PropComponents<
   string | Array<string | undefined> | undefined,
   string
@@ -171,7 +184,9 @@ export default {
     floatQ,
     color,
     string,
+    uri: string,
     bool,
+    colliderType,
   }),
   ...refComponentsToRefFactories({
     slot: "Slot" as "Slot",

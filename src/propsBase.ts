@@ -1,5 +1,5 @@
-import { PropUpdate } from "./signal";
-import { FieldRef } from "./renderer";
+import { PropUpdate } from "./signal.js";
+import { FieldRef } from "./renderer.js";
 
 /**
  * The core business logic in a handler, this is normally used in conjunction with propDefinitionsToUpdaters.

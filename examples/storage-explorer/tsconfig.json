@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "target": "es5",
+      "module": "ES2020",
+      "jsx": "react",
+      "declaration": true,
+      "esModuleInterop": true,
+      "strict": false,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "allowJs": true,
+      "moduleResolution": "Node"
+    },
+    "exclude": [
+      "node_modules"
+    ]
+  }

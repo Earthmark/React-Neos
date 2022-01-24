@@ -3,6 +3,7 @@
   "version": "0.10.0",
   "license": "MIT",
   "repository": "https://github.com/Earthmark/React-Neos",
+  "type": "module",
   "readme": "README.md",
   "scripts": {
     "prepublish": "npm run build",

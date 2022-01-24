@@ -1,8 +1,8 @@
 import React from "react";
 import Reconciler from "react-reconciler";
-import { ElementId, InboundSignal, OutboundSignal, PropUpdate } from "./signal";
 import { performance } from "perf_hooks";
-import { componentDefs } from "./components";
+import { ElementId, InboundSignal, OutboundSignal, PropUpdate } from "./signal.js";
+import { componentDefs } from "./components.js";
 
 export interface ElementTemplate<Props, Refs> {
   updater: ElementUpdater<Props>;
