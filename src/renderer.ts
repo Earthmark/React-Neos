@@ -31,15 +31,14 @@ export interface FieldRef<TypeName extends string> {
 }
 
 export interface ReactNeosRenderer {
-  createInstance(): {
-    render(signal?: Array<InboundSignal>): Array<OutboundSignal>;
+  createInstance(handler: (signal: OutboundSignal) => void): {
+    render(signal: InboundSignal): void;
   };
 }
 
 interface Container extends LogicalInstance {
   globalInstanceId: number;
   globalEventId: number;
-  eventQueue: Array<OutboundSignal>;
 }
 
 interface RenderedInstance extends LogicalInstance {
@@ -79,7 +78,7 @@ export default function createRender<
   elementTemplates?: AdditionalComponents
 ): ReactNeosRenderer {
   return {
-    createInstance() {
+    createInstance(handler: (signal: OutboundSignal) => void) {
       const components = elementTemplates ?? componentDefs;
       const reconciler = Reconciler<
         Extract<keyof typeof components, string>,
@@ -119,7 +118,7 @@ export default function createRender<
 
         createInstance(type, props, container, context) {
           const id = `${container.globalInstanceId++}`;
-          container.eventQueue.push({
+          handler({
             signal: "create",
             id,
             type,
@@ -138,7 +137,7 @@ export default function createRender<
           };
 
           const diffs: Array<PropUpdate> = [];
-          instance.updater({}, props, {
+          instance.updater({}, props as any, {
             diff: (prop) => {
               diffs.push(prop);
             },
@@ -149,7 +148,7 @@ export default function createRender<
           const delta = diffs.length > 0 ? { diffs } : null;
 
           if (delta && delta.diffs.length > 0) {
-            container.eventQueue.push({
+            handler({
               signal: "update",
               id,
               props: delta.diffs,
@@ -172,7 +171,7 @@ export default function createRender<
 
         clearContainer(container) {
           container.children = {};
-          container.eventQueue.push({
+          handler({
             signal: "remove",
             id: container.id,
           });
@@ -180,7 +179,7 @@ export default function createRender<
 
         appendInitialChild(parentInstance, child) {
           parentInstance.children[child.id] = child;
-          parentInstance.container.eventQueue.push({
+          handler({
             signal: "setParent",
             id: child.id,
             parentId: parentInstance.id,
@@ -189,7 +188,7 @@ export default function createRender<
 
         appendChild(parentInstance, child) {
           parentInstance.children[child.id] = child;
-          parentInstance.container.eventQueue.push({
+          handler({
             signal: "setParent",
             id: child.id,
             parentId: parentInstance.id,
@@ -197,7 +196,7 @@ export default function createRender<
         },
         appendChildToContainer(container, child) {
           container.children[child.id] = child;
-          container.eventQueue.push({
+          handler({
             signal: "setParent",
             id: child.id,
             parentId: container.id,
@@ -206,7 +205,7 @@ export default function createRender<
 
         insertBefore(parentInstance, child, beforeChild) {
           parentInstance.children[child.id] = child;
-          parentInstance.container.eventQueue.push({
+          handler({
             signal: "setParent",
             id: child.id,
             parentId: parentInstance.id,
@@ -215,7 +214,7 @@ export default function createRender<
         },
         insertInContainerBefore(container, child, beforeChild) {
           container.children[child.id] = child;
-          container.eventQueue.push({
+          handler({
             signal: "setParent",
             id: child.id,
             parentId: container.id,
@@ -225,14 +224,14 @@ export default function createRender<
 
         removeChild(parentInstance, child) {
           delete parentInstance.children[child.id];
-          child.container.eventQueue.push({
+          handler({
             signal: "remove",
             id: child.id,
           });
         },
         removeChildFromContainer(container, child) {
           delete container.children[child.id];
-          child.container.eventQueue.push({
+          handler({
             signal: "remove",
             id: child.id,
           });
@@ -243,7 +242,7 @@ export default function createRender<
         },
 
         commitUpdate(instance, updatePayload) {
-          instance.container.eventQueue.push({
+          handler({
             signal: "update",
             id: instance.id,
             props: updatePayload.diffs,
@@ -278,38 +277,31 @@ export default function createRender<
         id: "root",
         globalInstanceId: 1,
         globalEventId: 1,
-        eventQueue: [],
         children: {},
         events: {},
       };
       const container = reconciler.createContainer(
         containerInfo,
         0,
+        null,
         false,
+        null,
+        "rn",
+        (e) => {},
         null
       );
 
+      reconciler.updateContainer(node, container);
+
       return {
-        render(signals?: Array<InboundSignal>): Array<OutboundSignal> {
-          for (const signal of signals ?? []) {
-            const instance = getElementById(signal.id, container);
-            if (instance) {
-              const event = instance.events[signal.signal];
-              if (event) {
-                event(signal.arg);
-              }
+        render(signal: InboundSignal): void {
+          const instance = getElementById(signal.id, container);
+          if (instance) {
+            const event = instance.events[signal.signal];
+            if (event) {
+              event(signal.arg);
             }
           }
-
-          var oldQueueCount, newQueueCount;
-          do {
-            oldQueueCount = containerInfo.eventQueue.length;
-            reconciler.updateContainer(node, container);
-            newQueueCount = containerInfo.eventQueue.length;
-          } while (oldQueueCount !== newQueueCount);
-          const queue = containerInfo.eventQueue;
-          containerInfo.eventQueue = [];
-          return queue;
         },
       };
     },

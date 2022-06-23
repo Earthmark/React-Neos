@@ -126,8 +126,10 @@ const materialComponentBase = {
 const materials = {
   unlitMaterial: {
     ...materialComponentBase,
-    name: prop.string.refField(),
-    tag: prop.string.refField(),
+    color: prop.color.refField(),
+  },
+  pbsSpecularMaterial: {
+    ...materialComponentBase,
     color: prop.color.refField(),
   },
 };
@@ -191,6 +193,10 @@ const rectElements = {
 }
 
 export const componentDefs = elementPropsSetToTemplates({
+  slot: {
+    ...activateComponentDef,
+    ...hasReactChildren(),
+  },
   ...transforms,
   ...colliders,
   ...renderers,

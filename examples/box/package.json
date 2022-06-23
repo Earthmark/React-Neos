@@ -8,15 +8,17 @@
     "start": "node --loader ts-node/esm ."
   },
   "dependencies": {
-    "react-neos": "file:../../"
+    "react-neos": "file:../../",
+    "three": "^0.137.5"
   },
   "devDependencies": {
-    "@types/node": "^16.10.1",
-    "@types/react-test-renderer": "^17.0.1",
     "@types/color-convert": "^2.0.0",
     "@types/jest": "^27.0.2",
+    "@types/node": "^16.10.1",
     "@types/react": "^17.0.24",
     "@types/react-reconciler": "^0.26.3",
+    "@types/react-test-renderer": "^17.0.1",
+    "@types/three": "^0.137.0",
     "@types/ws": "^8.2.0",
     "ts-jest": "^27.0.5",
     "ts-node": "^10.2.1",

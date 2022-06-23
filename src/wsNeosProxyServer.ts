@@ -25,14 +25,10 @@ export default function wsNeosProxyServerRenderer(
   const server = new WebSocketServer(options);
   server.on("connection", (ws) => {
     keepAlive(ws, options?.keepalive);
-    const { render } = renderHandler.createInstance();
+    const { render } = renderHandler.createInstance(msg => ws.send(stringifySignalArray([msg])));
 
-    const processMessage = (msg?: string) =>
-      ws.send(stringifySignalArray(render(parseSignal(msg))));
-
-    processMessage();
     ws.on("message", (message) => {
-      processMessage(message.toString("utf-8"));
+      parseSignal(message.toString("utf-8"))?.forEach(render);
     });
   });
 }
