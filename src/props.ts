@@ -2,7 +2,7 @@ import {
   PropComponents,
   propComponentsToPropFactories,
   refComponentsToRefFactories,
-} from "./propsBase";
+} from "./propsBase.js";
 
 const int: PropComponents<number, number> = {
   normalize: (value) => Math.floor(value),

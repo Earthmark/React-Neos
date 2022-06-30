@@ -1,4 +1,4 @@
-import { stringifySignalArray, parseSignal } from "./signalFormatter";
+import { stringifySignalArray, parseSignal } from "./signalFormatter.js";
 
 test("stringify returns encoded create", () => {
   expect(

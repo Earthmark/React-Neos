@@ -1,6 +1,6 @@
 import { WebSocketServer, WebSocket, ServerOptions } from "ws";
-import { ReactNeosRenderer } from "./renderer";
-import { stringifySignalArray, parseSignal } from "./signalFormatter";
+import { ReactNeosRenderer } from "./renderer.js";
+import { stringifySignalArray, parseSignal } from "./signalFormatter.js";
 
 function keepAlive(ws: WebSocket, keepalive?: number) {
   var isAlive = true;

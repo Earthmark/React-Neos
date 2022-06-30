@@ -1,6 +1,6 @@
-import { ElementPropFactory } from "./propsBase";
-import props from "./props";
-import { PropUpdate } from "./signal";
+import { ElementPropFactory } from "./propsBase.js";
+import props from "./props.js";
+import { PropUpdate } from "./signal.js";
 
 type UpdaterInput<Prop> = Prop extends ElementPropFactory<
   infer Name,
@@ -187,15 +187,18 @@ function testPropFactory<
         }
   );
 }
-
+ 
 test("Test case maps", () => {
   for (const cases in testCases) {
-    for (const testCase of testCases[cases as keyof typeof testCases]) {
-      testPropFactory(
-        cases as any,
-        (props as any)[cases as any] as any,
-        testCase
-      );
+    let caseList = testCases[cases as keyof typeof testCases]
+    if (caseList) {
+      for (const testCase of caseList) {
+        testPropFactory(
+          cases as any,
+          (props as any)[cases as any] as any,
+          testCase
+        );
+      }
     }
   }
 });

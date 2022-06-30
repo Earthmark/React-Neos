@@ -1,4 +1,4 @@
-import { OutboundSignal, InboundSignal } from "./signal";
+import { OutboundSignal, InboundSignal } from "./signal.js";
 
 export const nullSymbol: "$" = "$";
 

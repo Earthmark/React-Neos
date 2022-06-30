@@ -1,12 +1,12 @@
 import React from 'react';
 import TestRenderer from "react-test-renderer";
-import { PropUpdate } from "./signal";
-import n, { Props, componentDefs} from "./components";
-import prop from "./props";
+import { PropUpdate } from "./signal.js";
+import n, { Props, componentDefs} from "./components.js";
+import prop from "./props.js";
 import {
   elementPropsToTemplate,
   elementTemplatesToJsxPrototypes,
-} from "./componentsBase";
+} from "./componentsBase.js";
 
 const simpleElement = elementPropsToTemplate({
   taco: prop.bool.field(),

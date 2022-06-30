@@ -1,10 +1,10 @@
-import prop from "./props";
+import prop from "./props.js";
 import {
   hasReactChildren,
   elementPropsSetToTemplates,
   elementTemplatesToJsxPrototypes,
   ElementTemplateSetJsxSignatureLibrary,
-} from "./componentsBase";
+} from "./componentsBase.js";
 
 const baseComponentDef = {
   name: prop.string.refField(),

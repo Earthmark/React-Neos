@@ -1,8 +1,8 @@
 import React from 'react';
-import createRender from "./renderer";
-import { useNeosRef } from "./componentsBase";
-import n from "./components";
-import { EventSignal, OutboundSignal } from './signal';
+import createRender from "./renderer.js";
+import { useNeosRef } from "./componentsBase.js";
+import n from "./components.js";
+import { EventSignal, OutboundSignal } from './signal.js';
 
 interface Fixture {
   toggleCanvas?: boolean,
