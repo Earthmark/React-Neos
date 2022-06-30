@@ -64,7 +64,7 @@ Array [
       Object {
         "prop": "material",
         "type": "ref",
-        "value": "1.self",
+        "value": "1.material",
       },
     ],
     "signal": "update",
@@ -169,7 +169,7 @@ Array [
   Object {
     "id": "6",
     "signal": "create",
-    "type": "box",
+    "type": "boxMesh",
   },
   Object {
     "after": "5",
@@ -309,7 +309,7 @@ Array [
   Object {
     "id": "10",
     "signal": "create",
-    "type": "box",
+    "type": "boxMesh",
   },
   Object {
     "id": "1",

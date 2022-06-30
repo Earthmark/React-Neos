@@ -32,7 +32,7 @@ const MoreComplicatedBox = () => {
     y: Math.atan2(v.x, v.z) * (180 / Math.PI)
   }
   const rotation1 = {
-    x: Math.atan2(v.x, v.y) * (180 / Math.PI) + angle + 60,
+    x: Math.atan2(v.x, v.y) * (180 / Math.PI) + angle + 240,
     y: Math.atan2(v.x, v.z) * (180 / Math.PI)
   }
   const rotation2 = {
@@ -42,15 +42,15 @@ const MoreComplicatedBox = () => {
 
   return <n.transform>
     <n.unlitMaterial color={{ r: 0.25 }} ref={matRefGetter} />
-    <n.boxMesh ref={meshRefGetter} size={{ x: 0.4, y: 0.15 }} />
+    <n.boxMesh ref={meshRefGetter} size={{ x: 0.1, y: 0.1, z: 0.3 }} />
     <n.transform rotation={rotation0}>
-      <n.meshRenderer position={{ z: 1 }} mesh={mesh} material={material} />
+      <n.meshRenderer position={{ z: 0.4 }} mesh={mesh} material={material} />
     </n.transform>
     <n.transform rotation={rotation1}>
-      <n.meshRenderer position={{ z: 1 }} mesh={mesh} material={material} />
+      <n.meshRenderer position={{ z: 0.4 }} mesh={mesh} material={material} />
     </n.transform>
     <n.transform rotation={rotation2}>
-      <n.meshRenderer position={{ z: 1 }} mesh={mesh} material={material} />
+      <n.meshRenderer position={{ z: 0.4 }} mesh={mesh} material={material} />
     </n.transform>
   </n.transform>;
 }

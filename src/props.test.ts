@@ -16,9 +16,9 @@ type TestCaseInput<PropFactory> = [
   string | null | undefined
 ];
 
-type TestCaseMap = {
+type TestCaseMap = Partial<{
   [key in keyof typeof props]: TestCaseInput<typeof props[key]>[];
-};
+}>;
 
 const testCases: TestCaseMap = {
   int: [
@@ -163,11 +163,7 @@ const testCases: TestCaseMap = {
     [undefined, true, "true"],
     [undefined, false, "false"],
     [true, false, "false"],
-  ],
-  slot: [],
-  iTexture2D: [],
-  mesh: [],
-  material: [],
+  ]
 };
 
 function testPropFactory<

@@ -1,6 +1,6 @@
 import React from 'react';
-import { PropUpdate } from "./signal";
 import TestRenderer from "react-test-renderer";
+import { PropUpdate } from "./signal";
 import n, { Props, componentDefs} from "./components";
 import prop from "./props";
 import {
@@ -89,14 +89,14 @@ Array [
 `);
 });
 
-const testCases : {
+const testCases : Partial<{
   [key in keyof Props]: 
   {
     oldProps: Partial<Props[key]>,
     newProps: Partial<Props[key]>,
     expected: Array<PropUpdate>
   }[]
-} = {
+}> = {
   transform: [{
     oldProps: {
       active: true,
@@ -142,21 +142,7 @@ const testCases : {
         value: "[3;3;3]",
       }
     ],
-  }],
-  smoothTransform: [],
-  spinner: [],
-  box: [],
-  canvas: [],
-  rect: [],
-  text: [],
-  button: [],
-  image: [],
-  horizontalLayout: [],
-  verticalLayout: [],
-  texture: [],
-  meshRenderer: [],
-  unlitMaterial: [],
-  boxMesh: [],
+  }]
 }
 
 it.each(
