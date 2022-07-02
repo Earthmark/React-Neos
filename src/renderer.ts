@@ -1,8 +1,6 @@
 import React from "react";
 import Reconciler from "react-reconciler";
-import { performance } from "perf_hooks";
 import { ElementId, InboundSignal, OutboundSignal, PropUpdate } from "./signal.js";
-import { componentDefs } from "./components.js";
 
 export interface ElementTemplate<Props, Refs> {
   updater: ElementUpdater<Props>;
@@ -75,11 +73,11 @@ export default function createRender<
   >
 >(
   node: React.ReactNode,
-  elementTemplates?: AdditionalComponents
+  elementTemplates: AdditionalComponents
 ): ReactNeosRenderer {
   return {
     createInstance(handler: (signal: OutboundSignal) => void) {
-      const components = elementTemplates ?? componentDefs;
+      const components = elementTemplates;
       const reconciler = Reconciler<
         Extract<keyof typeof components, string>,
         Record<string, any>,

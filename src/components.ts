@@ -206,6 +206,6 @@ export const componentDefs = elementPropsSetToTemplates({
   ...rectElements,
 });
 
-export type Props = ElementTemplateSetJsxSignatureLibrary<typeof componentDefs>;
+export type ElementProps = ElementTemplateSetJsxSignatureLibrary<typeof componentDefs>;
 
 export default elementTemplatesToJsxPrototypes(componentDefs);

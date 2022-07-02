@@ -1,7 +1,7 @@
 import React from 'react';
 import TestRenderer from "react-test-renderer";
 import { PropUpdate } from "./signal.js";
-import n, { Props, componentDefs} from "./components.js";
+import n, { ElementProps, componentDefs} from "./components.js";
 import prop from "./props.js";
 import {
   elementPropsToTemplate,
@@ -90,10 +90,10 @@ Array [
 });
 
 const testCases : Partial<{
-  [key in keyof Props]: 
+  [key in keyof ElementProps]: 
   {
-    oldProps: Partial<Props[key]>,
-    newProps: Partial<Props[key]>,
+    oldProps: Partial<ElementProps[key]>,
+    newProps: Partial<ElementProps[key]>,
     expected: Array<PropUpdate>
   }[]
 }> = {
@@ -147,7 +147,7 @@ const testCases : Partial<{
 
 it.each(
   Object.entries(testCases).flatMap(([k, v]) =>
-    (v as any).map((o: any) => ({ name: k as keyof Props, ...o}))
+    (v as any).map((o: any) => ({ name: k as keyof ElementProps, ...o}))
   )
 )("element processes expected diff for set %s", ({name, oldProps, newProps, expected}) => {
   const src: Array<PropUpdate> = [];

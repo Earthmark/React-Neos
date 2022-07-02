@@ -1,7 +1,7 @@
 import React from 'react';
 import createRender from "./renderer.js";
 import { useNeosRef } from "./componentsBase.js";
-import n from "./components.js";
+import n, { componentDefs } from "./components.js";
 import { EventSignal, OutboundSignal } from './signal.js';
 
 interface Fixture {
@@ -48,7 +48,7 @@ test("Verify hierarchy shows as expected", () => {
     </React.Fragment>;
   }
 
-  const renderer = createRender(<TestComponent />);
+  const renderer = createRender(<TestComponent />, componentDefs);
   const items: Array<OutboundSignal> = [];
   const instance = renderer.createInstance(signal => items.push(signal));
 
@@ -119,7 +119,7 @@ test("Refs Interconnect", () => {
     </React.Fragment>;
   }
 
-  const renderer = createRender(<TestComponent />);
+  const renderer = createRender(<TestComponent />, componentDefs);
   const items: Array<OutboundSignal> = [];
   renderer.createInstance(signal => items.push(signal));
 
@@ -127,13 +127,13 @@ test("Refs Interconnect", () => {
 });
 
 test("unexpected components raise errors", () => {
-  const renderer = createRender(<div />);
+  const renderer = createRender(<div />, componentDefs);
   const items: Array<OutboundSignal> = [];
   expect(() => renderer.createInstance(signal => items.push(signal))).toThrowError();
 });
 
 test("components raise errors when they unexpectedly contain text", () => {
-  const renderer = createRender(<n.transform>{"I'm illegal!" as any}</n.transform>);
+  const renderer = createRender(<n.transform>{"I'm illegal!" as any}</n.transform>, componentDefs);
   const items: Array<OutboundSignal> = [];
   expect(() => renderer.createInstance(signal => items.push(signal))).toThrowError();
 });
