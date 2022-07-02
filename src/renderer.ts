@@ -269,9 +269,23 @@ export default function createRender<
         resetAfterCommit() {},
         preparePortalMount() {},
 
-        now: performance.now,
         scheduleTimeout: setTimeout,
         cancelTimeout: clearTimeout,
+
+        getCurrentEventPriority() {
+          return 0;
+        },
+        getInstanceFromNode(n) {
+          return undefined;
+        },
+        beforeActiveInstanceBlur() {},
+        afterActiveInstanceBlur() {},
+        prepareScopeUpdate(scope, inst) {},
+        getInstanceFromScope(scope) {
+          return null;
+        },
+        detachDeletedInstance(node) {
+        }
       });
       const containerInfo: Container = {
         id: "root",
