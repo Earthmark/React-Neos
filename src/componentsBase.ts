@@ -169,7 +169,7 @@ type UseNeosRefResult<RefType> = [
  * @param templates The set of element templates to map the props from.
  * @returns A map of key -> key, with type definitions that look like React element construction functions.
  */
-export function elementTemplatesToJsxPrototypes<ElementTemplates>(
+export function elementTemplatesToJsxPrototypes<ElementTemplates extends {}>(
   templates: ElementTemplates
 ): ElementTemplateSetJsxSignatureLibrary<ElementTemplates> {
   return Object.fromEntries(
